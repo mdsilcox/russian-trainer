@@ -10,8 +10,8 @@
   <span>Streak: {{ streak.current }} {{ "day" if streak.current == 1 else "days" }}</span>
 </p>
 
-{% if not has_api_key() %}
-<p class="notice">AI feedback is off — set ANTHROPIC_API_KEY (see Settings).</p>
+{% if not ai_enabled() %}
+<p class="notice">{{ ai_off_reason() }} <a href="/settings">Settings</a></p>
 {% endif %}
 {% if too_short %}
 <p class="notice">Less than a minute has passed — keep going, then finish the session.</p>

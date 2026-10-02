@@ -8,14 +8,14 @@
         <h2>Feedback</h2>
         <p class="muted">Claude checks the Russian for case, aspect and motion-verb errors and suggests more natural phrasing. Each check costs about 2–4 cents.</p>
       </div>
-      {% if has_api_key() %}
+      {% if ai_enabled() %}
         <form method="post" action="/workshop/{{ story.id }}/attempts/{{ attempt.id }}/feedback"
               hx-post="/workshop/{{ story.id }}/attempts/{{ attempt.id }}/feedback"
               hx-target="#feedback" hx-swap="outerHTML" hx-disabled-elt="find button">
           <button type="submit" class="primary">Get feedback<span class="htmx-indicator"> (≈30 s…)</span></button>
         </form>
       {% else %}
-        <p class="notice">Set ANTHROPIC_API_KEY (see <a href="/settings">Settings</a>) to get feedback.</p>
+        <p class="notice">{{ ai_off_reason() }} <a href="/settings">Settings</a></p>
       {% endif %}
     </div>
     {% if feedback_error %}<p class="error">{{ feedback_error }}</p>{% endif %}

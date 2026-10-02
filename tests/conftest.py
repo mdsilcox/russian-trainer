@@ -4,6 +4,14 @@ from sqlmodel import Session
 from app.db import make_engine, migrate
 
 
+@pytest.fixture(autouse=True)
+def api_backend_by_default(monkeypatch):
+    """Most tests exercise the API backend; subscription tests switch explicitly."""
+    from app.services import claude
+
+    monkeypatch.setitem(claude._current, "backend", claude.Backend.api)
+
+
 @pytest.fixture
 def engine(tmp_path):
     engine = make_engine(f"sqlite:///{tmp_path / 'test.db'}")

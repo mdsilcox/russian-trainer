@@ -13,3 +13,4 @@ Answers from plan review, 2026-10-02. Machine-readable copy: `config/settings_se
 | Explanations | English | Injected into every feedback prompt. |
 | API budget | ~$10/month | Sonnet 5.5 for story feedback and role-play, Haiku 4.5 for card enrichment, drill generation and answer checks (mapping in `app/services/claude.py`). Usage and cost logged per call, with a warning at 80% of the budget. |
 | Audio | Cloud TTS later | No browser TTS in the MVP. P3.4 adds a cloud TTS provider with its own key from an env var. |
+| AI backend | Claude subscription via `claude -p` (added 2026-10-02) | Default backend, switchable to the API key in Settings. Calls count against plan limits, logged with cost 0; only API calls count toward the $10 budget. Personal use only. |

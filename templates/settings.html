@@ -3,10 +3,26 @@
 {% block head %}<link rel="stylesheet" href="{{ url_for('static', path='settings.css') }}">{% endblock %}
 {% block content %}
 <h1>Settings</h1>
-<p class="{{ 'muted' if has_api_key() else 'notice' }}">
-  Claude API key (ANTHROPIC_API_KEY):
-  {% if has_api_key() %}found.{% else %}<strong>not set</strong>. AI features stay off until you set it and restart the app.{% endif %}
-</p>
+<section class="settings-block" id="ai">
+  <h2>AI</h2>
+  <form method="post" action="/settings/ai-backend" class="backend-choice">
+    {% for value, label, available, reason in backends %}
+      <label class="checkbox">
+        <input type="radio" name="backend" value="{{ value.value }}" {% if value == current_backend %}checked{% endif %}
+               onchange="this.form.submit()">
+        <span><strong>{{ label }}</strong>
+          {% if available %}<span class="muted">· ready</span>{% else %}<span class="muted">· {{ reason }}</span>{% endif %}
+        </span>
+      </label>
+    {% endfor %}
+    <noscript><button type="submit">Save</button></noscript>
+  </form>
+  <p class="muted small">
+    The subscription runs the <code>claude</code> command{% if claude_cli %} ({{ claude_cli }}){% endif %} and counts against your plan's usage limits, for your personal use only.
+    If it says it isn't logged in, run <code>claude</code> in a terminal and type <code>/login</code>.
+    The API key is read from ANTHROPIC_API_KEY ({{ "found" if has_api_key() else "not set" }}) and billed per use.
+  </p>
+</section>
 
 <section class="settings-block">
   <h2>Backups</h2>

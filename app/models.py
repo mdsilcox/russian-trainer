@@ -202,6 +202,7 @@ class ApiUsage(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     task: str
     model: str
+    backend: str = "api"  # "api" (billed per token) or "subscription" (claude -p)
     input_tokens: int
     output_tokens: int
     cache_read_tokens: int = 0

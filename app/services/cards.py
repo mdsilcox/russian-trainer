@@ -30,9 +30,26 @@ def normalize(text: str) -> str:
     return " ".join(text.split())
 
 
+# Latin vowels with an acute accent that models sometimes put inside Russian
+# words (купé), mapped to the Cyrillic look-alike that takes a combining stress mark.
+_LATIN_ACCENTED = {"á": "а", "é": "е", "ó": "о", "ý": "у", "Á": "А", "É": "Е", "Ó": "О"}
+_LATIN_CHARS = "".join(_LATIN_ACCENTED)
+_LATIN_IN_CYRILLIC = re.compile(rf"(?<=[а-яёА-ЯЁ])[{_LATIN_CHARS}]|[{_LATIN_CHARS}](?=[а-яёА-ЯЁ])")
+
+
+def fix_latin_accents(text: str) -> str:
+    """купé (Latin é) → купе́ (Cyrillic е + U+0301), only when touching Cyrillic letters."""
+    return _LATIN_IN_CYRILLIC.sub(lambda m: _LATIN_ACCENTED[m.group()] + STRESS, text)
+
+
+def drop_marks_beside_yo(text: str) -> str:
+    """A word with ё is stressed on the ё, so any other stress mark in it is a mistake: при́нёс → принёс."""
+    return re.sub(r"[\ẃ]+", lambda m: m.group().replace(STRESS, "") if "ё" in m.group().lower() else m.group(), text)
+
+
 def apply_stress_marks(text: str) -> str:
     """Let you type stress with an apostrophe after the vowel: вокза'л → вокза́л."""
-    return re.sub(rf"([{VOWELS}])'", rf"\1{STRESS}", text)
+    return drop_marks_beside_yo(re.sub(rf"([{VOWELS}])'", rf"\1{STRESS}", fix_latin_accents(text)))
 
 
 def clean_tags(tags: str) -> str:
@@ -85,6 +102,8 @@ def apply_fields(card: Card, fields: dict) -> None:
             continue
         if name in STRESSABLE_FIELDS:
             value = apply_stress_marks(value)
+        elif name == "ru":
+            value = fix_latin_accents(value)
         setattr(card, name, value or None)
     if not card.ru:
         raise ValueError("Russian text is required")

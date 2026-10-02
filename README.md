@@ -9,13 +9,21 @@ python -m venv .venv
 .venv\Scripts\python -m pip install -e ".[dev]"
 ```
 
-Set your Anthropic API key as a user environment variable (it's never stored in the project):
+### AI: your Claude subscription (default) or an API key
+
+By default the app sends AI requests through Claude Code (`claude -p`), so they count against your Claude plan's usage limits instead of API billing. This is for personal use only. You need the `claude` command installed and logged in:
+
+```powershell
+claude        # then type /login, sign in, and /exit
+```
+
+To use pay-per-use API billing instead, set your key as a user environment variable and switch the backend under **Settings → AI**:
 
 ```powershell
 setx ANTHROPIC_API_KEY "sk-ant-..."
 ```
 
-Open a new terminal afterwards so the variable is picked up. Without the key the app still runs, but the AI features are switched off.
+Open a new terminal afterwards so the variable is picked up. The key is never stored in the project.
 
 ## Run
 

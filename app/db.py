@@ -63,10 +63,23 @@ def _add_api_usage(engine: Engine) -> None:
     models.ApiUsage.__table__.create(engine, checkfirst=True)
 
 
+def _add_ai_backend(engine: Engine) -> None:
+    """Record which backend served each call; default new installs to the subscription."""
+    with engine.begin() as conn:
+        columns = {row[1] for row in conn.execute(text("PRAGMA table_info(api_usage)"))}
+        if "backend" not in columns:
+            conn.execute(text("ALTER TABLE api_usage ADD COLUMN backend VARCHAR NOT NULL DEFAULT 'api'"))
+    with Session(engine) as session:
+        if session.get(models.Setting, "ai_backend") is None:
+            session.add(models.Setting(key="ai_backend", value="subscription"))
+            session.commit()
+
+
 MIGRATIONS: list[Callable[[Engine], None]] = [
     _initial_schema,
     _seed_settings,
     _add_api_usage,
+    _add_ai_backend,
 ]
 
 

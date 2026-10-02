@@ -2,17 +2,21 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
+from sqlmodel import Session
 
 from app.config import ROOT, get_config
-from app.db import migrate
+from app.db import get_engine, migrate
 from app.routes import backup, cards, dashboard, review, starter, today, workshop
 from app.services.backup import run_startup_backup
+from app.services.claude import load_backend
 
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     run_startup_backup()  # before migrating, so the backup holds the pre-migration state
     migrate()
+    with Session(get_engine()) as session:
+        load_backend(session)
     yield
 
 

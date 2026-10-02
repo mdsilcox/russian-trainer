@@ -14,10 +14,10 @@
     <section class="review-group card">
       <header>
         <h2>{{ topic.title }} <span class="muted">({{ rows|length }})</span></h2>
-        {% if has_api_key() %}
+        {% if ai_enabled() %}
           <button type="submit" formaction="/import/starter/regenerate/{{ topic.slug }}" formnovalidate>Regenerate topic</button>
         {% else %}
-          <button type="button" disabled title="Set ANTHROPIC_API_KEY to enable">Regenerate topic</button>
+          <button type="button" disabled title="{{ ai_off_reason() }}">Regenerate topic</button>
         {% endif %}
       </header>
       <table class="review-table">

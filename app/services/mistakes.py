@@ -25,6 +25,7 @@ _SENTENCE = re.compile(r"[^.!?…\n]*[.!?…]?", re.UNICODE)
 
 
 def strip_stress(text: str) -> str:
+    text = card_service.fix_latin_accents(text)
     return unicodedata.normalize("NFC", unicodedata.normalize("NFD", text).replace(card_service.STRESS, ""))
 
 

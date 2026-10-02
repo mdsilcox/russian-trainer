@@ -93,7 +93,7 @@ def test_feedback_without_key_shows_message(client, session, monkeypatch):
     attempt = workshop.attempts_for(session, story.id)[0]
     try:
         page = client.get(f"/workshop/{story.id}").text
-        assert "Set ANTHROPIC_API_KEY" in page
+        assert "ANTHROPIC_API_KEY" in page
         response = client.post(f"/workshop/{story.id}/attempts/{attempt.id}/feedback", headers={"HX-Request": "true"})
     finally:
         get_config.cache_clear()

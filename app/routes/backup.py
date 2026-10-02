@@ -1,6 +1,6 @@
 from datetime import date
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from sqlmodel import Session, select
 
@@ -8,6 +8,7 @@ from app.config import get_config
 from app.db import get_session
 from app.models import Setting
 from app.services import backup as backup_service
+from app.services import claude
 from app.web import templates
 
 router = APIRouter()
@@ -43,8 +44,18 @@ def settings_page(request: Request, backed_up: str = "", error: str = "", sessio
             "keep": backup_service.KEEP_BACKUPS,
             "backed_up": backed_up,
             "error": error,
+            "backends": [(b, claude.BACKEND_LABELS[b], *claude.ai_status(b)) for b in claude.Backend],
+            "current_backend": claude.current_backend(),
+            "claude_cli": claude.claude_cli(),
         },
     )
+
+
+@router.post("/settings/ai-backend")
+def choose_ai_backend(backend: str = Form(...), session: Session = Depends(get_session)):
+    if backend in claude.Backend._value2member_map_:
+        claude.set_backend(session, claude.Backend(backend))
+    return RedirectResponse("/settings#ai", status_code=303)
 
 
 @router.post("/settings/backup")

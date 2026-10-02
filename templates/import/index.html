@@ -20,12 +20,12 @@
       {% endfor %}
     </ul>
     <div class="actions">
-      {% if has_api_key() %}
+      {% if ai_enabled() %}
         <button type="submit" class="primary">Generate selected topics</button>
         <span class="muted" id="gen-count"></span>
       {% else %}
         <button type="submit" class="primary" disabled>Generate selected topics</button>
-        <span class="muted">Set ANTHROPIC_API_KEY to enable generation.</span>
+        <span class="muted">{{ ai_off_reason() }}</span>
       {% endif %}
     </div>
   </form>
@@ -41,11 +41,11 @@
     <textarea name="text" rows="10" class="paste-box" lang="ru" placeholder="вокзал - station&#10;мне нужна помощь&#10;аптека"></textarea>
     <div class="actions">
       <button type="submit" class="primary">Review list</button>
-      {% if has_api_key() %}
+      {% if ai_enabled() %}
         <label><input type="checkbox" name="enrich"> Enrich missing with Claude <span class="muted">(entries without English; max {{ cap }} per run)</span></label>
       {% else %}
         <label class="muted"><input type="checkbox" name="enrich" disabled> Enrich missing with Claude</label>
-        <span class="muted">Set ANTHROPIC_API_KEY to enable.</span>
+        <span class="muted">{{ ai_off_reason() }}</span>
       {% endif %}
     </div>
   </form>

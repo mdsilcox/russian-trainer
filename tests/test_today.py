@@ -219,9 +219,9 @@ def test_page_shows_trip_countdown_and_api_notice(client, session, monkeypatch):
 
     session.merge(Setting(key="trip_date", value=(local_date(datetime.now(timezone.utc)) + timedelta(days=363)).isoformat()))
     session.commit()
-    monkeypatch.setitem(templates.env.globals, "has_api_key", lambda: False)
+    monkeypatch.setitem(templates.env.globals, "ai_enabled", lambda: False)
     text = client.get("/").text
     assert "363 days to Moscow" in text
-    assert "AI feedback is off" in text
-    monkeypatch.setitem(templates.env.globals, "has_api_key", lambda: True)
+    assert "AI is off" in text
+    monkeypatch.setitem(templates.env.globals, "ai_enabled", lambda: True)
     assert "AI feedback is off" not in client.get("/").text

@@ -20,7 +20,7 @@
 
   <div class="actions">
     <button type="submit" class="primary">{{ "Save" if card else "Add card" }}</button>
-    {% if has_api_key() %}
+    {% if ai_enabled() %}
       <button type="button"
               hx-post="/cards/enrich/suggest"
               hx-include="closest form"
@@ -30,7 +30,7 @@
         Enrich with Claude<span class="htmx-indicator"> …</span>
       </button>
     {% else %}
-      <span class="muted">Set ANTHROPIC_API_KEY to enable “Enrich with Claude”.</span>
+      <span class="muted">{{ ai_off_reason() }}</span>
     {% endif %}
   </div>
 </form>

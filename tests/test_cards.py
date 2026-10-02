@@ -124,3 +124,15 @@ def test_delete_reviewed_card_removes_history_and_unlinks_mistakes(client, sessi
     assert session.get(Card, card_id) is None
     assert session.exec(select(ReviewLog)).all() == []
     assert session.exec(select(Mistake)).one().card_id is None
+
+
+def test_latin_accents_inside_russian_words_are_fixed():
+    assert svc.fix_latin_accents("купé") == "купе́"
+    assert svc.fix_latin_accents("мóре") == "мо́ре"
+    assert svc.fix_latin_accents("café crème") == "café crème"  # French stays French
+    assert svc.apply_stress_marks("купé и вокза'л") == "купе́ и вокза́л"
+
+
+def test_stress_mark_dropped_in_words_with_yo():
+    assert svc.apply_stress_marks("Проводни́к при́нёс чай") == "Проводни́к принёс чай"
+    assert svc.apply_stress_marks("ещё вокза'л") == "ещё вокза́л"
