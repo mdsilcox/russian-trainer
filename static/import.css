@@ -1,11 +1,35 @@
-.topic-list { list-style: none; padding: 0; display: grid; gap: 0.4rem; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
-.topic-list label { display: flex; gap: 0.5rem; align-items: baseline; }
-.review-group { margin-bottom: 1.5rem; }
-.review-group > header { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+/* Khokhloma Night: import pages */
+.page-head { margin-bottom: 8px; }
+.page-head h1 { margin-bottom: 4px; }
+.subtitle { font-family: var(--serif); font-style: italic; font-size: 26px; color: var(--gold-light); margin-bottom: 10px; }
+.back { margin: 0 0 6px; font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; }
+.back a { text-decoration: none; }
+.empty { display: flex; align-items: center; gap: 18px; padding: 28px 0; font-family: var(--serif); font-size: 1.5rem; }
+.empty p { margin: 0; }
+.panel { margin-bottom: 28px; padding: 28px; }
+
+.topic-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+.tile { display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: var(--raised); border: 1px solid var(--gold-line); outline: 1px solid var(--gold-faint); outline-offset: 3px; cursor: pointer; }
+.tile:hover { border-color: var(--gold); }
+.tile:has(input:checked) { border-color: var(--gold); background: rgba(201, 162, 39, 0.08); }
+.tile-name { font-family: var(--serif); font-size: 1.25rem; font-weight: 600; color: var(--cream); flex: 1; }
+.tile-n { font-family: var(--serif); font-size: 1.3rem; color: var(--gold-light); }
+
+.review-group { margin-bottom: 28px; padding: 24px; }
+.review-group > header { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
 .review-table { width: 100%; border-collapse: collapse; }
-.review-table td { padding: 0.4rem 0.5rem; border-top: 1px solid var(--border); vertical-align: top; }
-.review-table tr.dupe { opacity: 0.6; }
-.review-table .ex { font-size: 0.9em; }
+.review-table td { padding: 12px 10px; border-top: 1px solid var(--gold-faint); vertical-align: top; }
+.review-table td strong { font-family: var(--serif); font-size: 1.5rem; font-weight: 600; color: var(--cream); }
+.review-table tr.dupe { opacity: 0.55; }
+.review-table .ex { font-size: 0.9em; color: var(--cream); }
 .review-table input[type="text"] { width: 100%; }
-.sticky-actions { position: sticky; bottom: 0; background: var(--bg); padding: 0.75rem 0; border-top: 1px solid var(--border); display: flex; gap: 1rem; align-items: center; }
-.paste-box { width: 100%; font-family: var(--serif); }
+.sticky-actions { position: sticky; bottom: 0; background: var(--lacquer); padding: 14px 0; border-top: 1px solid var(--gold-line); display: flex; gap: 16px; align-items: center; flex-wrap: wrap; z-index: 2; }
+.paste-box { width: 100%; font-family: var(--sans); }
+
+@media (max-width: 640px) {
+  .panel, .review-group { padding: 16px; }
+  .review-table, .review-table tbody, .review-table tr, .review-table td { display: block; }
+  .review-table tr { padding: 10px 0; border-top: 1px solid var(--gold-faint); }
+  .review-table td { border: 0; padding: 4px 0; }
+  .subtitle { font-size: 22px; }
+}

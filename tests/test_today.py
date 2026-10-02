@@ -225,3 +225,43 @@ def test_page_shows_trip_countdown_and_api_notice(client, session, monkeypatch):
     assert "AI is off" in text
     monkeypatch.setitem(templates.env.globals, "ai_enabled", lambda: True)
     assert "AI feedback is off" not in client.get("/").text
+
+
+# --- header extras -------------------------------------------------------------
+
+
+def _trip(session, days):
+    session.merge(Setting(key="trip_date", value=(local_date(NOW) + timedelta(days=days)).isoformat()))
+    session.commit()
+
+
+def test_trip_progress_months(session):
+    _trip(session, 363)
+    assert today.trip_progress(session, NOW).month == 1
+    _trip(session, 30)
+    assert today.trip_progress(session, NOW).month == 12
+    _trip(session, 700)
+    assert today.trip_progress(session, NOW).month == 1
+    _trip(session, -1)
+    assert today.trip_progress(session, NOW) is None
+
+
+def test_weak_spots_only_recent(session):
+    from app.models import Category, Mistake, Module
+
+    assert today.weak_spots(session, NOW) == []
+    session.add(Mistake(module=Module.manual, wrong='x', right='y', category=Category.case, created_at=NOW - timedelta(days=1)))
+    session.add(Mistake(module=Module.manual, wrong='x', right='y', category=Category.case, created_at=NOW - timedelta(days=2)))
+    session.add(Mistake(module=Module.manual, wrong='x', right='y', category=Category.stress, created_at=NOW - timedelta(days=90)))
+    session.commit()
+    spots = today.weak_spots(session, NOW)
+    assert [(s.label, s.count) for s in spots] == [("Cases", 2)]
+
+
+def test_word_of_the_day_latest_active(session):
+    assert today.word_of_the_day(session) is None
+    session.add(Card(ru="старый", en="old", created_at=NOW - timedelta(days=2)))
+    session.add(Card(ru="новый", en="new", created_at=NOW - timedelta(days=1)))
+    session.add(Card(ru="скрыт", en="hidden", created_at=NOW, suspended=True))
+    session.commit()
+    assert today.word_of_the_day(session).ru == "новый"

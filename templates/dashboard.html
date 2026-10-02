@@ -2,7 +2,12 @@
 {% block title %}Dashboard · Russian Trainer{% endblock %}
 {% block head %}<link rel="stylesheet" href="{{ url_for('static', path='dashboard.css') }}">{% endblock %}
 {% block content %}
-<h1>Dashboard</h1>
+{% import "_ornaments.html" as orn %}
+<header class="page-head">
+  <h1>Dashboard</h1>
+  <p class="subtitle" lang="ru">Обзор</p>
+  {{ orn.divider(150) }}
+</header>
 
 <div class="dash-grid">
   <section class="card stat">
@@ -50,7 +55,7 @@
     {% for label, count in forecast %}
       <li>
         <span class="count">{{ count }}</span>
-        <span class="bar{% if loop.first %} today{% endif %}" style="height: {{ [(count / forecast_max * 100) | round | int, 2] | max if count else 2 }}%"></span>
+        <span class="bar{% if loop.first %} today{% endif %}" style="--h: {{ [(count / forecast_max * 100) | round | int, 2] | max if count else 2 }}"></span>
         <span class="label">{{ label }}</span>
       </li>
     {% endfor %}
@@ -61,14 +66,12 @@
   <section class="card">
     <h2>Top mistakes</h2>
     {% if mistakes %}
-      <table class="mistakes">
-        <thead><tr><th>Category</th><th>30 days</th><th>All time</th></tr></thead>
-        <tbody>
-          {% for m in mistakes %}
-            <tr><td>{{ m.label }}</td><td>{{ m.recent }}</td><td>{{ m.total }}</td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
+      <ol class="mistakes">
+        <li class="mistakes-head" aria-hidden="true"><span></span><span>Category</span><span>30 days</span><span>All time</span></li>
+        {% for m in mistakes %}
+          <li><span class="rank">{{ loop.index }}</span><span class="cat">{{ m.label }}</span><span class="num" title="30 days">{{ m.recent }}</span><span class="num dim" title="All time">{{ m.total }}</span></li>
+        {% endfor %}
+      </ol>
     {% else %}
       <p class="muted">No mistakes logged yet. They show up here after you translate a story or practise a scenario.</p>
     {% endif %}

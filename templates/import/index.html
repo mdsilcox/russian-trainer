@@ -1,13 +1,14 @@
 {% extends "base.html" %}
+{% import "_ornaments.html" as orn %}
 {% block title %}Import · Russian Trainer{% endblock %}
 {% block head %}<link rel="stylesheet" href="{{ url_for('static', path='import.css') }}">{% endblock %}
 {% block content %}
-<h1>Import vocabulary</h1>
+<div class="page-head"><h1>Import vocabulary</h1><div class="subtitle" lang="ru">Импорт</div>{{ orn.divider(150) }}</div>
 
 {% if added %}<p class="notice">Added {{ added }} card{{ "" if added == 1 else "s" }} to your deck.</p>{% endif %}
 {% if error %}<p class="error">{{ error }}</p>{% endif %}
 
-<section class="card stack">
+<section class="card stack panel">
   <h2>Travel starter deck</h2>
   <p class="muted">Pick topics to generate (about {{ total }} cards across all of them). Each topic is one Claude call, roughly a cent or two. You review everything before it joins your deck.</p>
   {% if pending_starter %}
@@ -16,7 +17,7 @@
   <form method="post" action="/import/starter/generate" class="stack">
     <ul class="topic-list">
       {% for t in topics %}
-        <li><label><input type="checkbox" name="topic" value="{{ t.slug }}" data-count="{{ t.count }}" checked> <span>{{ t.title }} <span class="muted">~{{ t.count }}</span></span></label></li>
+        <li><label class="tile"><input type="checkbox" name="topic" value="{{ t.slug }}" data-count="{{ t.count }}" checked> <span class="tile-name">{{ t.title }}</span><span class="tile-n">~{{ t.count }}</span></label></li>
       {% endfor %}
     </ul>
     <div class="actions">
@@ -31,7 +32,7 @@
   </form>
 </section>
 
-<section class="card stack">
+<section class="card stack panel">
   <h2>Paste a list</h2>
   <p class="muted">One entry per line: <span lang="ru">слово</span> or <span lang="ru">слово - english</span> (also —, tab or ; as separator). Duplicates are removed.</p>
   {% if pending_paste %}

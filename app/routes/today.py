@@ -22,6 +22,10 @@ def today_page(request: Request, msg: str = "", session: Session = Depends(get_s
         "summary": today.day_summary(session, now),
         "streak": stats.streaks(session, now),
         "trip_days": stats.days_until_trip(session, now),
+        "date_label": today.date_label(now),
+        "trip": today.trip_progress(session, now),
+        "weak_spots": today.weak_spots(session, now),
+        "word": today.word_of_the_day(session),
         "too_short": msg == "too_short",
     }
     return templates.TemplateResponse(request, "today.html", context)

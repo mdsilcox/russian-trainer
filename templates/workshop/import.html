@@ -2,9 +2,14 @@
 {% block title %}Import stories · Workshop{% endblock %}
 {% block head %}<link rel="stylesheet" href="{{ url_for('static', path='workshop.css') }}">{% endblock %}
 {% block content %}
+{% import "_ornaments.html" as orn %}
 <p><a href="/workshop">← All stories</a></p>
-<h1>Import your stories</h1>
-<p class="muted">Paste any number of stories. Start each with <code># Title</code>, then a <code>## EN</code> or <code>## RU</code> section for the original and a second section for your translation. The first section is treated as the original.</p>
+<header class="page-head">
+  <h1>Import your stories</h1>
+  <p class="subtitle" lang="ru">Импорт</p>
+  <div class="divider-row left">{{ orn.divider(180) }}</div>
+</header>
+<p class="muted lede">Paste any number of stories. Start each with <code># Title</code>, then a <code>## EN</code> or <code>## RU</code> section for the original and a second section for your translation. The first section is treated as the original.</p>
 
 <details class="card format">
   <summary>Example format</summary>
@@ -22,7 +27,7 @@
       <ul class="import-preview">
         {% for p in preview %}
           <li>
-            <strong lang="{{ p.source_lang }}">{{ p.title }}</strong>
+            <strong class="import-title" lang="{{ p.source_lang }}">{{ p.title }}</strong>
             <span class="muted">· {{ langs[p.source_lang] }} original, {{ p.source_text|length }} chars
               · {% if p.translation %}translation {{ p.translation|length }} chars{% else %}<em>no translation yet</em>{% endif %}</span>
           </li>

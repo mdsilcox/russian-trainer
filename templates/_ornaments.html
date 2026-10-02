@@ -1,0 +1,28 @@
+{# Khokhloma ornaments: gold-stroke leaves and cinnabar berries with gold centres.
+   Import with: {% import "_ornaments.html" as orn %} then {{ orn.divider() }}. All are decorative (aria-hidden). #}
+
+{% macro brand_mark(size=34) -%}
+<svg width="{{ size }}" height="{{ size }}" viewBox="0 0 34 34" fill="none" aria-hidden="true"><circle cx="17" cy="19" r="8" fill="#B3261E" stroke="#C9A227" stroke-width="1"/><circle cx="17" cy="19" r="2.2" fill="#E2C46A"/><path d="M17 11 C17 6 20 3 25 3 C25 8 22 11 17 11Z" stroke="#C9A227" stroke-width="1" fill="none"/><path d="M17 11 C16 7 13 5 9 5" stroke="#C9A227" stroke-width="1" stroke-linecap="round"/></svg>
+{%- endmacro %}
+
+{# A flowing gold vine with three berries: section dividers, under headings. #}
+{% macro divider(width=160, class="ornament") -%}
+<svg class="{{ class }}" width="{{ width }}" height="{{ (width * 28 / 160) | round | int }}" viewBox="0 0 160 28" fill="none" aria-hidden="true"><path d="M4 14 C28 14 40 4 62 10 C72 13 76 14 80 14 C84 14 88 13 98 10 C120 4 132 14 156 14" stroke="#C9A227" stroke-width="1.2"/><path d="M40 8 C36 0 46 0 50 6 C46 8 43 9 40 8Z" stroke="#C9A227"/><path d="M118 8 C122 0 132 0 128 6 C126 8 122 9 118 8Z" stroke="#C9A227"/><circle cx="80" cy="14" r="5" fill="#B3261E" stroke="#C9A227"/><circle cx="80" cy="14" r="1.4" fill="#E2C46A"/><circle cx="66" cy="20" r="3.2" fill="#B3261E" stroke="#C9A227"/><circle cx="94" cy="20" r="3.2" fill="#B3261E" stroke="#C9A227"/></svg>
+{%- endmacro %}
+
+{# An upright sprig: one berry on a stem with two leaves. #}
+{% macro sprig(height=64) -%}
+<svg width="{{ (height * 46 / 64) | round | int }}" height="{{ height }}" viewBox="0 0 46 64" fill="none" aria-hidden="true" style="flex-shrink: 0"><path d="M23 62 C23 40 23 24 23 8" stroke="#C9A227"/><path d="M23 40 C10 38 6 28 8 20 C18 22 24 30 23 40Z" stroke="#C9A227"/><path d="M23 30 C36 28 40 18 38 10 C28 12 22 20 23 30Z" stroke="#C9A227"/><circle cx="23" cy="8" r="6" fill="#B3261E" stroke="#C9A227"/><circle cx="23" cy="8" r="1.7" fill="#E2C46A"/></svg>
+{%- endmacro %}
+
+{# A single berry, used as a bullet or status dot. #}
+{% macro berry(size=10) -%}
+<span class="berry" aria-hidden="true" style="display: inline-block; width: {{ size }}px; height: {{ size }}px; border-radius: 50%; background: #B3261E; box-shadow: 0 0 0 1px #C9A227; flex-shrink: 0"></span>
+{%- endmacro %}
+
+{# Four corner flourishes for a framed panel; the panel needs position: relative. #}
+{% macro corners(size=64, inset=14) -%}
+{% for pos, transform in [("top: %dpx; left: %dpx" % (inset, inset), "none"), ("top: %dpx; right: %dpx" % (inset, inset), "scaleX(-1)"), ("bottom: %dpx; left: %dpx" % (inset, inset), "scaleY(-1)"), ("bottom: %dpx; right: %dpx" % (inset, inset), "scale(-1, -1)")] %}
+<svg width="{{ size }}" height="{{ size }}" viewBox="0 0 64 64" fill="none" aria-hidden="true" style="position: absolute; {{ pos }}; transform: {{ transform }}; pointer-events: none"><path d="M2 40 V2 H40" stroke="#C9A227" stroke-width="1.2"/><path d="M10 30 C10 18 18 10 30 10" stroke="#C9A227" stroke-width="1"/><circle cx="20" cy="20" r="5" fill="#B3261E" stroke="#C9A227"/><circle cx="20" cy="20" r="1.5" fill="#E2C46A"/><path d="M34 22 C34 16 40 14 44 18 C40 22 37 23 34 22Z" stroke="#C9A227"/><path d="M22 34 C16 34 14 40 18 44 C22 40 23 37 22 34Z" stroke="#C9A227"/></svg>
+{% endfor %}
+{%- endmacro %}

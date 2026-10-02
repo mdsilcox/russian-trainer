@@ -1,8 +1,14 @@
 {% extends "base.html" %}
+{% import "_ornaments.html" as orn %}
 {% block title %}Cards · Russian Trainer{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', path='cards.css') }}">{% endblock %}
 {% block content %}
-<div class="heading-row">
-  <h1>Cards</h1>
+<div class="heading-row page-head">
+  <div>
+    <h1>Cards</h1>
+    <div class="subtitle" lang="ru">Карточки</div>
+    {{ orn.divider(150) }}
+  </div>
   <div class="actions" style="margin-top:0">
     <a class="button" href="/import">Import / starter deck</a>
     <a class="button primary" href="/cards/new">Add card</a>
@@ -23,19 +29,19 @@
   <button type="submit">Filter</button>
 </form>
 
-<p class="muted">{{ rows|length }} card{{ "" if rows|length == 1 else "s" }}</p>
+<p class="count">{{ rows|length }} card{{ "" if rows|length == 1 else "s" }}</p>
 
 {% if rows %}
-<table class="cards-table">
+<table class="cards-table ledger">
   <thead><tr><th>Russian</th><th>English</th><th>Tags</th><th>Source</th><th></th></tr></thead>
   <tbody>
   {% for card, lapses in rows %}
     <tr {% if card.suspended %}class="suspended"{% endif %}>
-      <td><a href="/cards/{{ card.id }}">{{ (card.ru_stressed or card.ru)|ru }}</a>
+      <td class="ruword"><a href="/cards/{{ card.id }}" lang="ru">{{ (card.ru_stressed or card.ru)|ru }}</a>
         {% if card.ru_stressed and not card.stress_verified %}<span class="muted" title="Stress not checked yet">?</span>{% endif %}</td>
-      <td>{{ card.en }}</td>
-      <td class="muted">{{ card.tags }}</td>
-      <td class="muted">{{ card.source_module.value }}</td>
+      <td class="en">{{ card.en }}</td>
+      <td class="tags">{% for t in (card.tags or "").split() %}<span class="chip">{{ t }}</span>{% endfor %}</td>
+      <td class="src">{{ card.source_module.value }}</td>
       <td>{% if lapses >= leech_lapses %}<span class="badge warn" title="{{ lapses }} lapses">leech</span>{% endif %}
           {% if card.suspended %}<span class="badge">suspended</span>{% endif %}</td>
     </tr>
@@ -43,6 +49,6 @@
   </tbody>
 </table>
 {% else %}
-<p>No cards yet. <a href="/cards/new">Add one</a>.</p>
+<div class="empty">{{ orn.sprig(72) }}<p>No cards yet. <a href="/cards/new">Add one</a>.</p></div>
 {% endif %}
 {% endblock %}

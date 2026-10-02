@@ -1,7 +1,61 @@
-.settings-block { margin-bottom: 2rem; }
-.settings-block table { border-collapse: collapse; margin: 1rem 0; }
-.settings-block th, .settings-block td { text-align: left; padding: 0.3rem 1rem 0.3rem 0; }
-.notice { padding: 0.5rem 0.75rem; border-left: 3px solid currentColor; }
-.backend-choice { display: grid; gap: 8px; margin-bottom: 8px; }
-.backend-choice label { align-items: flex-start; }
+.page-head { text-align: center; margin-bottom: 18px; }
+.page-head h1 { margin-bottom: 4px; }
+.subtitle { font: italic 500 1.7rem/1.2 var(--serif); color: var(--gold-light); margin: 0 0 6px; }
+
+.settings-block { margin-bottom: 30px; }
+.settings-block h2 {
+  font: 600 12px/1.4 var(--sans); letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--gold-light); margin: 0 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--gold-line);
+}
+.settings-block h3 { margin: 24px 0 8px; }
+.settings-block p { margin: 10px 0; }
+.settings-block code { font-size: 0.88em; color: var(--gold-light); background: var(--sunken); border: 1px solid var(--gold-faint); padding: 0 5px; overflow-wrap: anywhere; }
 .small { font-size: 13px; }
+
+/* AI backend: two selectable gilded tiles */
+.backend-choice { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 6px 0 14px; }
+@media (max-width: 600px) { .backend-choice { grid-template-columns: 1fr; } }
+.backend-choice label.choice {
+  position: relative; display: flex; align-items: flex-start; gap: 12px; cursor: pointer;
+  padding: 18px 18px 18px 16px; background: var(--sunken);
+  border: 1px solid var(--gold-line); outline: 1px solid transparent; outline-offset: 4px;
+  transition: border-color 120ms, background 120ms, outline-color 120ms;
+}
+.backend-choice label.choice:hover { border-color: var(--gold); }
+.backend-choice input[type="radio"] {
+  appearance: none; -webkit-appearance: none; flex: none; width: 18px; height: 18px; margin: 3px 0 0;
+  border: 1px solid var(--gold); border-radius: 50%; background: transparent; display: grid; place-content: center;
+}
+.backend-choice input[type="radio"]::before {
+  content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--cinnabar);
+  box-shadow: 0 0 0 1px var(--gold-light); transform: scale(0); transition: transform 120ms;
+}
+.backend-choice input[type="radio"]:checked::before { transform: scale(1); }
+.backend-choice input[type="radio"]:focus-visible { outline: 1px solid var(--gold-light); outline-offset: 4px; }
+.backend-choice label.choice:has(input:checked) {
+  border-color: var(--gold); background: rgba(201, 162, 39, 0.08); outline-color: var(--gold-faint);
+}
+.backend-choice label.choice:has(input:focus-visible) { outline-color: var(--gold-light); }
+.choice-body { display: grid; gap: 4px; font-size: 15px; color: var(--cream); }
+.choice-body strong { font: 600 1.35rem/1.2 var(--serif); color: var(--cream); }
+.choice-body .status { font-size: 13px; }
+.choice-body .status.ready { color: var(--ok); }
+
+/* Tables as ledgers */
+.ledger { width: 100%; border-collapse: collapse; margin: 14px 0; }
+.ledger th { text-align: left; font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-light); }
+.ledger thead th { border-bottom: 1px solid var(--gold); }
+.ledger th, .ledger td { padding: 9px 14px 9px 0; border-bottom: 1px solid var(--gold-faint); overflow-wrap: anywhere; }
+.ledger tbody tr:last-child td, .ledger tbody tr:last-child th { border-bottom: 0; }
+.ledger.kv th { width: 38%; vertical-align: top; }
+.ledger td:nth-child(2), .ledger td:nth-child(3) { font-variant-numeric: tabular-nums; }
+
+/* Restore steps */
+.settings-block ol { list-style: none; counter-reset: step; padding: 0; margin: 8px 0 0; }
+.settings-block ol li { counter-increment: step; position: relative; padding: 6px 0 6px 2.4rem; }
+.settings-block ol li::before { content: counter(step); position: absolute; left: 0; top: 2px; font: 600 1.6rem/1.1 var(--serif); color: var(--gold-light); }
+
+/* Exports */
+.exports { list-style: none; padding: 0; margin: 4px 0 0; display: grid; gap: 14px; }
+.exports li { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.exports .button { text-decoration: none; }

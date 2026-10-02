@@ -2,11 +2,16 @@
 {% block title %}New story · Russian Trainer{% endblock %}
 {% block head %}<link rel="stylesheet" href="{{ url_for('static', path='workshop.css') }}">{% endblock %}
 {% block content %}
+{% import "_ornaments.html" as orn %}
 <p><a href="/workshop">← All stories</a></p>
-<h1>New story</h1>
+<header class="page-head">
+  <h1>New story</h1>
+  <p class="subtitle" lang="ru">Новая история</p>
+  <div class="divider-row left">{{ orn.divider(180) }}</div>
+</header>
 {% if error %}<p class="error">{{ error }}</p>{% endif %}
 
-<form method="post" action="/workshop/new" class="card stack" id="story-form">
+<form method="post" action="/workshop/new" class="card stack manuscript" id="story-form">
   <label class="field"><span>Title</span><input name="title" value="{{ v.title or '' }}" required></label>
 
   <fieldset class="lang-choice">

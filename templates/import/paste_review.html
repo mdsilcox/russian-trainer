@@ -1,14 +1,15 @@
 {% extends "base.html" %}
+{% import "_ornaments.html" as orn %}
 {% block title %}Review import · Russian Trainer{% endblock %}
 {% block head %}<link rel="stylesheet" href="{{ url_for('static', path='import.css') }}">{% endblock %}
 {% block content %}
-<p><a href="/import">← Import</a></p>
-<h1>Review import</h1>
+<p class="back"><a href="/import">← Import</a></p>
+<div class="page-head"><h1>Review import</h1><div class="subtitle" lang="ru">Проверка</div>{{ orn.divider(150) }}</div>
 {% if error %}<p class="error">{{ error }}</p>{% endif %}
 {% if dropped %}<p class="muted">{{ dropped }} repeated line{{ "" if dropped == 1 else "s" }} in your paste ignored.</p>{% endif %}
 
 {% if not rows %}
-  <p class="muted">Nothing is waiting for review. <a href="/import">Paste a list</a>.</p>
+  <div class="empty">{{ orn.sprig(72) }}<p>Nothing is waiting for review. <a href="/import">Paste a list</a>.</p></div>
 {% else %}
 <form method="post" action="/import/paste/add">
   <table class="review-table">

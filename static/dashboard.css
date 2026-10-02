@@ -1,28 +1,66 @@
-.dash-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 16px 0; }
-.dash-grid.two { grid-template-columns: 1fr 1fr; margin-top: 14px; }
-@media (max-width: 760px) { .dash-grid { grid-template-columns: 1fr 1fr; } }
-@media (max-width: 520px) { .dash-grid, .dash-grid.two { grid-template-columns: 1fr; } }
+.page-head { text-align: center; margin-bottom: 18px; }
+.page-head h1 { margin-bottom: 4px; }
+.subtitle { font: italic 500 1.7rem/1.2 var(--serif); color: var(--gold-light); margin: 0 0 6px; }
+.page-head .ornament { margin-top: 4px; }
 
-main h2 { font-size: 15px; font-weight: 600; margin: 0 0 6px; color: var(--muted); }
-main h2 small { font-weight: 400; }
-.card .big { font: 600 2rem/1.2 var(--serif); margin: 0; }
-.big small { font: 400 1rem var(--sans); color: var(--muted); }
-.card p.muted { margin: 4px 0 0; font-size: 14px; }
+.dash-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; margin: 22px 0; }
+.dash-grid.two { grid-template-columns: 1fr 1fr; margin-top: 22px; }
+@media (max-width: 860px) { .dash-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 560px) { .dash-grid, .dash-grid.two { grid-template-columns: 1fr; } }
 
-.bars { list-style: none; margin: 16px 0 0; padding: 0; display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; height: 160px; }
-.bars li { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; min-width: 0; height: 100%; }
-.bars .bar { flex: none; width: 100%; max-width: 44px; border-radius: 4px 4px 0 0; background: var(--muted); opacity: 0.55; }
-.bars .bar.today { background: var(--accent); opacity: 1; }
-.bars .count { font-size: 13px; font-variant-numeric: tabular-nums; }
-.bars .label { font-size: 13px; color: var(--muted); margin-top: 4px; }
+/* Section labels: small gold capitals */
+main h2 {
+  font: 600 12px/1.4 var(--sans); letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--gold-light); margin: 0 0 10px;
+}
+main h2 small { font: 400 12px var(--sans); letter-spacing: 0.1em; color: var(--cream-muted); margin-left: 6px; }
 
-.mistakes { width: 100%; border-collapse: collapse; }
-.mistakes th { text-align: left; font-size: 13px; font-weight: 600; color: var(--muted); }
-.mistakes th:not(:first-child), .mistakes td:not(:first-child) { text-align: right; font-variant-numeric: tabular-nums; }
-.mistakes th, .mistakes td { padding: 6px 4px; border-bottom: 1px solid var(--border); }
+/* Stat tiles: huge gold serif numerals */
+.card.stat { padding: 22px 18px 20px; text-align: center; }
+.card .big { font: 600 clamp(3.2rem, 5vw, 4.4rem)/1 var(--serif); color: var(--gold-light); margin: 6px 0 4px; font-variant-numeric: lining-nums; }
+.big small { display: block; font: 600 12px/1.6 var(--sans); letter-spacing: 0.18em; text-transform: uppercase; color: var(--cream-muted); margin-top: 6px; }
+.card p.muted { margin: 8px 0 0; font-size: 14px; }
+.card.stat p.muted { border-top: 1px solid var(--gold-faint); padding-top: 8px; }
+.card .heading-row h2 { margin: 0; }
 
-.meter { height: 8px; border-radius: 4px; background: var(--border); overflow: hidden; margin-top: 8px; }
-.meter span { display: block; height: 100%; background: var(--ok); }
-.card.warn { border-color: var(--warn); }
+/* Reviews due: gold bars on a hairline baseline */
+.bars {
+  list-style: none; margin: 22px 0 0; padding: 0 0 0; display: grid;
+  grid-template-columns: repeat(7, 1fr); gap: 10px; height: 190px;
+}
+.bars li { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; min-width: 0; height: 100%; position: relative; }
+.bars .count { font: 600 1.5rem/1.2 var(--serif); color: var(--cream); font-variant-numeric: lining-nums tabular-nums; margin-bottom: 4px; }
+.bars .bar {
+  /* --h is 0-100; the plot area leaves room above the bar for the count and below for the day. */
+  flex: none; width: 100%; max-width: 48px; background: var(--gold);
+  height: calc(var(--h) * 1.2px);
+  border-top: 1px solid var(--gold-light); opacity: 0.8;
+  border-bottom: 1px solid var(--gold-light);
+}
+.bars .bar.today { background: var(--cinnabar); border-color: var(--gold-light); opacity: 1; box-shadow: 0 0 0 1px var(--gold); }
+.bars li:first-child .count { color: var(--gold-light); }
+.bars .label {
+  align-self: stretch; text-align: center; margin-top: 0; padding-top: 6px;
+  border-top: 1px solid var(--gold); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--cream-muted);
+}
+
+/* Top mistakes: a ranked ledger */
+.mistakes { list-style: none; margin: 4px 0 0; padding: 0; }
+.mistakes li { display: grid; grid-template-columns: 2.2rem 1fr 4.5rem 4.5rem; gap: 6px; align-items: baseline; padding: 9px 0; border-bottom: 1px solid var(--gold-faint); }
+.mistakes li:last-child { border-bottom: 0; }
+.mistakes .mistakes-head { padding-top: 0; border-bottom: 1px solid var(--gold); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-light); font-weight: 600; }
+.mistakes .rank { font: 600 1.9rem/1 var(--serif); color: var(--gold-light); }
+.mistakes .cat { color: var(--cream); min-width: 0; overflow-wrap: anywhere; }
+.mistakes .num { text-align: right; font: 600 1.4rem/1 var(--serif); color: var(--cream); font-variant-numeric: lining-nums tabular-nums; }
+.mistakes .num.dim { color: var(--cream-muted); }
+.mistakes .mistakes-head span:nth-child(n+3) { text-align: right; }
+@media (max-width: 420px) { .mistakes li { grid-template-columns: 1.8rem 1fr 3.4rem 3.4rem; } }
+
+/* Spend: thin gilded meter */
+.meter { height: 8px; background: var(--sunken); border: 1px solid var(--gold-line); padding: 1px; margin-top: 12px; }
+.meter span { display: block; height: 100%; background: var(--gold); }
+.card.warn { border-color: var(--warn); outline-color: rgba(232, 169, 74, 0.35); }
+.card.warn .meter { border-color: var(--warn); }
 .card.warn .meter span { background: var(--warn); }
 .spend-warn { color: var(--warn); }
+.card.warn .big { color: var(--warn); }

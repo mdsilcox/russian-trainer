@@ -6,6 +6,12 @@
       "runtimeExecutable": ".venv/Scripts/app.exe",
       "runtimeArgs": [],
       "port": 8000
+    },
+    {
+      "name": "russian-trainer-preview",
+      "runtimeExecutable": ".venv/Scripts/python.exe",
+      "runtimeArgs": ["-m", "uvicorn", "app.main:app", "--host", "127.0.0.1", "--port", "8010", "--reload"],
+      "port": 8010
     }
   ]
 }

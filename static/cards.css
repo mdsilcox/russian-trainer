@@ -1,0 +1,34 @@
+/* Khokhloma Night: card pages */
+.page-head { margin-bottom: 8px; }
+.page-head h1 { margin-bottom: 4px; }
+.subtitle { font-family: var(--serif); font-style: italic; font-size: 26px; color: var(--gold-light); margin-bottom: 10px; }
+.back { margin: 0 0 6px; font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; }
+.back a { text-decoration: none; }
+.count { font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold-light); }
+
+.ledger { border-top: 1px solid var(--gold-line); }
+.ledger th { text-align: left; }
+.ledger .ruword a { font-family: var(--serif); font-size: 1.9rem; line-height: 1.1; font-weight: 600; }
+.ledger .en { color: var(--cream); }
+.ledger .src { color: var(--cream-muted); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; white-space: nowrap; }
+.ledger .tags { max-width: 220px; }
+.chip { display: inline-block; margin: 2px 4px 2px 0; padding: 1px 10px; border: 1px solid var(--gold-line); border-radius: 999px; font-size: 12px; color: var(--gold-light); letter-spacing: 0.04em; }
+.empty { display: flex; align-items: center; gap: 18px; padding: 28px 0; font-family: var(--serif); font-size: 1.5rem; }
+.empty p { margin: 0; }
+
+.card-form { position: relative; padding: 28px; }
+.fsec { display: grid; gap: 16px; padding-bottom: 22px; border-bottom: 1px solid var(--gold-faint); }
+.fsec:last-of-type { border-bottom: 0; padding-bottom: 0; }
+.fsec h3 { margin: 0; }
+.fsec h3::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 10px; border-radius: 50%; background: var(--cinnabar); box-shadow: 0 0 0 1px var(--gold); }
+.field.suggested > span { color: var(--cream); }
+.field.suggested textarea, .field.suggested input { box-shadow: 0 0 0 1px var(--gold); }
+.danger-zone { align-items: center; }
+
+@media (max-width: 640px) {
+  .row, .row.three { grid-template-columns: 1fr; }
+  .card-form { padding: 18px; }
+  .ledger .src, .ledger th:nth-child(4) { display: none; }
+  .ledger .ruword a { font-size: 1.5rem; }
+  .subtitle { font-size: 22px; }
+}

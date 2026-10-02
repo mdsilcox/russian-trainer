@@ -1,14 +1,37 @@
 {% extends "base.html" %}
+{% import "_ornaments.html" as orn %}
+{% macro month_bar(t) %}
+<div class="months">
+  <div class="months-head"><span>Month {{ t.month }} of {{ t.total }}</span><span class="gold">{{ t.trip_date.day }} {{ t.trip_date.strftime("%b %Y") }}: Moscow</span></div>
+  <div class="segs" role="img" aria-label="Month {{ t.month }} of {{ t.total }}">{% for i in range(1, t.total + 1) %}<span class="seg{% if i <= t.month %} on{% endif %}"></span>{% endfor %}</div>
+</div>
+{% endmacro %}
 {% block title %}Today · Russian Trainer{% endblock %}
 {% block head %}<link rel="stylesheet" href="{{ url_for('static', path='today.css') }}">{% endblock %}
 {% block content %}
-<h1>Today</h1>
-
-<p class="today-top muted">
-  {% if trip_days is not none and trip_days > 0 %}<span>{{ trip_days }} {{ "day" if trip_days == 1 else "days" }} to Moscow</span>
-  {% elif trip_days == 0 %}<span>Moscow today! {{ "Удачи!"|ru }}</span>{% endif %}
-  <span>Streak: {{ streak.current }} {{ "day" if streak.current == 1 else "days" }}</span>
-</p>
+<header class="t-head">
+  <div class="t-title">
+    <p class="t-date">{{ date_label }}</p>
+    <h1>Today</h1>
+    <div class="t-sub"><span class="t-ru" lang="ru">Сегодня</span>{{ orn.divider(120) }}</div>
+  </div>
+  <div class="t-tiles">
+    {% if trip_days is not none and trip_days > 0 %}
+    <div class="tile">
+      <span class="sr">{{ trip_days }} {{ "day" if trip_days == 1 else "days" }} to Moscow</span>
+      <span class="tile-num tile-num-lg" aria-hidden="true">{{ trip_days }}</span>
+      <span class="tile-text" aria-hidden="true"><b>{{ "day" if trip_days == 1 else "days" }} to Moscow</b>{% if trip %}<small>{{ trip.trip_date.day }} {{ trip.trip_date.strftime("%b %Y") }}</small>{% endif %}</span>
+    </div>
+    {% elif trip_days == 0 %}
+    <div class="tile"><span class="tile-text"><b>Moscow today! <span lang="ru">Удачи!</span></b></span></div>
+    {% endif %}
+    <div class="tile tile-streak">
+      <span class="sr">Streak: {{ streak.current }} {{ "day" if streak.current == 1 else "days" }}</span>
+      {{ orn.sprig(44) }}
+      <span class="tile-text" aria-hidden="true"><span class="tile-num">{{ streak.current }}</span><b>day streak</b></span>
+    </div>
+  </div>
+</header>
 
 {% if not ai_enabled() %}
 <p class="notice">{{ ai_off_reason() }} <a href="/settings">Settings</a></p>
@@ -17,11 +40,18 @@
 <p class="notice">Less than a minute has passed — keep going, then finish the session.</p>
 {% endif %}
 
+{% set r = plan.reviews %}
+{% set w = plan.writing %}
+{% set total_min = r.budget_minutes + w.minutes + plan.speaking_minutes %}
+
 {% if active %}
-<section class="card session-bar">
-  <span class="timer" id="timer" data-started="{{ started_iso }}">0:00</span>
-  <span class="muted">session in progress</span>
-  <form method="post" action="/today/finish"><button class="primary" type="submit">Finish session</button></form>
+<section class="band">
+  <div class="band-main">
+    <span class="timer" id="timer" data-started="{{ started_iso }}">0:00</span>
+    <span class="band-text"><span class="band-title">Session in progress</span><span class="muted">Work through the plan below.</span></span>
+    <form method="post" action="/today/finish"><button class="primary" type="submit">Finish session</button></form>
+  </div>
+  {{ month_bar(trip) if trip }}
 </section>
 <script>
   (function () {
@@ -37,8 +67,8 @@
   })();
 </script>
 {% elif summary %}
-<section class="card">
-  <h2>Done for today ✓</h2>
+<section class="card done-card">
+  <h2>{{ orn.berry(12) }} Done for today</h2>
   <div class="summary">
     <div><strong>{{ summary.minutes }}</strong><span>minutes</span></div>
     <div><strong>{{ summary.reviews }}</strong><span>cards reviewed</span></div>
@@ -53,38 +83,68 @@
   </div>
 </section>
 {% else %}
-<section class="card session-bar">
-  <form method="post" action="/today/start"><button class="primary" type="submit">Start session</button></form>
-  <span class="muted">Your plan for today is below.</span>
+<section class="band">
+  <div class="band-main">
+    <form method="post" action="/today/start"><button class="primary" type="submit">Start session</button></form>
+    <span class="band-text"><span class="band-title">{{ total_min }} min plan</span><span class="muted">Three movements: review, write, speak</span></span>
+  </div>
+  {{ month_bar(trip) if trip }}
 </section>
 {% endif %}
 
-{% set r = plan.reviews %}
-{% set w = plan.writing %}
 <ol class="plan">
-  <li class="card">
-    <div class="block-head"><h2>1 · Reviews</h2><span class="mins">{% if r.minutes %}~{{ r.minutes | round(0, "ceil") | int }} of {{ r.budget_minutes }} min{% else %}{{ r.budget_minutes }} min{% endif %}</span></div>
+  <li class="plan-card">
+    <div class="plan-top"><span class="numeral">I</span><span class="mins">{% if r.minutes %}~{{ r.minutes | round(0, "ceil") | int }} of {{ r.budget_minutes }} min{% else %}{{ r.budget_minutes }} min{% endif %}</span></div>
+    <h2>Reviews</h2>
+    <div class="hairline"></div>
     {% if r.queued == 0 %}
-      <p class="muted">Nothing due right now. Nice.</p>
+      <p class="plan-body muted">Nothing due right now. Nice.</p>
     {% else %}
-      <p>{{ r.queued }} {{ "card" if r.queued == 1 else "cards" }} waiting{% if r.new %} ({{ r.new }} new){% endif %}.
+      <p class="plan-body"><span class="big">{{ r.queued }}</span> {{ "card" if r.queued == 1 else "cards" }} waiting{% if r.new %} (<span class="big">{{ r.new }}</span> new){% endif %}.
       {% if r.rollover %}About {{ r.max_cards }} fit in {{ r.budget_minutes }} min; the other {{ r.rollover }} roll over.{% endif %}</p>
-      <a class="block-link" href="/review">Start reviews →</a>
+      <div><a class="block-link" href="/review">Start reviews →</a></div>
     {% endif %}
   </li>
-  <li class="card">
-    <div class="block-head"><h2>2 · Writing</h2><span class="mins">{{ w.minutes }} min</span></div>
+  <li class="plan-card">
+    <div class="plan-top"><span class="numeral">II</span><span class="mins">{{ w.minutes }} min</span></div>
+    <h2>Writing</h2>
+    <div class="hairline"></div>
     {% if w.story %}
-      <p>Revise your attempt at ‘{{ w.story.title }}’ using the feedback.</p>
-      <a class="block-link" href="{{ w.href }}">Continue story →</a>
+      <p class="plan-body">Revise your attempt at <em class="story-title">‘{{ w.story.title }}’</em> using the feedback.</p>
+      <div><a class="block-link" href="{{ w.href }}">Continue story →</a></div>
     {% else %}
-      <p>Write a new short story.</p>
-      <a class="block-link" href="{{ w.href }}">New story →</a>
+      <p class="plan-body">Write a new short story.</p>
+      <div><a class="block-link" href="{{ w.href }}">New story →</a></div>
     {% endif %}
   </li>
-  <li class="card soon" aria-disabled="true">
-    <div class="block-head"><h2>3 · Speaking</h2><span class="mins">{{ plan.speaking_minutes }} min</span></div>
-    <p>Role-play scenarios — coming soon.</p>
+  <li class="plan-card soon" aria-disabled="true">
+    <div class="plan-top"><span class="numeral">III</span><span class="mins">{{ plan.speaking_minutes }} min</span></div>
+    <h2>Speaking</h2>
+    <div class="hairline"></div>
+    <p class="plan-body">Role-play scenarios.</p>
+    <div><span class="soon-tag">coming soon</span></div>
   </li>
 </ol>
+
+{% if weak_spots or word %}
+<div class="lower">
+  {% if weak_spots %}
+  <section class="weak">
+    <h3>Weak spots this month</h3>
+    <ul>
+      {% for s in weak_spots %}<li><span class="big">{{ s.count }}</span><span>{{ s.label }}</span></li>{% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+  {% if word %}
+  <section class="word">
+    {{ orn.sprig(64) }}
+    <div>
+      <h3>Word of the day</h3>
+      <p><span class="word-ru" lang="ru">{{ word.ru_stressed or word.ru }}</span><span class="word-en">— {{ word.en }}</span></p>
+    </div>
+  </section>
+  {% endif %}
+</div>
+{% endif %}
 {% endblock %}

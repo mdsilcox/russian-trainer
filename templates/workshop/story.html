@@ -2,22 +2,24 @@
 {% block title %}{{ story.title }} · Workshop{% endblock %}
 {% block head %}<link rel="stylesheet" href="{{ url_for('static', path='workshop.css') }}">{% endblock %}
 {% block content %}
+{% import "_ornaments.html" as orn %}
 <p><a href="/workshop">← All stories</a></p>
-<div class="heading-row">
+<header class="page-head story-head">
+  <p class="eyebrow"><span lang="ru">Мастерская</span> · {{ langs[story.source_lang] }} → {{ langs[target_lang] }}</p>
   <h1 lang="{{ story.source_lang }}">{{ story.title }}</h1>
-  <span class="muted">{{ langs[story.source_lang] }} → {{ langs[target_lang] }}</span>
-</div>
+  <div class="divider-row left">{{ orn.divider(200) }}</div>
+</header>
 
 {% if request.query_params.get("error") == "empty" %}<p class="error">Your translation was empty, so nothing was saved.</p>{% endif %}
 
 <div class="two-col">
-  <section class="card">
-    <h2>Story</h2>
+  <section class="card page-panel">
+    <h2><span class="berry-bullet">{{ orn.berry(9) }}</span>Story</h2>
     <div class="story-text" lang="{{ story.source_lang }}">{{ story.source_text }}</div>
   </section>
 
-  <section class="card" id="latest">
-    <h2>{{ "Revise your translation" if latest else "Your translation" }}</h2>
+  <section class="card page-panel" id="latest">
+    <h2><span class="berry-bullet">{{ orn.berry(9) }}</span>{{ "Revise your translation" if latest else "Your translation" }}</h2>
     <form method="post" action="/workshop/{{ story.id }}/attempts" class="stack">
       <textarea name="text" rows="14" lang="{{ target_lang }}" required>{{ latest.text if latest else "" }}</textarea>
       <div class="actions tight">
@@ -31,11 +33,13 @@
 
 {% if attempts %}
 <section class="history">
-  <h2>History</h2>
+  <h2 class="section-title">History</h2>
+  <div class="divider-row left">{{ orn.divider(140) }}</div>
   {% for attempt in attempts|reverse %}
     <details class="card attempt" {% if loop.first %}open{% endif %}>
       <summary>
-        Attempt {{ attempts|length - loop.index0 }}
+        {% set n = attempts|length - loop.index0 %}<span class="roman" aria-hidden="true">{{ ["","I","II","III","IV","V","VI","VII","VIII","IX","X"][n] if n <= 10 else n }}</span>
+        Attempt {{ n }}
         <span class="muted">· {{ attempt.created_at.strftime("%d %b %Y, %H:%M") }} UTC</span>
         {% set c = issue_counts[attempt.id] %}
         {% if c %}<span class="muted">· {{ c.error }} error{{ "" if c.error == 1 else "s" }}, {{ c.unnatural }} unnatural</span>{% endif %}

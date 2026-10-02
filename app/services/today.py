@@ -5,12 +5,12 @@ made in /review are attributed to a session by time window, not by hooks.
 """
 
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 
 from sqlalchemy import func
 from sqlmodel import Session as DbSession, col, select
 
-from app.models import ReviewLog, Session, Setting, Story, TranslationAttempt
+from app.models import Card, ReviewLog, Session, Setting, Story, TranslationAttempt
 from app.services import srs, stats
 
 HISTORY_DAYS = 14
@@ -208,3 +208,51 @@ def day_summary(db: DbSession, now: datetime | None = None) -> DaySummary | None
         new_cards=sum(r.new_cards for r in rows),
         streak=stats.streaks(db, now).current,
     )
+
+
+# --- Header extras -------------------------------------------------------------
+
+TRIP_MONTHS = 12
+
+
+def date_label(now: datetime | None = None) -> str:
+    """e.g. "Friday, 2 October" for the learner's local date."""
+    d = stats.local_date(_now(now))
+    return f"{d.strftime('%A')}, {d.day} {d.strftime('%B')}"
+
+
+@dataclass(frozen=True)
+class TripProgress:
+    month: int  # 1..total, the month of the run-up to the trip we are in
+    total: int
+    trip_date: date
+
+
+def trip_progress(db: DbSession, now: datetime | None = None) -> TripProgress | None:
+    """Which of the 12 months before `trip_date` we are in; None with no trip date or once it has passed."""
+    days_left = stats.days_until_trip(db, now)
+    if days_left is None or days_left < 0:
+        return None
+    row = db.get(Setting, "trip_date")
+    trip = date.fromisoformat(str(row.value))
+    span = 365
+    elapsed = min(max(span - days_left, 0), span - 1)
+    return TripProgress(elapsed * TRIP_MONTHS // span + 1, TRIP_MONTHS, trip)
+
+
+@dataclass(frozen=True)
+class WeakSpot:
+    label: str
+    count: int
+
+
+def weak_spots(db: DbSession, now: datetime | None = None, limit: int = 3) -> list[WeakSpot]:
+    """Top mistake categories with at least one mistake in the last 30 days."""
+    return [WeakSpot(m.label, m.recent) for m in stats.top_mistakes(db, now, limit) if m.recent > 0]
+
+
+def word_of_the_day(db: DbSession) -> Card | None:
+    """The most recently added active card, or None with an empty deck."""
+    return db.exec(
+        select(Card).where(Card.suspended == False).order_by(col(Card.created_at).desc(), col(Card.id).desc())  # noqa: E712
+    ).first()

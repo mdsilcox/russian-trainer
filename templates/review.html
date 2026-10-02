@@ -1,67 +1,92 @@
 {% extends "base.html" %}
+{% import "_ornaments.html" as orn %}
 {% block title %}Review · Russian Trainer{% endblock %}
+{% block head %}<link rel="stylesheet" href="/static/review.css">{% endblock %}
 {% block content %}
 {% if not cs and wait_seconds %}
-  <div class="card done">
+  <div class="card done rv-state">
+    {{ orn.sprig(72) }}
     <h1>Next card in {{ (wait_seconds / 60) | round(0, "ceil") | int }} min</h1>
     <p class="muted">A card you're still learning comes back soon. This page refreshes itself when it's due.</p>
-    <p><a href="/cards">Browse cards</a></p>
+    {{ orn.divider(120) }}
+    <p class="rv-links"><a href="/cards">Browse cards</a></p>
   </div>
   <script>setTimeout(() => location.reload(), {{ wait_seconds * 1000 + 500 }});</script>
 {% elif not cs %}
-  <div class="card done">
-    <h1>All done for now <span lang="ru">— молоде́ц!</span></h1>
+  <div class="card done rv-state">
+    {{ orn.sprig(72) }}
+    <h1>All done for now <span lang="ru">— <em>молоде́ц!</em></span></h1>
     <p class="muted">No reviews are due. New cards appear here as you add them, up to your daily limit.</p>
-    <p><a href="/cards/new">Add a card</a> · <a href="/cards">Browse cards</a></p>
+    {{ orn.divider(120) }}
+    <p class="rv-links"><a href="/cards/new">Add a card</a> <a href="/cards">Browse cards</a></p>
   </div>
 {% else %}
-  <p class="muted review-meta">
-    {{ remaining }} left today{% if new_left %} · {{ new_left }} new{% endif %}
-    · {{ "English → Russian" if production else "Russian → English" }}
-    {% if cs.state == 0 %}<span class="badge">new</span>{% endif %}
-  </p>
-
-  <div class="card review-card" id="review">
-    <div class="front">
-      {% if production %}
-        <p class="prompt">{{ card.en }}</p>
-        {% if card.pos %}<p class="muted">{{ card.pos }}{% if card.aspect %}, {{ card.aspect }}{% endif %}</p>{% endif %}
-        <input id="typed" class="typed" lang="ru" placeholder="Type it in Russian (optional), then press Enter" autocomplete="off">
-      {% else %}
-        <p class="prompt ru-big">{{ (card.ru_stressed or card.ru)|ru }}</p>
-      {% endif %}
+  {% set shown = [remaining, 30] | min %}
+  {% set details = [card.pos, {"m": "masculine", "f": "feminine", "n": "neuter"}.get(card.gender, card.gender), card.aspect] | select | list %}
+  <div class="rv">
+    <div class="rv-progress">
+      <div class="rv-progress-top">
+        <p class="rv-count"><span class="rv-count-num">{{ remaining }}</span><span>left today{% if new_left %} · <b>{{ new_left }} new</b>{% endif %}</span></p>
+        <p class="rv-dir">{{ "English → Russian" if production else "Russian → English" }}</p>
+      </div>
+      <div class="rv-bar" role="img" aria-label="{{ remaining }} cards left today">
+        {% for i in range(shown) %}<span></span>{% endfor %}
+      </div>
     </div>
 
-    <button type="button" class="primary reveal" data-hotkey="Space" onclick="reveal()">Show answer <kbd>Space</kbd></button>
+    <article class="rv-card" id="review">
+      {{ orn.corners(64, 14) }}
+      <div class="front">
+        {# Size the Russian word so its longest word fits on one line (never break inside a word). #}
+        {% set fit_chars = [card.ru.split() | map("length") | max, 7] | max %}
+        {% if cs.state == 0 %}<p class="rv-new"><span class="badge">new</span></p>{% endif %}
+        {% if production %}
+          {% if card.pos %}<p class="rv-pos">{{ card.pos }}{% if card.aspect %}, {{ card.aspect }}{% endif %}</p>{% endif %}
+          <p class="rv-word is-en">{{ card.en }}</p>
+          <input id="typed" class="typed rv-typed" lang="ru" placeholder="Type it in Russian (optional), then press Enter" autocomplete="off">
+        {% else %}
+          <p class="rv-word fit" lang="ru" style="--chars: {{ fit_chars }}">{{ (card.ru_stressed or card.ru)|ru }}</p>
+        {% endif %}
+      </div>
 
-    <div class="back" hidden>
-      <hr>
-      {% if production %}
-        <p class="answer ru-big">{{ (card.ru_stressed or card.ru)|ru }}</p>
-        <p id="typed-result" class="muted"></p>
-      {% else %}
-        <p class="answer">{{ card.en }}</p>
-      {% endif %}
-      {% set details = [card.pos, {"m": "masculine", "f": "feminine", "n": "neuter"}.get(card.gender, card.gender), card.aspect] | select | list %}
-      {% if details %}<p class="muted">{{ details | join(", ") }}{% if card.aspect_partner %} · partner {{ card.aspect_partner|ru }}{% endif %}</p>{% endif %}
-      {% if card.example_ru %}
-        <blockquote class="example">
-          {{ card.example_ru|ru }}
-          {% if card.example_en %}<br><span class="muted">{{ card.example_en }}</span>{% endif %}
-        </blockquote>
-      {% endif %}
-      {% if card.notes %}<p class="notes">{{ card.notes }}</p>{% endif %}
-      {% if source %}<p class="muted source">{{ source }}</p>{% endif %}
+      <button type="button" class="reveal rv-reveal" data-hotkey="Space" onclick="reveal()">Show answer <kbd>Space</kbd></button>
 
-      <form method="post" action="/review/{{ cs.id }}" class="ratings" id="rate-form">
+      <div class="back" hidden>
+        {{ orn.divider(200) }}
+        {% if production %}
+          <p class="rv-trans is-ru fit" lang="ru" style="--chars: {{ fit_chars }}">{{ (card.ru_stressed or card.ru)|ru }}</p>
+          <p id="typed-result" class="rv-typed-result muted"></p>
+          {% if details %}<p class="rv-pos">{{ details | join(", ") }}</p>{% endif %}
+        {% else %}
+          {% if details %}<p class="rv-pos">{{ details | join(", ") }}</p>{% endif %}
+          <p class="rv-trans">{{ card.en }}</p>
+        {% endif %}
+        {% if card.aspect_partner %}<p class="rv-pos">partner <span lang="ru">{{ card.aspect_partner|ru }}</span></p>{% endif %}
+        {% if card.example_ru %}
+          <blockquote class="example rv-example">
+            <span class="rv-example-ru" lang="ru">{{ card.example_ru|ru }}</span>
+            {% if card.example_en %}<span class="rv-example-en">{{ card.example_en }}</span>{% endif %}
+          </blockquote>
+        {% endif %}
+        {% if card.notes %}<p class="notes rv-notes">{{ card.notes }}</p>{% endif %}
+        {% if source %}<p class="muted source rv-source">{{ orn.berry(9) }}{{ source }}</p>{% endif %}
+      </div>
+    </article>
+
+    <div class="back rv-rate" hidden>
+      <form method="post" action="/review/{{ cs.id }}" class="ratings rv-ratings" id="rate-form">
         <input type="hidden" name="duration_ms" id="duration">
         {% for value, label, interval in ratings %}
           <button type="submit" name="rating" value="{{ value }}" data-hotkey="{{ value }}" class="rating r{{ value }}">
-            {{ label }} <small>{{ interval }}</small> <kbd>{{ value }}</kbd>
+            <span class="rv-rl">{{ label }}</span> <span class="rv-ri">{{ interval }}</span> <span class="rv-rk">{{ value }}</span>
           </button>
         {% endfor %}
       </form>
-      <p class="muted edit-link"><a href="/cards/{{ card.id }}">Edit card</a></p>
+    </div>
+
+    <div class="rv-foot">
+      <a href="/cards/{{ card.id }}">Edit card</a>
+      <p>Space to reveal · 1–4 to rate</p>
     </div>
   </div>
 
@@ -72,7 +97,7 @@
         .toLowerCase().replaceAll("ё", "е").replace(/[.,!?;:«»"]/g, "").trim().replace(/\s+/g, " ");
     }
     function reveal() {
-      document.querySelector(".back").hidden = false;
+      document.querySelectorAll(".back").forEach((el) => { el.hidden = false; });
       document.querySelector(".reveal").hidden = true;
       document.getElementById("duration").value = Math.round(performance.now() - shownAt);
       const typed = document.getElementById("typed");
@@ -80,7 +105,7 @@
       if (typed && result && typed.value.trim()) {
         const ok = normalize(typed.value) === normalize({{ card.ru | tojson }});
         result.textContent = ok ? "✓ You typed it correctly" : "✗ You typed: " + typed.value;
-        result.className = ok ? "ok" : "error";
+        result.className = "rv-typed-result " + (ok ? "ok" : "error");
         typed.blur();
       }
     }

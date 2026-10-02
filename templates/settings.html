@@ -2,16 +2,21 @@
 {% block title %}Settings · Russian Trainer{% endblock %}
 {% block head %}<link rel="stylesheet" href="{{ url_for('static', path='settings.css') }}">{% endblock %}
 {% block content %}
-<h1>Settings</h1>
-<section class="settings-block" id="ai">
+{% import "_ornaments.html" as orn %}
+<header class="page-head">
+  <h1>Settings</h1>
+  <p class="subtitle" lang="ru">Настройки</p>
+  {{ orn.divider(150) }}
+</header>
+<section class="settings-block card" id="ai">
   <h2>AI</h2>
   <form method="post" action="/settings/ai-backend" class="backend-choice">
     {% for value, label, available, reason in backends %}
-      <label class="checkbox">
+      <label class="choice">
         <input type="radio" name="backend" value="{{ value.value }}" {% if value == current_backend %}checked{% endif %}
                onchange="this.form.submit()">
-        <span><strong>{{ label }}</strong>
-          {% if available %}<span class="muted">· ready</span>{% else %}<span class="muted">· {{ reason }}</span>{% endif %}
+        <span class="choice-body"><strong>{{ label }}</strong>
+          {% if available %}<span class="muted status ready">· ready</span>{% else %}<span class="muted status">· {{ reason }}</span>{% endif %}
         </span>
       </label>
     {% endfor %}
@@ -24,7 +29,7 @@
   </p>
 </section>
 
-<section class="settings-block">
+<section class="settings-block card">
   <h2>Backups</h2>
   {% if backed_up %}<p class="notice">Backup saved: {{ backed_up }}</p>{% endif %}
   {% if error %}<p class="notice">Backup failed. Check the app log.</p>{% endif %}
@@ -34,7 +39,7 @@
   <p class="muted">A backup is made automatically once a day on startup. The newest {{ keep }} are kept in
     <code>{{ backup_dir }}</code>.</p>
   {% if backups %}
-  <table>
+  <table class="ledger">
     <thead><tr><th>File</th><th>Size</th><th>Saved</th></tr></thead>
     <tbody>
     {% for b in backups %}
@@ -53,17 +58,17 @@
   </ol>
 </section>
 
-<section class="settings-block">
+<section class="settings-block card">
   <h2>Export</h2>
-  <ul>
-    <li><a href="/settings/export/cards.csv">Download cards as CSV</a> (opens in Excel)</li>
-    <li><a href="/settings/export/anki.txt">Download cards for Anki</a> (File &gt; Import in Anki)</li>
+  <ul class="exports">
+    <li><a class="button" href="/settings/export/cards.csv">Download cards as CSV</a> <span class="muted">(opens in Excel)</span></li>
+    <li><a class="button" href="/settings/export/anki.txt">Download cards for Anki</a> <span class="muted">(File &gt; Import in Anki)</span></li>
   </ul>
 </section>
 
-<section class="settings-block">
+<section class="settings-block card">
   <h2>Current settings</h2>
-  <table>
+  <table class="ledger kv">
     <tbody>
     {% for label, value in settings %}
       <tr><th scope="row">{{ label }}</th><td>{{ value }}</td></tr>
