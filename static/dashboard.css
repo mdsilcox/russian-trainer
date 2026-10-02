@@ -64,3 +64,9 @@ main h2 small { font: 400 12px var(--sans); letter-spacing: 0.1em; color: var(--
 .card.warn .meter span { background: var(--warn); }
 .spend-warn { color: var(--warn); }
 .card.warn .big { color: var(--warn); }
+
+/* Arrival: bars grow up from the baseline, one after another */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes bar-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+  .arrive .bars .bar { transform-origin: bottom; animation: bar-grow 700ms cubic-bezier(.2, .7, .2, 1) calc(500ms + var(--i, 0) * 90ms) backwards; }
+}

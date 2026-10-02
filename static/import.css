@@ -33,3 +33,10 @@
   .review-table td { border: 0; padding: 4px 0; }
   .subtitle { font-size: 22px; }
 }
+
+/* Even tiles: every row as tall as the tallest, and each tile fills its cell,
+   so one- and two-line topic names line up. */
+.topic-list { grid-auto-rows: 1fr; }
+.topic-list li { display: flex; }
+.topic-list .tile { flex: 1; min-height: 74px; }
+.tile-name { text-wrap: balance; line-height: 1.2; }

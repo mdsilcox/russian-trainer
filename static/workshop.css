@@ -121,3 +121,32 @@ mark.issue:hover .tip, mark.issue:focus .tip { display: block; }
   .story-list li > .toc-num { font-size: 2rem; }
   .annotated { padding: 14px; font-size: 1.2rem; }
 }
+
+/* Teacher's pen: underlines draw in left to right, one by one.
+   Only on a freshly fetched panel (.fresh) or on arrival; a plain reload shows them drawn. */
+mark.issue { background-repeat: no-repeat; background-position: 0 100%; padding-bottom: 3px; text-decoration: none; }
+mark.sev-error { background-image: linear-gradient(var(--cinnabar-text), var(--cinnabar-text)); background-size: 100% 2px; }
+mark.sev-unnatural { background-image: repeating-linear-gradient(90deg, var(--warn) 0 6px, transparent 6px 10px); background-size: 100% 2px; }
+mark.sev-style { background-image: radial-gradient(circle at 1.5px 1.5px, var(--cream-muted) 0 1.1px, transparent 1.5px); background-repeat: repeat-x; background-size: 5px 3px; }
+mark.sev-error, mark.sev-unnatural { background-color: transparent; }
+mark.sev-error:hover, mark.sev-error:focus, mark.sev-unnatural:hover, mark.sev-unnatural:focus { background-color: rgba(201, 162, 39, 0.2); }
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes pen-line { from { background-size: 0 2px; } to { background-size: 100% 2px; } }
+  @keyframes pen-dots { from { clip-path: inset(0 100% -300px 0); } to { clip-path: inset(0 0 -300px 0); } }
+  .feedback.fresh mark.issue, .arrive .feedback mark.issue { animation-duration: 350ms; animation-timing-function: ease-out; animation-fill-mode: backwards; animation-delay: calc(200ms + var(--n, 0) * 250ms); }
+  .feedback.fresh mark.sev-error, .feedback.fresh mark.sev-unnatural, .arrive .feedback mark.sev-error, .arrive .feedback mark.sev-unnatural { animation-name: pen-line; }
+  .feedback.fresh mark.sev-style, .arrive .feedback mark.sev-style { animation-name: pen-dots; }
+  .annotated mark.issue:nth-of-type(1) { --n: 0; }
+  .annotated mark.issue:nth-of-type(2) { --n: 1; }
+  .annotated mark.issue:nth-of-type(3) { --n: 2; }
+  .annotated mark.issue:nth-of-type(4) { --n: 3; }
+  .annotated mark.issue:nth-of-type(5) { --n: 4; }
+  .annotated mark.issue:nth-of-type(6) { --n: 5; }
+  .annotated mark.issue:nth-of-type(7) { --n: 6; }
+  .annotated mark.issue:nth-of-type(8) { --n: 7; }
+  .annotated mark.issue:nth-of-type(9) { --n: 8; }
+  .annotated mark.issue:nth-of-type(10) { --n: 9; }
+  .annotated mark.issue:nth-of-type(11) { --n: 10; }
+  .annotated mark.issue:nth-of-type(12) { --n: 11; }
+  .annotated mark.issue:nth-of-type(n+13) { --n: 12; }
+}

@@ -1,6 +1,6 @@
 {% import "_ornaments.html" as orn %}
 {# Feedback panel for one attempt; swapped in place by HTMX after "Get feedback". #}
-<section class="card feedback" id="feedback">
+<section class="card feedback{% if fresh %} fresh{% endif %}" id="feedback">
   {{ orn.corners(44, 8) }}
   {% if not attempt %}
     <p class="muted">Save a translation to get feedback.</p>

@@ -10,38 +10,38 @@
 </header>
 
 <div class="dash-grid">
-  <section class="card stat">
+  <section class="card stat" data-rise style="--r: 0">
     <h2>Streak</h2>
-    <p class="big">{{ streak.current }} <small>{{ "day" if streak.current == 1 else "days" }}</small></p>
+    <p class="big"><span data-count="{{ streak.current }}">{{ streak.current }}</span> <small>{{ "day" if streak.current == 1 else "days" }}</small></p>
     <p class="muted">Longest: {{ streak.longest }} {{ "day" if streak.longest == 1 else "days" }}</p>
   </section>
 
-  <section class="card stat">
+  <section class="card stat" data-rise style="--r: 1">
     <h2>Trip</h2>
     {% if trip_days is none %}
       <p class="big">—</p>
       <p class="muted">No trip date set.</p>
     {% elif trip_days < 0 %}
-      <p class="big">{{ -trip_days }} <small>{{ "day" if trip_days == -1 else "days" }} ago</small></p>
+      <p class="big"><span data-count="{{ -trip_days }}">{{ -trip_days }}</span> <small>{{ "day" if trip_days == -1 else "days" }} ago</small></p>
       <p class="muted">Your trip date has passed.</p>
     {% elif trip_days == 0 %}
       <p class="big">Today</p>
       <p class="muted">{{ "Удачи!"|ru }}</p>
     {% else %}
-      <p class="big">{{ trip_days }} <small>{{ "day" if trip_days == 1 else "days" }}</small></p>
+      <p class="big"><span data-count="{{ trip_days }}">{{ trip_days }}</span> <small>{{ "day" if trip_days == 1 else "days" }}</small></p>
       <p class="muted">≈ {{ (trip_days / 7) | round(1) }} weeks to go</p>
     {% endif %}
   </section>
 
-  <section class="card stat">
+  <section class="card stat" data-rise style="--r: 2">
     <h2>Retention <small>30 days</small></h2>
     <p class="big">{% if retention is none %}—{% else %}{{ (retention * 100) | round | int }}%{% endif %}</p>
     <p class="muted">{% if retention is none %}No reviews of learned cards yet.{% else %}Reviews not rated Again.{% endif %}</p>
   </section>
 
-  <section class="card stat">
+  <section class="card stat" data-rise style="--r: 3">
     <h2>Deck</h2>
-    <p class="big">{{ deck.cards }} <small>cards</small></p>
+    <p class="big"><span data-count="{{ deck.cards }}">{{ deck.cards }}</span> <small>cards</small></p>
     <p class="muted">{{ deck.new_waiting }} new waiting</p>
   </section>
 </div>
@@ -54,8 +54,8 @@
   <ol class="bars" aria-label="Reviews due over the next 7 days">
     {% for label, count in forecast %}
       <li>
-        <span class="count">{{ count }}</span>
-        <span class="bar{% if loop.first %} today{% endif %}" style="--h: {{ [(count / forecast_max * 100) | round | int, 2] | max if count else 2 }}"></span>
+        <span class="count" data-count="{{ count }}">{{ count }}</span>
+        <span class="bar{% if loop.first %} today{% endif %}" style="--i: {{ loop.index0 }}; --h: {{ [(count / forecast_max * 100) | round | int, 2] | max if count else 2 }}"></span>
         <span class="label">{{ label }}</span>
       </li>
     {% endfor %}

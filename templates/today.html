@@ -3,7 +3,10 @@
 {% macro month_bar(t) %}
 <div class="months">
   <div class="months-head"><span>Month {{ t.month }} of {{ t.total }}</span><span class="gold">{{ t.trip_date.day }} {{ t.trip_date.strftime("%b %Y") }}: Moscow</span></div>
-  <div class="segs" role="img" aria-label="Month {{ t.month }} of {{ t.total }}">{% for i in range(1, t.total + 1) %}<span class="seg{% if i <= t.month %} on{% endif %}"></span>{% endfor %}</div>
+  <div class="segs-wrap">
+    <div class="segs" role="img" aria-label="Month {{ t.month }} of {{ t.total }}">{% for i in range(1, t.total + 1) %}<span class="seg{% if i <= t.month %} on{% endif %}"></span>{% endfor %}</div>
+    {% if t.month >= 1 and t.month <= t.total %}<span class="today-berry" aria-hidden="true" style="--p: {{ (t.month * 100 / t.total) | round(2) }}%"><span class="breathe-ring"></span><svg class="breathe" width="22" height="22" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="17" r="9" fill="#B3261E" stroke="#C9A227"/><circle cx="15" cy="17" r="2.4" fill="#E2C46A"/><path d="M15 8 C15 4 18 2 22 2 C22 6 19 8 15 8Z" stroke="#C9A227" fill="none"/></svg></span>{% endif %}
+  </div>
 </div>
 {% endmacro %}
 {% block title %}Today · Russian Trainer{% endblock %}
@@ -17,18 +20,18 @@
   </div>
   <div class="t-tiles">
     {% if trip_days is not none and trip_days > 0 %}
-    <div class="tile">
+    <div class="tile" data-rise style="--r: 0">
       <span class="sr">{{ trip_days }} {{ "day" if trip_days == 1 else "days" }} to Moscow</span>
-      <span class="tile-num tile-num-lg" aria-hidden="true">{{ trip_days }}</span>
+      <span class="tile-num tile-num-lg" aria-hidden="true" data-count="{{ trip_days }}">{{ trip_days }}</span>
       <span class="tile-text" aria-hidden="true"><b>{{ "day" if trip_days == 1 else "days" }} to Moscow</b>{% if trip %}<small>{{ trip.trip_date.day }} {{ trip.trip_date.strftime("%b %Y") }}</small>{% endif %}</span>
     </div>
     {% elif trip_days == 0 %}
-    <div class="tile"><span class="tile-text"><b>Moscow today! <span lang="ru">Удачи!</span></b></span></div>
+    <div class="tile" data-rise style="--r: 0"><span class="tile-text"><b>Moscow today! <span lang="ru">Удачи!</span></b></span></div>
     {% endif %}
-    <div class="tile tile-streak">
+    <div class="tile tile-streak" data-rise style="--r: 1">
       <span class="sr">Streak: {{ streak.current }} {{ "day" if streak.current == 1 else "days" }}</span>
       {{ orn.sprig(44) }}
-      <span class="tile-text" aria-hidden="true"><span class="tile-num">{{ streak.current }}</span><b>day streak</b></span>
+      <span class="tile-text" aria-hidden="true"><span class="tile-num" data-count="{{ streak.current }}">{{ streak.current }}</span><b>day streak</b></span>
     </div>
   </div>
 </header>
@@ -68,12 +71,24 @@
 </script>
 {% elif summary %}
 <section class="card done-card">
+  <div class="done-bloom bloom" id="done-bloom" aria-hidden="true"><span class="bloom-ring"></span>{{ orn.sprig(56) }}</div>
+  <script>
+    // Bloom once per day, right after finishing; later visits show the sprig still.
+    (function () {
+      var el = document.getElementById("done-bloom");
+      try {
+        var key = "rt-bloomed-" + new Date().toDateString();
+        if (localStorage.getItem(key)) { el.classList.remove("bloom"); el.querySelector(".bloom-ring").remove(); }
+        else localStorage.setItem(key, "1");
+      } catch (e) {}
+    })();
+  </script>
   <h2>{{ orn.berry(12) }} Done for today</h2>
   <div class="summary">
-    <div><strong>{{ summary.minutes }}</strong><span>minutes</span></div>
-    <div><strong>{{ summary.reviews }}</strong><span>cards reviewed</span></div>
-    <div><strong>{{ summary.new_cards }}</strong><span>new cards</span></div>
-    <div><strong>{{ summary.streak }}</strong><span>day streak</span></div>
+    <div><strong data-count="{{ summary.minutes }}">{{ summary.minutes }}</strong><span>minutes</span></div>
+    <div><strong data-count="{{ summary.reviews }}">{{ summary.reviews }}</strong><span>cards reviewed</span></div>
+    <div><strong data-count="{{ summary.new_cards }}">{{ summary.new_cards }}</strong><span>new cards</span></div>
+    <div><strong data-count="{{ summary.streak }}">{{ summary.streak }}</strong><span>day streak</span></div>
   </div>
   <div class="actions">
     <span class="muted">Keep going:</span>
@@ -93,19 +108,19 @@
 {% endif %}
 
 <ol class="plan">
-  <li class="plan-card">
+  <li class="plan-card" data-rise style="--r: 0">
     <div class="plan-top"><span class="numeral">I</span><span class="mins">{% if r.minutes %}~{{ r.minutes | round(0, "ceil") | int }} of {{ r.budget_minutes }} min{% else %}{{ r.budget_minutes }} min{% endif %}</span></div>
     <h2>Reviews</h2>
     <div class="hairline"></div>
     {% if r.queued == 0 %}
       <p class="plan-body muted">Nothing due right now. Nice.</p>
     {% else %}
-      <p class="plan-body"><span class="big">{{ r.queued }}</span> {{ "card" if r.queued == 1 else "cards" }} waiting{% if r.new %} (<span class="big">{{ r.new }}</span> new){% endif %}.
+      <p class="plan-body"><span class="big" data-count="{{ r.queued }}">{{ r.queued }}</span> {{ "card" if r.queued == 1 else "cards" }} waiting{% if r.new %} (<span class="big" data-count="{{ r.new }}">{{ r.new }}</span> new){% endif %}.
       {% if r.rollover %}About {{ r.max_cards }} fit in {{ r.budget_minutes }} min; the other {{ r.rollover }} roll over.{% endif %}</p>
       <div><a class="block-link" href="/review">Start reviews →</a></div>
     {% endif %}
   </li>
-  <li class="plan-card">
+  <li class="plan-card" data-rise style="--r: 1">
     <div class="plan-top"><span class="numeral">II</span><span class="mins">{{ w.minutes }} min</span></div>
     <h2>Writing</h2>
     <div class="hairline"></div>
@@ -117,7 +132,7 @@
       <div><a class="block-link" href="{{ w.href }}">New story →</a></div>
     {% endif %}
   </li>
-  <li class="plan-card soon" aria-disabled="true">
+  <li class="plan-card soon" aria-disabled="true" data-rise style="--r: 2">
     <div class="plan-top"><span class="numeral">III</span><span class="mins">{{ plan.speaking_minutes }} min</span></div>
     <h2>Speaking</h2>
     <div class="hairline"></div>
@@ -129,15 +144,15 @@
 {% if weak_spots or word %}
 <div class="lower">
   {% if weak_spots %}
-  <section class="weak">
+  <section class="weak" data-rise style="--r: 3">
     <h3>Weak spots this month</h3>
     <ul>
-      {% for s in weak_spots %}<li><span class="big">{{ s.count }}</span><span>{{ s.label }}</span></li>{% endfor %}
+      {% for s in weak_spots %}<li><span class="big" data-count="{{ s.count }}">{{ s.count }}</span><span>{{ s.label }}</span></li>{% endfor %}
     </ul>
   </section>
   {% endif %}
   {% if word %}
-  <section class="word">
+  <section class="word" data-rise style="--r: 4">
     {{ orn.sprig(64) }}
     <div>
       <h3>Word of the day</h3>

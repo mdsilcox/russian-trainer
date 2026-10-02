@@ -94,3 +94,48 @@
   .rv-reveal { font-size: 20px; padding: 12px 20px; }
   .rv-reveal kbd { display: none; }
 }
+
+/* ---- Motion (all of it off under Reduce motion) ---- */
+.rv-sprig { position: relative; display: inline-flex; justify-content: center; }
+.rv-sprig svg { position: relative; z-index: 1; }
+.rv-sprig .bloom-ring {
+  display: none; position: absolute; left: 50%; top: 9px; width: 40px; height: 40px; margin: -20px 0 0 -20px;
+  border: 1px solid #E2C46A; border-radius: 50%; pointer-events: none;
+}
+.rv-sprig.bloom .bloom-ring { display: block; }
+
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes rv-shimmer { from { transform: translateX(-120%) skewX(-18deg); } to { transform: translateX(260%) skewX(-18deg); } }
+  @keyframes rv-again { 0% { box-shadow: inset 0 0 0 1px rgba(179,38,30,0), 0 0 0 rgba(179,38,30,0); } 60% { box-shadow: inset 0 0 0 2px rgba(179,38,30,.9), 0 0 26px rgba(179,38,30,.5); } 100% { box-shadow: inset 0 0 0 2px rgba(179,38,30,.9), 0 0 26px rgba(179,38,30,.5); } }
+  @keyframes rv-hard { 0% { box-shadow: inset 0 0 0 1px rgba(226,196,106,0); } 60%, 100% { box-shadow: inset 0 0 0 2px rgba(226,196,106,.85); } }
+  .rv-card.fx-good { overflow: hidden; }
+  .rv-card.fx-good::after {
+    content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 45%; pointer-events: none;
+    background: linear-gradient(100deg, rgba(226,196,106,0) 0%, rgba(226,196,106,.34) 50%, rgba(226,196,106,0) 100%);
+    transform: translateX(-120%) skewX(-18deg); animation: rv-shimmer 160ms cubic-bezier(.4,0,.2,1) both;
+  }
+  .rv-card.fx-again { animation: rv-again 140ms ease-out both; }
+  .rv-card.fx-hard { animation: rv-hard 140ms ease-out both; }
+
+  /* Progress: departed segments are gold and fold away; the numeral gives one beat. */
+  @keyframes rv-seg-collapse { from { transform: scaleX(1); opacity: 1; } to { transform: scaleX(0); opacity: 0; } }
+  @keyframes rv-tick { 0% { transform: scale(1); } 40% { transform: scale(1.18); } 100% { transform: scale(1); } }
+  .rv-bar span.rv-gone { transform-origin: right center; animation: rv-seg-collapse 400ms cubic-bezier(.2,.7,.2,1) both; }
+  .rv-count-num { display: inline-block; transform-origin: left bottom; }
+  .rv-count-num.is-tick { animation: rv-tick 420ms cubic-bezier(.3,1.4,.5,1) 160ms; }
+
+  /* Session end: «Молоде́ц!» rises in once the sprig has bloomed. */
+  .rv-state.is-bloom h1 { animation: rise-in 500ms ease-out 1100ms backwards; }
+
+  /* Card slide, only for review -> review navigations (type added in the head script). */
+  @keyframes rv-slide-out { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(-40px); } }
+  @keyframes rv-slide-in { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+  html:active-view-transition-type(next-card) .rv-card { view-transition-name: rv-card; }
+  html:active-view-transition-type(next-card)::view-transition-group(rv-card) { animation-duration: 240ms; }
+  html:active-view-transition-type(next-card)::view-transition-old(rv-card) { animation: rv-slide-out 220ms cubic-bezier(.5,0,.9,.6) both; }
+  html:active-view-transition-type(next-card)::view-transition-new(rv-card) { animation: rv-slide-in 240ms cubic-bezier(.1,.6,.3,1) 40ms both; }
+}
+
+/* Room for tails (д, р, у, ф, щ) and stress marks: at `line-height: 1` the big serif's
+   descenders reached into the Show answer button. Scales with the font size. */
+.rv-word, .rv-trans.is-ru { line-height: 1.1; padding-bottom: 0.14em; padding-top: 0.04em; }

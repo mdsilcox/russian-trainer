@@ -6,7 +6,7 @@
 .t-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 28px 32px; margin-bottom: 36px; }
 .t-title { display: flex; flex-direction: column; gap: 10px; min-width: 260px; }
 .t-date { margin: 0; font-size: 13px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold-light); font-weight: 500; }
-.t-title h1 { margin: 0; font-size: clamp(64px, 9vw, 112px); line-height: 0.9; letter-spacing: -0.01em; }
+.t-title h1 { margin: 0; padding-bottom: 0.2em; font-size: clamp(64px, 9vw, 112px); line-height: 0.9; letter-spacing: -0.01em; }
 .t-sub { display: flex; align-items: center; gap: 16px; }
 .t-ru { font-family: var(--serif); font-style: italic; font-weight: 500; font-size: 36px; line-height: 1; color: var(--gold-light); }
 .t-sub .ornament { margin: 0; }
@@ -90,4 +90,16 @@
   .tile, .tile-streak { max-width: none; }
   .plan-card { padding: 22px 20px; }
   .plan-card h2 { font-size: 38px; }
+}
+
+/* Month bar: today's berry */
+.segs-wrap { position: relative; }
+.today-berry { position: absolute; top: 50%; left: var(--p); width: 22px; height: 22px; margin: -11px 0 0 -11px; pointer-events: none; }
+.today-berry svg { position: absolute; inset: 0; }
+.breathe-ring { position: absolute; inset: -3px; border-radius: 50%; border: 1px solid #E2C46A; box-shadow: 0 0 12px rgba(226, 196, 106, 0.55); opacity: 0.3; }
+.done-bloom { position: relative; width: 56px; height: 56px; margin: 0 0 6px 6px; }
+.bloom-ring { position: absolute; left: 50%; top: 12%; width: 22px; height: 22px; margin: -11px 0 0 -11px; border: 1px solid #E2C46A; border-radius: 50%; opacity: 0; }
+.done-bloom svg { position: relative; }
+@media (prefers-reduced-motion: no-preference) {
+  .bloom-ring { opacity: 1; }
 }

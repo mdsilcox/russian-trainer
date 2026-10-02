@@ -133,7 +133,7 @@ def get_feedback(request: Request, story_id: int, attempt_id: int, session: Sess
         error = str(e)
     if request.headers.get("HX-Request"):
         return templates.TemplateResponse(
-            request, "workshop/_feedback.html", feedback_context(session, story, attempt, error)
+            request, "workshop/_feedback.html", feedback_context(session, story, attempt, error) | {"fresh": True}
         )
     return RedirectResponse(f"/workshop/{story_id}#feedback", status_code=303)
 
