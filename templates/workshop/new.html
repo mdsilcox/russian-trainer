@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}New story · Russian Trainer{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', path='workshop.css') }}">{% endblock %}
+{% block content %}
+<p><a href="/workshop">← All stories</a></p>
+<h1>New story</h1>
+{% if error %}<p class="error">{{ error }}</p>{% endif %}
+
+<form method="post" action="/workshop/new" class="card stack" id="story-form">
+  <label class="field"><span>Title</span><input name="title" value="{{ v.title or '' }}" required></label>
+
+  <fieldset class="lang-choice">
+    <legend>I wrote the story in</legend>
+    <label class="checkbox"><input type="radio" name="source_lang" value="en" {% if v.source_lang != "ru" %}checked{% endif %}> English, translating into Russian</label>
+    <label class="checkbox"><input type="radio" name="source_lang" value="ru" {% if v.source_lang == "ru" %}checked{% endif %}> Russian, translating into English</label>
+  </fieldset>
+
+  <div class="two-col">
+    <label class="field"><span>Story</span>
+      <textarea name="source_text" rows="14" required>{{ v.source_text or '' }}</textarea>
+    </label>
+    <label class="field"><span>Your translation <small class="muted">(can wait until later)</small></span>
+      <textarea name="translation" rows="14">{{ v.translation or '' }}</textarea>
+    </label>
+  </div>
+
+  <div class="actions"><button type="submit" class="primary">Save story</button></div>
+</form>
+
+<script>
+  // Mark each textarea's language so the right font and spellchecker apply.
+  const form = document.getElementById("story-form");
+  function syncLang() {
+    const src = form.querySelector("input[name=source_lang]:checked").value;
+    form.source_text.lang = src;
+    form.translation.lang = src === "en" ? "ru" : "en";
+  }
+  form.querySelectorAll("input[name=source_lang]").forEach((r) => r.addEventListener("change", syncLang));
+  syncLang();
+</script>
+{% endblock %}

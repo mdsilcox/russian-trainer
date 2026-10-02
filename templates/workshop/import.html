@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Import stories · Workshop{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', path='workshop.css') }}">{% endblock %}
+{% block content %}
+<p><a href="/workshop">← All stories</a></p>
+<h1>Import your stories</h1>
+<p class="muted">Paste any number of stories. Start each with <code># Title</code>, then a <code>## EN</code> or <code>## RU</code> section for the original and a second section for your translation. The first section is treated as the original.</p>
+
+<details class="card format">
+  <summary>Example format</summary>
+  <pre>{{ template }}</pre>
+</details>
+
+{% for error in errors %}<p class="error">{{ error }}</p>{% endfor %}
+
+<form method="post" action="/workshop/import" class="stack">
+  <textarea name="text" rows="18" placeholder="# Title&#10;## EN&#10;…&#10;## RU&#10;…">{{ text }}</textarea>
+
+  {% if preview %}
+    <div class="card">
+      <h2>Ready to import {{ preview|length }} stor{{ "y" if preview|length == 1 else "ies" }}</h2>
+      <ul class="import-preview">
+        {% for p in preview %}
+          <li>
+            <strong lang="{{ p.source_lang }}">{{ p.title }}</strong>
+            <span class="muted">· {{ langs[p.source_lang] }} original, {{ p.source_text|length }} chars
+              · {% if p.translation %}translation {{ p.translation|length }} chars{% else %}<em>no translation yet</em>{% endif %}</span>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  <div class="actions tight">
+    <button type="submit">Preview</button>
+    {% if preview and not errors %}
+      <button type="submit" name="confirm" value="1" class="primary">Import {{ preview|length }}</button>
+    {% endif %}
+  </div>
+</form>
+{% endblock %}

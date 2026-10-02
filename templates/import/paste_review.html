@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Review import · Russian Trainer{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', path='import.css') }}">{% endblock %}
+{% block content %}
+<p><a href="/import">← Import</a></p>
+<h1>Review import</h1>
+{% if error %}<p class="error">{{ error }}</p>{% endif %}
+{% if dropped %}<p class="muted">{{ dropped }} repeated line{{ "" if dropped == 1 else "s" }} in your paste ignored.</p>{% endif %}
+
+{% if not rows %}
+  <p class="muted">Nothing is waiting for review. <a href="/import">Paste a list</a>.</p>
+{% else %}
+<form method="post" action="/import/paste/add">
+  <table class="review-table">
+    {% for r in rows %}
+      {% set dupe = r.duplicate %}
+      {% set missing = not r.item.en %}
+      <tr class="{{ 'dupe' if dupe }}">
+        <td><input type="checkbox" name="sel" value="{{ r.key }}" aria-label="Add {{ r.item.ru }}" {{ "" if (dupe or missing) else "checked" }}></td>
+        <td>
+          <strong lang="ru">{{ r.item.ru_stressed or r.item.ru }}</strong>
+          {% if dupe %}<span class="badge">already in deck</span>{% endif %}
+          {% if r.item.pos %}<div class="muted">{{ r.item.pos }}{% if r.item.gender %} · {{ r.item.gender }}{% endif %}{% if r.item.aspect %} · {{ r.item.aspect }}{% endif %}</div>{% endif %}
+        </td>
+        <td>
+          <input type="text" name="en_{{ r.key }}" value="{{ r.item.en or '' }}" placeholder="English meaning (required)" aria-label="English for {{ r.item.ru }}">
+          {% if missing %}<small class="muted">No English yet: type one, or go back and use "Enrich missing with Claude".</small>{% endif %}
+        </td>
+        <td class="ex"><span lang="ru">{{ r.item.example_ru or "" }}</span><div class="muted">{{ r.item.example_en or "" }}</div></td>
+      </tr>
+    {% endfor %}
+  </table>
+  <div class="sticky-actions">
+    <button type="submit" class="primary">Add selected</button>
+    <button type="submit" formaction="/import/paste/discard" formnovalidate>Discard</button>
+    <span class="muted">Checked rows without English are skipped.</span>
+  </div>
+</form>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,108 @@
+{# Feedback panel for one attempt; swapped in place by HTMX after "Get feedback". #}
+<section class="card feedback" id="feedback">
+  {% if not attempt %}
+    <p class="muted">Save a translation to get feedback.</p>
+  {% elif not fb %}
+    <div class="feedback-cta">
+      <div>
+        <h2>Feedback</h2>
+        <p class="muted">Claude checks the Russian for case, aspect and motion-verb errors and suggests more natural phrasing. Each check costs about 2–4 cents.</p>
+      </div>
+      {% if has_api_key() %}
+        <form method="post" action="/workshop/{{ story.id }}/attempts/{{ attempt.id }}/feedback"
+              hx-post="/workshop/{{ story.id }}/attempts/{{ attempt.id }}/feedback"
+              hx-target="#feedback" hx-swap="outerHTML" hx-disabled-elt="find button">
+          <button type="submit" class="primary">Get feedback<span class="htmx-indicator"> (≈30 s…)</span></button>
+        </form>
+      {% else %}
+        <p class="notice">Set ANTHROPIC_API_KEY (see <a href="/settings">Settings</a>) to get feedback.</p>
+      {% endif %}
+    </div>
+    {% if feedback_error %}<p class="error">{{ feedback_error }}</p>{% endif %}
+  {% else %}
+    <h2>Feedback</h2>
+    <p class="summary">{{ fb.summary }}</p>
+
+    {% set errors = fb.issues | selectattr("severity", "equalto", "error") | list %}
+    {% set unnatural = fb.issues | selectattr("severity", "equalto", "unnatural") | list %}
+    <p class="muted counts">
+      {{ errors|length }} error{{ "" if errors|length == 1 else "s" }} ·
+      {{ unnatural|length }} unnatural · {{ fb.issues|length - errors|length - unnatural|length }} style
+      — hover or tap a highlight for the explanation.
+    </p>
+
+    <div class="annotated" lang="ru">{% for seg in segments %}{% if seg.issue is none %}{{ seg.text }}{% else %}{% set issue = fb.issues[seg.issue] %}<mark class="issue sev-{{ issue.severity }}" tabindex="0">{{ seg.text }}<span class="tip" lang="en"><strong lang="ru">{{ issue.right }}</strong> · {{ labels[issue.category] }}<br>{{ issue.explanation }}</span></mark>{% endif %}{% endfor %}</div>
+
+    {% if routed and (routed.new_cards or routed.linked_cards or routed.drill_mistakes) %}
+      <div class="routed">
+        {% if routed.new_cards %}
+          <p><strong>Added {{ routed.new_cards|length }} card{{ "" if routed.new_cards|length == 1 else "s" }} to your deck</strong>
+            <span class="muted">— remove any you don't want.</span></p>
+          <ul class="auto-cards">
+            {% for card in routed.new_cards %}
+              <li>
+                <span lang="ru">{{ card.ru_stressed or card.ru }}</span> <span class="muted">— {{ card.en }}</span>
+                <button type="button" class="link-button" title="Don't make a card"
+                        hx-post="/workshop/cards/{{ card.id }}/discard" hx-target="closest li" hx-swap="outerHTML">✕</button>
+              </li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+        {% if routed.linked_cards %}
+          <p class="muted">Already in your deck: {% for c in routed.linked_cards %}<span lang="ru">{{ c.ru_stressed or c.ru }}</span>{{ ", " if not loop.last }}{% endfor %}</p>
+        {% endif %}
+        {% if routed.drill_mistakes %}
+          <p class="muted">{{ routed.drill_mistakes|length }} grammar mistake{{ "" if routed.drill_mistakes|length == 1 else "s" }} saved for drills: {{ drill_labels|join(", ") }}.</p>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    <h3>By category</h3>
+    {% for label, items in groups %}
+      <details class="issue-group" {% if loop.first %}open{% endif %}>
+        <summary>{{ label }} <span class="muted">({{ items|length }})</span></summary>
+        <ul>
+          {% for i, issue in items %}
+            <li class="sev-{{ issue.severity }}">
+              <span class="pair" lang="ru"><del>{{ issue.wrong }}</del> → <ins>{{ issue.right }}</ins></span>
+              <span class="badge">{{ issue.severity }}</span>
+              {% if issue.subcategory %}<span class="muted">{{ issue.subcategory }}</span>{% endif %}
+              <br><span class="explain">{{ issue.explanation }}</span>
+              {% if i in unplaced %}<span class="muted small">(couldn't highlight this one in the text)</span>{% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      </details>
+    {% endfor %}
+
+    <h3>Corrected text</h3>
+    <div class="diff" lang="ru">{% for op, text in correction_diff %}{% if op == "same" %}{{ text }}{% elif op == "del" %}<del>{{ text }}</del>{% else %}<ins>{{ text }}</ins>{% endif %}{% endfor %}</div>
+
+    {% if fb.rephrasings %}
+      <h3>Say it more naturally</h3>
+      <ul class="rephrasings">
+        {% for r in fb.rephrasings %}
+          <li><span lang="ru" class="muted">{{ r.original }}</span><br>→ <span lang="ru">{{ r.natural }}</span><br><small class="muted">{{ r.why }}</small></li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    {% if fb.vocab %}
+      <h3>Worth learning</h3>
+      <ul class="vocab">
+        {% for v in fb.vocab %}
+          <li><strong lang="ru">{{ v.ru }}</strong> — {{ v.en }}<br>
+            <span lang="ru">{{ v.example_ru }}</span> <span class="muted">{{ v.example_en }}</span><br>
+            <small class="muted">{{ v.why }}</small></li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    {% if fb.translation_notes %}
+      <h3>Your English translation</h3>
+      <ul>{% for note in fb.translation_notes %}<li>{{ note }}</li>{% endfor %}</ul>
+    {% endif %}
+
+    <p class="muted small">Revise your translation above and save a new version to see how much you've improved.</p>
+  {% endif %}
+</section>

@@ -1,0 +1,16 @@
+.today-top { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 14px; margin: -4px 0 16px; }
+.plan { list-style: none; margin: 16px 0; padding: 0; display: grid; gap: 12px; }
+.plan .card { margin: 0; }
+.plan h2 { margin: 0; font-size: 1.1rem; color: var(--text); }
+.plan .block-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.plan .mins { color: var(--muted); font-variant-numeric: tabular-nums; }
+.plan p { margin: 6px 0 0; }
+.plan .block-link { display: inline-block; margin-top: 8px; }
+.plan .soon { opacity: 0.55; }
+.session-bar { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.session-bar form { margin: 0; }
+.timer { font: 600 2rem/1 var(--serif); font-variant-numeric: tabular-nums; }
+.summary { display: flex; gap: 24px; flex-wrap: wrap; margin: 12px 0; }
+.summary div { display: grid; }
+.summary strong { font: 600 1.6rem/1.2 var(--serif); }
+.summary span { font-size: 13px; color: var(--muted); }

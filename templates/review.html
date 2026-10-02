@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Review · Russian Trainer{% endblock %}
+{% block content %}
+{% if not cs and wait_seconds %}
+  <div class="card done">
+    <h1>Next card in {{ (wait_seconds / 60) | round(0, "ceil") | int }} min</h1>
+    <p class="muted">A card you're still learning comes back soon. This page refreshes itself when it's due.</p>
+    <p><a href="/cards">Browse cards</a></p>
+  </div>
+  <script>setTimeout(() => location.reload(), {{ wait_seconds * 1000 + 500 }});</script>
+{% elif not cs %}
+  <div class="card done">
+    <h1>All done for now <span lang="ru">— молоде́ц!</span></h1>
+    <p class="muted">No reviews are due. New cards appear here as you add them, up to your daily limit.</p>
+    <p><a href="/cards/new">Add a card</a> · <a href="/cards">Browse cards</a></p>
+  </div>
+{% else %}
+  <p class="muted review-meta">
+    {{ remaining }} left today{% if new_left %} · {{ new_left }} new{% endif %}
+    · {{ "English → Russian" if production else "Russian → English" }}
+    {% if cs.state == 0 %}<span class="badge">new</span>{% endif %}
+  </p>
+
+  <div class="card review-card" id="review">
+    <div class="front">
+      {% if production %}
+        <p class="prompt">{{ card.en }}</p>
+        {% if card.pos %}<p class="muted">{{ card.pos }}{% if card.aspect %}, {{ card.aspect }}{% endif %}</p>{% endif %}
+        <input id="typed" class="typed" lang="ru" placeholder="Type it in Russian (optional), then press Enter" autocomplete="off">
+      {% else %}
+        <p class="prompt ru-big">{{ (card.ru_stressed or card.ru)|ru }}</p>
+      {% endif %}
+    </div>
+
+    <button type="button" class="primary reveal" data-hotkey="Space" onclick="reveal()">Show answer <kbd>Space</kbd></button>
+
+    <div class="back" hidden>
+      <hr>
+      {% if production %}
+        <p class="answer ru-big">{{ (card.ru_stressed or card.ru)|ru }}</p>
+        <p id="typed-result" class="muted"></p>
+      {% else %}
+        <p class="answer">{{ card.en }}</p>
+      {% endif %}
+      {% set details = [card.pos, {"m": "masculine", "f": "feminine", "n": "neuter"}.get(card.gender, card.gender), card.aspect] | select | list %}
+      {% if details %}<p class="muted">{{ details | join(", ") }}{% if card.aspect_partner %} · partner {{ card.aspect_partner|ru }}{% endif %}</p>{% endif %}
+      {% if card.example_ru %}
+        <blockquote class="example">
+          {{ card.example_ru|ru }}
+          {% if card.example_en %}<br><span class="muted">{{ card.example_en }}</span>{% endif %}
+        </blockquote>
+      {% endif %}
+      {% if card.notes %}<p class="notes">{{ card.notes }}</p>{% endif %}
+      {% if source %}<p class="muted source">{{ source }}</p>{% endif %}
+
+      <form method="post" action="/review/{{ cs.id }}" class="ratings" id="rate-form">
+        <input type="hidden" name="duration_ms" id="duration">
+        {% for value, label, interval in ratings %}
+          <button type="submit" name="rating" value="{{ value }}" data-hotkey="{{ value }}" class="rating r{{ value }}">
+            {{ label }} <small>{{ interval }}</small> <kbd>{{ value }}</kbd>
+          </button>
+        {% endfor %}
+      </form>
+      <p class="muted edit-link"><a href="/cards/{{ card.id }}">Edit card</a></p>
+    </div>
+  </div>
+
+  <script>
+    const shownAt = performance.now();
+    function normalize(s) {
+      return s.normalize("NFD").replace(/́/g, "").normalize("NFC")
+        .toLowerCase().replaceAll("ё", "е").replace(/[.,!?;:«»"]/g, "").trim().replace(/\s+/g, " ");
+    }
+    function reveal() {
+      document.querySelector(".back").hidden = false;
+      document.querySelector(".reveal").hidden = true;
+      document.getElementById("duration").value = Math.round(performance.now() - shownAt);
+      const typed = document.getElementById("typed");
+      const result = document.getElementById("typed-result");
+      if (typed && result && typed.value.trim()) {
+        const ok = normalize(typed.value) === normalize({{ card.ru | tojson }});
+        result.textContent = ok ? "✓ You typed it correctly" : "✗ You typed: " + typed.value;
+        result.className = ok ? "ok" : "error";
+        typed.blur();
+      }
+    }
+    document.getElementById("typed")?.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") { e.preventDefault(); reveal(); }
+    });
+    document.getElementById("typed")?.focus();
+  </script>
+{% endif %}
+{% endblock %}

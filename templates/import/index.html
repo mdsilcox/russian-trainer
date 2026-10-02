@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Import · Russian Trainer{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', path='import.css') }}">{% endblock %}
+{% block content %}
+<h1>Import vocabulary</h1>
+
+{% if added %}<p class="notice">Added {{ added }} card{{ "" if added == 1 else "s" }} to your deck.</p>{% endif %}
+{% if error %}<p class="error">{{ error }}</p>{% endif %}
+
+<section class="card stack">
+  <h2>Travel starter deck</h2>
+  <p class="muted">Pick topics to generate (about {{ total }} cards across all of them). Each topic is one Claude call, roughly a cent or two. You review everything before it joins your deck.</p>
+  {% if pending_starter %}
+    <p class="notice">{{ pending_starter }} generated cards are waiting for review. <a href="/import/starter/review">Review them</a></p>
+  {% endif %}
+  <form method="post" action="/import/starter/generate" class="stack">
+    <ul class="topic-list">
+      {% for t in topics %}
+        <li><label><input type="checkbox" name="topic" value="{{ t.slug }}" data-count="{{ t.count }}" checked> <span>{{ t.title }} <span class="muted">~{{ t.count }}</span></span></label></li>
+      {% endfor %}
+    </ul>
+    <div class="actions">
+      {% if has_api_key() %}
+        <button type="submit" class="primary">Generate selected topics</button>
+        <span class="muted" id="gen-count"></span>
+      {% else %}
+        <button type="submit" class="primary" disabled>Generate selected topics</button>
+        <span class="muted">Set ANTHROPIC_API_KEY to enable generation.</span>
+      {% endif %}
+    </div>
+  </form>
+</section>
+
+<section class="card stack">
+  <h2>Paste a list</h2>
+  <p class="muted">One entry per line: <span lang="ru">слово</span> or <span lang="ru">слово - english</span> (also —, tab or ; as separator). Duplicates are removed.</p>
+  {% if pending_paste %}
+    <p class="notice">{{ pending_paste }} pasted entries are waiting for review. <a href="/import/paste/review">Review them</a></p>
+  {% endif %}
+  <form method="post" action="/import/paste" class="stack">
+    <textarea name="text" rows="10" class="paste-box" lang="ru" placeholder="вокзал - station&#10;мне нужна помощь&#10;аптека"></textarea>
+    <div class="actions">
+      <button type="submit" class="primary">Review list</button>
+      {% if has_api_key() %}
+        <label><input type="checkbox" name="enrich"> Enrich missing with Claude <span class="muted">(entries without English; max {{ cap }} per run)</span></label>
+      {% else %}
+        <label class="muted"><input type="checkbox" name="enrich" disabled> Enrich missing with Claude</label>
+        <span class="muted">Set ANTHROPIC_API_KEY to enable.</span>
+      {% endif %}
+    </div>
+  </form>
+</section>
+
+<script>
+  (function () {
+    var boxes = document.querySelectorAll('input[name=topic]'), out = document.getElementById('gen-count');
+    if (!out) return;
+    function update() {
+      var n = 0, k = 0;
+      boxes.forEach(function (b) { if (b.checked) { n += +b.dataset.count; k++; } });
+      out.textContent = k + ' topic' + (k === 1 ? '' : 's') + ', about ' + n + ' cards';
+    }
+    boxes.forEach(function (b) { b.addEventListener('change', update); });
+    update();
+  })();
+</script>
+{% endblock %}

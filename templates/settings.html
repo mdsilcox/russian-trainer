@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Settings · Russian Trainer{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', path='settings.css') }}">{% endblock %}
+{% block content %}
+<h1>Settings</h1>
+<p class="{{ 'muted' if has_api_key() else 'notice' }}">
+  Claude API key (ANTHROPIC_API_KEY):
+  {% if has_api_key() %}found.{% else %}<strong>not set</strong>. AI features stay off until you set it and restart the app.{% endif %}
+</p>
+
+<section class="settings-block">
+  <h2>Backups</h2>
+  {% if backed_up %}<p class="notice">Backup saved: {{ backed_up }}</p>{% endif %}
+  {% if error %}<p class="notice">Backup failed. Check the app log.</p>{% endif %}
+  <form method="post" action="/settings/backup">
+    <button type="submit" class="button primary">Backup now</button>
+  </form>
+  <p class="muted">A backup is made automatically once a day on startup. The newest {{ keep }} are kept in
+    <code>{{ backup_dir }}</code>.</p>
+  {% if backups %}
+  <table>
+    <thead><tr><th>File</th><th>Size</th><th>Saved</th></tr></thead>
+    <tbody>
+    {% for b in backups %}
+      <tr><td>{{ b.name }}</td><td>{{ "%.1f"|format(b.size / 1024) }} KB</td><td>{{ b.mtime.strftime("%Y-%m-%d %H:%M") }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">No backups yet.</p>
+  {% endif %}
+  <h3>Restore</h3>
+  <ol>
+    <li>Stop the app.</li>
+    <li>Copy the backup file you want over <code>{{ db_path }}</code>.</li>
+    <li>Delete <code>russian.db-wal</code> and <code>russian.db-shm</code> next to it if they exist, then start the app.</li>
+  </ol>
+</section>
+
+<section class="settings-block">
+  <h2>Export</h2>
+  <ul>
+    <li><a href="/settings/export/cards.csv">Download cards as CSV</a> (opens in Excel)</li>
+    <li><a href="/settings/export/anki.txt">Download cards for Anki</a> (File &gt; Import in Anki)</li>
+  </ul>
+</section>
+
+<section class="settings-block">
+  <h2>Current settings</h2>
+  <table>
+    <tbody>
+    {% for label, value in settings %}
+      <tr><th scope="row">{{ label }}</th><td>{{ value }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <p class="muted">Read-only for now.</p>
+</section>
+{% endblock %}

@@ -1,0 +1,11 @@
+.topic-list { list-style: none; padding: 0; display: grid; gap: 0.4rem; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+.topic-list label { display: flex; gap: 0.5rem; align-items: baseline; }
+.review-group { margin-bottom: 1.5rem; }
+.review-group > header { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+.review-table { width: 100%; border-collapse: collapse; }
+.review-table td { padding: 0.4rem 0.5rem; border-top: 1px solid var(--border); vertical-align: top; }
+.review-table tr.dupe { opacity: 0.6; }
+.review-table .ex { font-size: 0.9em; }
+.review-table input[type="text"] { width: 100%; }
+.sticky-actions { position: sticky; bottom: 0; background: var(--bg); padding: 0.75rem 0; border-top: 1px solid var(--border); display: flex; gap: 1rem; align-items: center; }
+.paste-box { width: 100%; font-family: var(--serif); }

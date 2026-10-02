@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Cards · Russian Trainer{% endblock %}
+{% block content %}
+<div class="heading-row">
+  <h1>Cards</h1>
+  <div class="actions" style="margin-top:0">
+    <a class="button" href="/import">Import / starter deck</a>
+    <a class="button primary" href="/cards/new">Add card</a>
+  </div>
+</div>
+
+<form method="get" class="filters">
+  <input type="search" name="q" value="{{ q }}" placeholder="Search Russian or English" autofocus>
+  <select name="tag">
+    <option value="">All tags</option>
+    {% for t in tags %}<option value="{{ t }}" {% if t == tag %}selected{% endif %}>{{ t }}</option>{% endfor %}
+  </select>
+  <select name="source">
+    <option value="">All sources</option>
+    {% for s in sources %}<option value="{{ s }}" {% if s == source %}selected{% endif %}>{{ s }}</option>{% endfor %}
+  </select>
+  <label class="checkbox"><input type="checkbox" name="leeches" value="true" {% if leeches %}checked{% endif %}> Leeches only</label>
+  <button type="submit">Filter</button>
+</form>
+
+<p class="muted">{{ rows|length }} card{{ "" if rows|length == 1 else "s" }}</p>
+
+{% if rows %}
+<table class="cards-table">
+  <thead><tr><th>Russian</th><th>English</th><th>Tags</th><th>Source</th><th></th></tr></thead>
+  <tbody>
+  {% for card, lapses in rows %}
+    <tr {% if card.suspended %}class="suspended"{% endif %}>
+      <td><a href="/cards/{{ card.id }}">{{ (card.ru_stressed or card.ru)|ru }}</a>
+        {% if card.ru_stressed and not card.stress_verified %}<span class="muted" title="Stress not checked yet">?</span>{% endif %}</td>
+      <td>{{ card.en }}</td>
+      <td class="muted">{{ card.tags }}</td>
+      <td class="muted">{{ card.source_module.value }}</td>
+      <td>{% if lapses >= leech_lapses %}<span class="badge warn" title="{{ lapses }} lapses">leech</span>{% endif %}
+          {% if card.suspended %}<span class="badge">suspended</span>{% endif %}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>No cards yet. <a href="/cards/new">Add one</a>.</p>
+{% endif %}
+{% endblock %}

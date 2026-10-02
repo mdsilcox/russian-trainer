@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}{{ "Edit card" if card else "Add card" }} · Russian Trainer{% endblock %}
+{% block content %}
+<p><a href="/cards">← All cards</a></p>
+<h1>{{ "Edit card" if card else "Add card" }}</h1>
+
+{% if request.query_params.get("added") %}<p class="notice">Card added. Add another?</p>{% endif %}
+{% if error %}<p class="error">{{ error }}</p>{% endif %}
+
+<form method="post" action="{{ '/cards/%d' % card.id if card else '/cards/new' }}" class="card stack">
+  {% if duplicate %}
+    <div class="notice">
+      <span lang="ru">{{ duplicate.ru_stressed or duplicate.ru }}</span> ({{ duplicate.en }}) is already in your deck.
+      <a href="/cards/{{ duplicate.id }}">Edit it</a>, or
+      <button type="submit" name="force" value="1">add anyway</button>
+    </div>
+  {% endif %}
+
+  {% include "cards/_fields.html" %}
+
+  <div class="actions">
+    <button type="submit" class="primary">{{ "Save" if card else "Add card" }}</button>
+    {% if has_api_key() %}
+      <button type="button"
+              hx-post="/cards/enrich/suggest"
+              hx-include="closest form"
+              hx-target="#card-fields"
+              hx-swap="outerHTML"
+              hx-indicator="this">
+        Enrich with Claude<span class="htmx-indicator"> …</span>
+      </button>
+    {% else %}
+      <span class="muted">Set ANTHROPIC_API_KEY to enable “Enrich with Claude”.</span>
+    {% endif %}
+  </div>
+</form>
+
+{% if card %}
+  <div class="actions danger-zone">
+    <form method="post" action="/cards/{{ card.id }}/suspend">
+      <button type="submit">{{ "Unsuspend" if card.suspended else "Suspend" }}</button>
+    </form>
+    <form method="post" action="/cards/{{ card.id }}/delete" onsubmit="return confirm('Delete this card and its review history?')">
+      <button type="submit">Delete</button>
+    </form>
+    <span class="muted">Source: {{ card.source_module.value }}</span>
+  </div>
+{% endif %}
+{% endblock %}

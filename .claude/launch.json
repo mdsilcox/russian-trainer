@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "russian-trainer",
+      "runtimeExecutable": ".venv/Scripts/app.exe",
+      "runtimeArgs": [],
+      "port": 8000
+    }
+  ]
+}

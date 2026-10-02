@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Today · Russian Trainer{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', path='today.css') }}">{% endblock %}
+{% block content %}
+<h1>Today</h1>
+
+<p class="today-top muted">
+  {% if trip_days is not none and trip_days > 0 %}<span>{{ trip_days }} {{ "day" if trip_days == 1 else "days" }} to Moscow</span>
+  {% elif trip_days == 0 %}<span>Moscow today! {{ "Удачи!"|ru }}</span>{% endif %}
+  <span>Streak: {{ streak.current }} {{ "day" if streak.current == 1 else "days" }}</span>
+</p>
+
+{% if not has_api_key() %}
+<p class="notice">AI feedback is off — set ANTHROPIC_API_KEY (see Settings).</p>
+{% endif %}
+{% if too_short %}
+<p class="notice">Less than a minute has passed — keep going, then finish the session.</p>
+{% endif %}
+
+{% if active %}
+<section class="card session-bar">
+  <span class="timer" id="timer" data-started="{{ started_iso }}">0:00</span>
+  <span class="muted">session in progress</span>
+  <form method="post" action="/today/finish"><button class="primary" type="submit">Finish session</button></form>
+</section>
+<script>
+  (function () {
+    const el = document.getElementById("timer");
+    const started = Date.parse(el.dataset.started);
+    function tick() {
+      const s = Math.max(0, Math.floor((Date.now() - started) / 1000));
+      const h = Math.floor(s / 3600), m = Math.floor(s / 60) % 60, sec = s % 60;
+      el.textContent = (h ? h + ":" + String(m).padStart(2, "0") : m) + ":" + String(sec).padStart(2, "0");
+    }
+    tick();
+    setInterval(tick, 1000);
+  })();
+</script>
+{% elif summary %}
+<section class="card">
+  <h2>Done for today ✓</h2>
+  <div class="summary">
+    <div><strong>{{ summary.minutes }}</strong><span>minutes</span></div>
+    <div><strong>{{ summary.reviews }}</strong><span>cards reviewed</span></div>
+    <div><strong>{{ summary.new_cards }}</strong><span>new cards</span></div>
+    <div><strong>{{ summary.streak }}</strong><span>day streak</span></div>
+  </div>
+  <div class="actions">
+    <span class="muted">Keep going:</span>
+    <a href="/review">Reviews</a>
+    <a href="/workshop">Workshop</a>
+    <form method="post" action="/today/start"><button type="submit">Start another session</button></form>
+  </div>
+</section>
+{% else %}
+<section class="card session-bar">
+  <form method="post" action="/today/start"><button class="primary" type="submit">Start session</button></form>
+  <span class="muted">Your plan for today is below.</span>
+</section>
+{% endif %}
+
+{% set r = plan.reviews %}
+{% set w = plan.writing %}
+<ol class="plan">
+  <li class="card">
+    <div class="block-head"><h2>1 · Reviews</h2><span class="mins">{% if r.minutes %}~{{ r.minutes | round(0, "ceil") | int }} of {{ r.budget_minutes }} min{% else %}{{ r.budget_minutes }} min{% endif %}</span></div>
+    {% if r.queued == 0 %}
+      <p class="muted">Nothing due right now. Nice.</p>
+    {% else %}
+      <p>{{ r.queued }} {{ "card" if r.queued == 1 else "cards" }} waiting{% if r.new %} ({{ r.new }} new){% endif %}.
+      {% if r.rollover %}About {{ r.max_cards }} fit in {{ r.budget_minutes }} min; the other {{ r.rollover }} roll over.{% endif %}</p>
+      <a class="block-link" href="/review">Start reviews →</a>
+    {% endif %}
+  </li>
+  <li class="card">
+    <div class="block-head"><h2>2 · Writing</h2><span class="mins">{{ w.minutes }} min</span></div>
+    {% if w.story %}
+      <p>Revise your attempt at ‘{{ w.story.title }}’ using the feedback.</p>
+      <a class="block-link" href="{{ w.href }}">Continue story →</a>
+    {% else %}
+      <p>Write a new short story.</p>
+      <a class="block-link" href="{{ w.href }}">New story →</a>
+    {% endif %}
+  </li>
+  <li class="card soon" aria-disabled="true">
+    <div class="block-head"><h2>3 · Speaking</h2><span class="mins">{{ plan.speaking_minutes }} min</span></div>
+    <p>Role-play scenarios — coming soon.</p>
+  </li>
+</ol>
+{% endblock %}

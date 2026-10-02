@@ -1,0 +1,4 @@
+.settings-block { margin-bottom: 2rem; }
+.settings-block table { border-collapse: collapse; margin: 1rem 0; }
+.settings-block th, .settings-block td { text-align: left; padding: 0.3rem 1rem 0.3rem 0; }
+.notice { padding: 0.5rem 0.75rem; border-left: 3px solid currentColor; }

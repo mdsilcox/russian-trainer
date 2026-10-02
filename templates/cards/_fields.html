@@ -1,0 +1,38 @@
+{# Card fields; re-rendered by HTMX after "Enrich with Claude". #}
+<div id="card-fields" class="fields">
+  {% macro field(name, label, ru=false, textarea=false, hint="") %}
+    <label class="field {% if suggested and name in suggested %}suggested{% endif %}">
+      <span>{{ label }}{% if suggested and name in suggested %} <em class="badge">suggested</em>{% endif %}</span>
+      {% if textarea %}
+        <textarea name="{{ name }}" rows="2" {% if ru %}lang="ru"{% endif %}>{{ v.get(name) or "" }}</textarea>
+      {% else %}
+        <input name="{{ name }}" value="{{ v.get(name) or "" }}" {% if ru %}lang="ru"{% endif %} autocomplete="off">
+      {% endif %}
+      {% if hint %}<small class="muted">{{ hint }}</small>{% endif %}
+    </label>
+  {% endmacro %}
+
+  <div class="row">
+    {{ field("ru", "Russian", ru=true) }}
+    {{ field("en", "English") }}
+  </div>
+  <div class="row">
+    {{ field("ru_stressed", "With stress marks", ru=true, hint="Type an apostrophe after the stressed vowel: вокза'л → вокза́л") }}
+    <label class="field checkbox">
+      <input type="checkbox" name="stress_verified" {% if v.get("stress_verified") %}checked{% endif %}>
+      <span>Stress checked</span>
+    </label>
+  </div>
+  <div class="row three">
+    {{ field("pos", "Part of speech") }}
+    {{ field("gender", "Gender") }}
+    {{ field("aspect", "Aspect") }}
+  </div>
+  {{ field("aspect_partner", "Aspect partner", ru=true) }}
+  {{ field("example_ru", "Example (Russian)", ru=true, textarea=true) }}
+  {{ field("example_en", "Example (English)", textarea=true) }}
+  {{ field("notes", "Notes", textarea=true) }}
+  {{ field("tags", "Tags", hint="Space-separated, e.g. travel food") }}
+
+  {% if enrich_error %}<p class="error">{{ enrich_error }}</p>{% endif %}
+</div>

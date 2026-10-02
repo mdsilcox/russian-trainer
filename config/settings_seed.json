@@ -1,0 +1,25 @@
+{
+  "trip_date": "2027-09-30",
+  "trip_context": "Moscow, travelling with family",
+  "weak_categories": [
+    "case",
+    "motion_verb",
+    "idiom",
+    "stress"
+  ],
+  "weak_areas_note": "Case endings, verbs of motion, real-world phrases, stress placement",
+  "session_minutes": 25,
+  "session_split": {
+    "srs": 10,
+    "drill_or_story": 8,
+    "scenario": 7
+  },
+  "daily_new_cards": 15,
+  "desired_retention": 0.9,
+  "starter_deck": true,
+  "import_existing_stories": true,
+  "cyrillic_input": "yawerty",
+  "feedback_language": "en",
+  "api_budget_usd_month": 10,
+  "audio": "cloud_tts_later"
+}

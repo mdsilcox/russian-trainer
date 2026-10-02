@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · Russian Trainer{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', path='dashboard.css') }}">{% endblock %}
+{% block content %}
+<h1>Dashboard</h1>
+
+<div class="dash-grid">
+  <section class="card stat">
+    <h2>Streak</h2>
+    <p class="big">{{ streak.current }} <small>{{ "day" if streak.current == 1 else "days" }}</small></p>
+    <p class="muted">Longest: {{ streak.longest }} {{ "day" if streak.longest == 1 else "days" }}</p>
+  </section>
+
+  <section class="card stat">
+    <h2>Trip</h2>
+    {% if trip_days is none %}
+      <p class="big">—</p>
+      <p class="muted">No trip date set.</p>
+    {% elif trip_days < 0 %}
+      <p class="big">{{ -trip_days }} <small>{{ "day" if trip_days == -1 else "days" }} ago</small></p>
+      <p class="muted">Your trip date has passed.</p>
+    {% elif trip_days == 0 %}
+      <p class="big">Today</p>
+      <p class="muted">{{ "Удачи!"|ru }}</p>
+    {% else %}
+      <p class="big">{{ trip_days }} <small>{{ "day" if trip_days == 1 else "days" }}</small></p>
+      <p class="muted">≈ {{ (trip_days / 7) | round(1) }} weeks to go</p>
+    {% endif %}
+  </section>
+
+  <section class="card stat">
+    <h2>Retention <small>30 days</small></h2>
+    <p class="big">{% if retention is none %}—{% else %}{{ (retention * 100) | round | int }}%{% endif %}</p>
+    <p class="muted">{% if retention is none %}No reviews of learned cards yet.{% else %}Reviews not rated Again.{% endif %}</p>
+  </section>
+
+  <section class="card stat">
+    <h2>Deck</h2>
+    <p class="big">{{ deck.cards }} <small>cards</small></p>
+    <p class="muted">{{ deck.new_waiting }} new waiting</p>
+  </section>
+</div>
+
+<section class="card">
+  <div class="heading-row">
+    <h2>Reviews due</h2>
+    <p class="muted"><strong>{{ due_today }}</strong> today{% if due_today %} · <a href="/review">Review now</a>{% endif %}</p>
+  </div>
+  <ol class="bars" aria-label="Reviews due over the next 7 days">
+    {% for label, count in forecast %}
+      <li>
+        <span class="count">{{ count }}</span>
+        <span class="bar{% if loop.first %} today{% endif %}" style="height: {{ [(count / forecast_max * 100) | round | int, 2] | max if count else 2 }}%"></span>
+        <span class="label">{{ label }}</span>
+      </li>
+    {% endfor %}
+  </ol>
+</section>
+
+<div class="dash-grid two">
+  <section class="card">
+    <h2>Top mistakes</h2>
+    {% if mistakes %}
+      <table class="mistakes">
+        <thead><tr><th>Category</th><th>30 days</th><th>All time</th></tr></thead>
+        <tbody>
+          {% for m in mistakes %}
+            <tr><td>{{ m.label }}</td><td>{{ m.recent }}</td><td>{{ m.total }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="muted">No mistakes logged yet. They show up here after you translate a story or practise a scenario.</p>
+    {% endif %}
+  </section>
+
+  <section class="card{% if spend.warning %} warn{% endif %}">
+    <h2>API spend <small>this month</small></h2>
+    <p class="big">${{ "%.2f"|format(spend.spent_usd) }}
+      {% if spend.budget_usd %}<small>of ${{ "%.2f"|format(spend.budget_usd) }}</small>{% endif %}</p>
+    {% if spend_pct is not none %}
+      <div class="meter" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ spend_pct }}">
+        <span style="width: {{ spend_pct }}%"></span>
+      </div>
+      <p class="muted">{{ spend_pct }}% of budget{% if spend.warning %} · <strong class="spend-warn">approaching your limit</strong>{% endif %}</p>
+    {% else %}
+      <p class="muted">No monthly budget set.</p>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}
