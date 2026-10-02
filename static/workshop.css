@@ -150,3 +150,34 @@ mark.sev-error:hover, mark.sev-error:focus, mark.sev-unnatural:hover, mark.sev-u
   .annotated mark.issue:nth-of-type(12) { --n: 11; }
   .annotated mark.issue:nth-of-type(n+13) { --n: 12; }
 }
+
+/* Self-correct-first: try mode hides the answers until the learner has had a go */
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.feedback .when-try, .feedback .tip-cat, .feedback .fix, .feedback .fix-done { display: none; }
+.feedback.try-mode .when-try { display: inline; }
+.feedback.try-mode p.try-bar { display: flex; }
+.feedback.try-mode .when-reveal { display: none; }
+.try-bar { justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; margin: 4px 0 8px; font-size: 14px; color: var(--cream-muted); }
+.link-button.reveal-all { color: var(--gold-light); text-decoration: underline; text-underline-offset: 3px; }
+
+.feedback.try-mode .reveal-only { display: none; }
+.feedback.try-mode mark.issue .tip:not(.revealed) .tip-answer { display: none; }
+.feedback.try-mode mark.issue .tip:not(.revealed) .tip-cat { display: inline; }
+.feedback.try-mode .issue-item:not(.resolved) .answer { display: none; }
+.feedback.try-mode .issue-item:not(.resolved) .fix { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; }
+.feedback.try-mode .issue-item.solved .fix-done { display: inline; }
+.fix-input { width: 14em; max-width: 100%; font-size: 1.1rem; }
+.fix-msg { flex-basis: 100%; font-size: 14px; color: var(--warn); }
+.fix-msg:empty { display: none; }
+.rule-link { font-size: 13px; letter-spacing: 0.04em; margin-left: 6px; }
+.fix-done, .issue-item.solved .pair ins { color: var(--gold-light); font-weight: 600; }
+.issue-item.solved { border-left-color: var(--gold) !important; }
+
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes gold-flash { from { background: rgba(201, 162, 39, 0.35); } to { background: transparent; } }
+  .feedback .issue-item.solved { animation: gold-flash 900ms ease-out; }
+}
+
+/* The auto-created cards show the corrected words, which would give away the answers:
+   keep that box back until you've tried (it appears on reveal or when all are fixed). */
+.feedback.try-mode .routed { display: none; }

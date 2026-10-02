@@ -149,6 +149,35 @@ def attempt_summary(session: Session, attempt_id: int) -> RouteResult:
     return RouteResult(mistakes=mistakes, new_cards=new_cards, linked_cards=[c for c in linked if c])
 
 
+def match_issues(mistakes: list[Mistake], issues: list) -> dict[int, Mistake]:
+    """Map issue index -> its logged Mistake, matching on (wrong, right) in order."""
+    pool = list(mistakes)
+    found: dict[int, Mistake] = {}
+    for i, issue in enumerate(issues):
+        for m in pool:
+            if m.wrong == issue.wrong and m.right == issue.right:
+                found[i] = m
+                pool.remove(m)
+                break
+    return found
+
+
+def record_fix_attempt(session: Session, mistake_id: int, correct: bool) -> Mistake | None:
+    """Store the outcome of one "Your fix" try. Returns None if it isn't a story mistake."""
+    mistake = session.get(Mistake, mistake_id)
+    if mistake is None or mistake.module != Module.story:
+        return None
+    mistake.fix_attempts = (mistake.fix_attempts or 0) + 1
+    if correct:
+        mistake.self_corrected = True
+    elif mistake.self_corrected is None:
+        mistake.self_corrected = False
+    session.add(mistake)
+    session.commit()
+    session.refresh(mistake)
+    return mistake
+
+
 def discard_auto_card(session: Session, card_id: int) -> bool:
     """The "don't make a card" override: delete an auto-created card you haven't studied yet.
 

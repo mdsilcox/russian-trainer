@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% import "grammar/_g.html" as g with context %}
+{% block title %}Stress · Grammar · Russian Trainer{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', path='grammar.css') }}">{% endblock %}
+{% block content %}
+{{ g.header("Stress", "Ударе'ние", "Russian stress is not marked in normal writing, and it can move between forms of the same word. Every example in this reference carries the mark; learn it with the word.") }}
+{{ g.subnav("stress") }}
+
+<section class="card g-panel" id="stress-why" data-rise style="--r: 2">
+  <h2>Why it matters</h2>
+  <p class="g-ru-sub">{{ "Заче'м ну'жно ударе'ние" | ru_text }}</p>
+  <ul class="g-list">
+    <li>{{ "A misplaced stress often makes a word **unrecognisable** to a native listener, especially because unstressed vowels shrink: [[Москва']] sounds like «maskvá»." | rich }}</li>
+    <li>{{ "For a few words it **changes the meaning**: [[за'мок]] and [[замо'к]], [[пла'чу]] and [[плачу']]." | rich }}</li>
+    <li>{{ "Stress also tells forms apart: [[ру'ки]] (hands) against [[руки']] (of the hand), [[до'ма]] (at home) against [[дома']] (houses)." | rich }}</li>
+    <li>{{ "Learn **two forms** for nouns whose stress moves: the nominative singular and the nominative plural (or the accusative singular), as in [[рука' / ру'ки]], [[го'род / города']]." | rich }}</li>
+  </ul>
+</section>
+
+<section class="g-patterns" id="stress-patterns">
+  {% for p in patterns %}
+  <section class="card g-panel" id="{{ p.id }}" data-rise style="--r: {{ loop.index + 2 }}">
+    <h2>{{ p.title }}</h2>
+    {% if p.body %}{{ g.bullets(p.body) }}{% endif %}
+    {% if p.table %}{{ g.table(p.table) }}{% endif %}
+    {% if p.after %}{{ g.bullets(p.after) }}{% endif %}
+  </section>
+  {% endfor %}
+</section>
+
+<section class="card g-panel" id="stress-lookup" data-rise style="--r: 10">
+  <h2>How to look stress up</h2>
+  <p class="g-ru-sub">{{ "Как узна'ть ударе'ние" | ru_text }}</p>
+  <p>Look it up when you meet a new word, and put the marked form on the card. These are free.</p>
+  <ul class="g-list g-links">
+    {% for name, url, desc in lookup %}
+    <li><a href="{{ url }}" rel="noopener" target="_blank">{{ name }}</a> <span class="muted">{{ desc }}</span></li>
+    {% endfor %}
+  </ul>
+</section>
+
+{{ g.foot_nav("stress") }}
+{% endblock %}

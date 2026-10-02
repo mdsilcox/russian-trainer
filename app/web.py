@@ -6,6 +6,7 @@ from fastapi.templating import Jinja2Templates
 
 from app.config import ROOT, get_config
 from app.services.claude import ai_status
+from app.services.grammar import link_for as grammar_link
 
 templates = Jinja2Templates(directory=ROOT / "templates")
 
@@ -19,3 +20,4 @@ templates.env.filters["ru"] = ru
 templates.env.globals["has_api_key"] = lambda: get_config().has_api_key
 templates.env.globals["ai_enabled"] = lambda: ai_status()[0]
 templates.env.globals["ai_off_reason"] = lambda: ai_status()[1]
+templates.env.globals["grammar_link"] = grammar_link

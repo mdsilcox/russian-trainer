@@ -5,6 +5,8 @@ the story was written in English, or the story itself when you wrote it in
 Russian (then the English translation is only checked for meaning).
 """
 
+import re
+import unicodedata
 from dataclasses import dataclass
 from typing import Literal
 
@@ -124,6 +126,22 @@ def request_feedback(session: Session, client: ClaudeClient, story: Story, attem
 
 def load(attempt: TranslationAttempt) -> Feedback | None:
     return Feedback.model_validate(attempt.feedback_json) if attempt.feedback_json else None
+
+
+# --- Self-correction ----------------------------------------------------------
+
+_TRAILING = re.compile(r"[\s.,!?;:…»\"')\]]+$")
+
+
+def normalize_answer(text: str) -> str:
+    """Forgiving form for comparing a typed fix with the right answer.
+
+    Lowercase, no stress marks, ё = е, collapsed whitespace, no trailing punctuation.
+    Mirrored in static/feedback.js.
+    """
+    text = unicodedata.normalize("NFC", unicodedata.normalize("NFD", text).replace("́", ""))
+    text = " ".join(text.lower().replace("ё", "е").split())
+    return _TRAILING.sub("", text).strip()
 
 
 # --- Rendering helpers ---------------------------------------------------------

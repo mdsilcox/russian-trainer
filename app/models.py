@@ -131,6 +131,8 @@ class Mistake(SQLModel, table=True):
     card_id: int | None = Field(default=None, foreign_key="cards.id")
     drilled_count: int = 0
     mastered: bool = False
+    self_corrected: bool | None = None  # story feedback: did the learner fix it before seeing the answer?
+    fix_attempts: int = 0
     created_at: datetime = Field(default_factory=utcnow, index=True)
 
 

@@ -84,6 +84,13 @@ def feedback_context(session: Session, story: Story, attempt: TranslationAttempt
         routed = mistake_service.attempt_summary(session, attempt.id)
         drill_labels = sorted({feedback_service.CATEGORY_LABELS[m.category] for m in routed.drill_mistakes})
         context |= {"routed": routed, "drill_labels": drill_labels}
+        matched = mistake_service.match_issues(routed.mistakes, fb.issues)
+        context |= {
+            "issue_mistake": {i: m.id for i, m in matched.items()},
+            "solved": {i for i, m in matched.items() if m.self_corrected},
+            "try_mode": not all(m.self_corrected for m in routed.mistakes),
+            "norm": feedback_service.normalize_answer,
+        }
         russian = feedback_service.russian_text(story, attempt)
         segments, unplaced = feedback_service.annotate(russian, fb.issues)
         context |= {
@@ -146,6 +153,15 @@ def discard_card(request: Request, card_id: int, session: Session = Depends(get_
     if request.headers.get("HX-Request"):
         return HTMLResponse('<li class="muted">Removed from your deck.</li>')
     return RedirectResponse(request.headers.get("referer", "/workshop"), status_code=303)
+
+
+@router.post("/mistakes/{mistake_id}/attempt")
+def fix_attempt(mistake_id: int, correct: bool = Form(False), session: Session = Depends(get_session)):
+    """Remember how a "Your fix" try went (self-correct-first feedback)."""
+    mistake = mistake_service.record_fix_attempt(session, mistake_id, correct)
+    if mistake is None:
+        raise HTTPException(status_code=404, detail="Mistake not found")
+    return {"ok": True, "self_corrected": mistake.self_corrected, "fix_attempts": mistake.fix_attempts}
 
 
 @router.post("/{story_id}/attempts")

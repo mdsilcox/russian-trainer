@@ -75,11 +75,24 @@ def _add_ai_backend(engine: Engine) -> None:
             session.commit()
 
 
+def _add_mistake_self_correction(engine: Engine) -> None:
+    """Self-correct-first feedback: remember whether the learner fixed a mistake themselves."""
+    with engine.begin() as conn:
+        columns = {row[1] for row in conn.execute(text("PRAGMA table_info(mistakes)"))}
+        if not columns:  # no mistakes table yet; nothing to alter
+            return
+        if "self_corrected" not in columns:
+            conn.execute(text("ALTER TABLE mistakes ADD COLUMN self_corrected BOOLEAN"))
+        if "fix_attempts" not in columns:
+            conn.execute(text("ALTER TABLE mistakes ADD COLUMN fix_attempts INTEGER NOT NULL DEFAULT 0"))
+
+
 MIGRATIONS: list[Callable[[Engine], None]] = [
     _initial_schema,
     _seed_settings,
     _add_api_usage,
     _add_ai_backend,
+    _add_mistake_self_correction,
 ]
 
 

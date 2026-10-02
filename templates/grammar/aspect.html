@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% import "grammar/_g.html" as g with context %}
+{% block title %}Aspect · Grammar · Russian Trainer{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', path='grammar.css') }}">{% endblock %}
+
+{% macro sentence_table(t) %}
+<div class="g-table-wrap" role="region" tabindex="0" aria-label="{{ t.title }}" id="{{ t.id }}-table">
+  <table class="g-table">
+    <thead><tr><th scope="col">Russian</th><th scope="col">English</th><th scope="col">Why</th></tr></thead>
+    <tbody>
+      {% for ru, en, why in t.rows %}
+      <tr><td>{{ ru | rich }}</td><td>{{ en }}</td><td>{{ why }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endmacro %}
+
+{% block content %}
+{{ g.header("Aspect", "Вид глаго'ла", "Learn every verb as a pair. The imperfective names the activity; the perfective names a finished result. If in doubt for a single, completed, specific thing: perfective.") }}
+{{ g.subnav("aspect") }}
+
+<section class="card g-panel" id="aspect-choose" data-rise style="--r: 2">
+  <h2>How to choose</h2>
+  <p class="g-ru-sub">{{ "Как выбрать" | ru_text }}</p>
+  {{ g.table({"id": "aspect-choose-table", "caption": "Perfective against imperfective", "head": choose.head, "rows": choose.rows}) }}
+  {{ g.bullets(choose.extra) }}
+</section>
+
+<section class="card g-panel" id="aspect-negation" data-rise style="--r: 3">
+  <h2>{{ negation.title }}</h2>
+  <p class="g-ru-sub">{{ negation.ru | ru_text }}</p>
+  <p>{{ negation.intro | rich }}</p>
+  {{ sentence_table(negation) }}
+</section>
+
+<section class="card g-panel" id="aspect-commands" data-rise style="--r: 4">
+  <h2>{{ commands.title }}</h2>
+  <p class="g-ru-sub">{{ commands.ru | ru_text }}</p>
+  <p>{{ commands.intro | rich }}</p>
+  {{ sentence_table(commands) }}
+</section>
+
+<section class="card g-panel" id="aspect-pairs" data-rise style="--r: 5">
+  <h2>Common pairs</h2>
+  <p class="g-ru-sub">{{ "Ви'довые па'ры" | ru_text }}</p>
+  <div class="g-table-wrap" role="region" tabindex="0" aria-label="Aspect pairs" id="aspect-pairs-table">
+    <table class="g-table">
+      <thead><tr><th scope="col">Imperfective</th><th scope="col">Perfective</th><th scope="col">Meaning</th></tr></thead>
+      <tbody>
+        {% for imp, pf, en in pairs %}
+        <tr><th scope="row">{{ imp | ru_text }}</th><td>{{ pf | ru_text }}</td><td>{{ en }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="card g-panel" id="aspect-formation" data-rise style="--r: 6">
+  <h2>How pairs are formed</h2>
+  <p class="g-ru-sub">{{ "Образова'ние ви'дов" | ru_text }}</p>
+  {{ g.table({"id": "aspect-formation-table", "caption": "Forming aspect pairs", "head": formation.head, "rows": formation.rows}) }}
+  <p class="muted g-note">{{ formation.note | rich }}</p>
+</section>
+
+{{ g.foot_nav("aspect") }}
+{% endblock %}

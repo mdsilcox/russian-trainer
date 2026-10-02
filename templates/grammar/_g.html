@@ -1,0 +1,58 @@
+{# Shared pieces for the grammar reference. Import: {% import "grammar/_g.html" as g with context %} #}
+{% import "_ornaments.html" as orn %}
+
+{% macro header(title, ru, lead=none) %}
+<header class="g-head" data-rise style="--r: 0">
+  <h1>{{ title }}</h1>
+  <div class="g-sub"><span class="g-ru">{{ ru | ru_text }}</span>{{ orn.divider(120) }}</div>
+  {% if lead %}<p class="g-lead">{{ lead | rich }}</p>{% endif %}
+</header>
+{% endmacro %}
+
+{% macro subnav(active) %}
+<nav class="g-subnav" aria-label="Grammar sections" data-rise style="--r: 1">
+  <a href="/grammar"{% if active == "index" %} aria-current="page"{% endif %}>Contents</a>
+  {% for key, label, url in nav_items %}
+    <a href="{{ url }}"{% if key == active %} aria-current="page"{% endif %}>{{ label }}</a>
+  {% endfor %}
+</nav>
+{% endmacro %}
+
+{# A ledger table. t = {id, caption, head, rows}. Cells are content strings; first column is the row header if th_first. #}
+{% macro table(t, th_first=false, class="") %}
+<div class="g-table-wrap" role="region" tabindex="0" aria-label="{{ t.caption or 'Table' }}"{% if t.id %} id="{{ t.id }}"{% endif %}>
+  <table class="g-table {{ class }}">
+    {% if t.caption %}<caption>{{ t.caption }}</caption>{% endif %}
+    {% if t.head %}<thead><tr>{% for h in t.head %}<th scope="col">{{ h | rich }}</th>{% endfor %}</tr></thead>{% endif %}
+    <tbody>
+      {% for row in t.rows %}
+      <tr>{% for cell in row %}{% if th_first and loop.first %}<th scope="row">{{ cell | rich }}</th>{% else %}<td>{{ cell | rich }}</td>{% endif %}{% endfor %}</tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endmacro %}
+
+{# examples = list of (ru, en) #}
+{% macro examples(items, label="Examples") %}
+<ul class="g-examples" aria-label="{{ label }}">
+  {% for ru, en in items %}
+  <li><span class="g-ex-ru">{{ ru | ru_text }}</span><span class="g-ex-en">{{ en }}</span></li>
+  {% endfor %}
+</ul>
+{% endmacro %}
+
+{% macro label(text) %}<h3 class="g-label">{{ text }}</h3>{% endmacro %}
+
+{% macro bullets(items) %}
+<ul class="g-list">{% for i in items %}<li>{{ i | rich }}</li>{% endfor %}</ul>
+{% endmacro %}
+
+{% macro foot_nav(active) %}
+{% set keys = nav_items | map(attribute=0) | list %}
+{% set i = keys.index(active) %}
+<p class="g-foot" data-rise style="--r: 8">
+  {% if i > 0 %}<a href="{{ nav_items[i-1][2] }}">&larr; {{ nav_items[i-1][1] }}</a>{% else %}<a href="/grammar">&larr; Contents</a>{% endif %}
+  {% if i < keys | length - 1 %}<a href="{{ nav_items[i+1][2] }}">{{ nav_items[i+1][1] }} &rarr;</a>{% endif %}
+</p>
+{% endmacro %}

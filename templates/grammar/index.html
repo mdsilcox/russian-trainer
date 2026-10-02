@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% import "grammar/_g.html" as g with context %}
+{% block title %}Grammar · Russian Trainer{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', path='grammar.css') }}">{% endblock %}
+{% block content %}
+{{ g.header("Grammar", "Грамма'тика", "A reference, not a course: learn each pattern by what it does, check the table, then practise. Every mistake you log in the Workshop links back here.") }}
+{{ g.subnav("index") }}
+
+<section class="card g-strip" id="high-yield" data-rise style="--r: 2" aria-labelledby="hy-title">
+  <h2 id="hy-title">High-yield for the trip</h2>
+  <p class="muted">Six patterns that cover most of what you will say in Moscow. Start here.</p>
+  <ol class="g-hy">
+    {% for h in high_yield %}
+    <li>
+      <a href="{{ h.url }}"><strong>{{ h.title }}</strong></a>
+      <span class="g-hy-ru">{{ h.ru | ru_text }}</span>
+    </li>
+    {% endfor %}
+  </ol>
+</section>
+
+<section class="g-toc" id="contents" aria-label="Sections">
+  {% for s in sections %}
+  <article class="card g-toc-item" id="toc-{{ s.key }}" data-rise style="--r: {{ loop.index + 2 }}">
+    <h2><a href="{{ s.url }}">{{ s.title }}</a></h2>
+    <p class="g-toc-ru">{{ s.ru | ru_text }}</p>
+    <p>{{ s.blurb }}</p>
+    <p class="g-toc-links">
+      {% for label, anchor in s.links %}<a href="{{ s.url }}#{{ anchor }}">{{ label | ru_text if label[0] in "абвгдеёжзийклмнопрстуфхцчшщъыьэюя" else label }}</a>{% endfor %}
+    </p>
+  </article>
+  {% endfor %}
+</section>
+
+<p class="muted g-note" data-rise style="--r: 9">Forms and stress were checked against English Wiktionary paradigm tables. When a stress mark matters and you doubt it, look the word up on OpenRussian or Wiktionary (see <a href="/grammar/stress#stress-lookup">Stress</a>).</p>
+{% endblock %}

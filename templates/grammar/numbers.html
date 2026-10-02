@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% import "grammar/_g.html" as g with context %}
+{% block title %}Numbers · Grammar · Russian Trainer{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', path='grammar.css') }}">{% endblock %}
+{% block content %}
+{{ g.header("Numbers", "Числи'тельные", "Prices, times and ages all run on one rule. The number decides the form of the noun, and the last word of the number decides the number.") }}
+{{ g.subnav("numbers") }}
+
+<section class="card g-panel" id="numbers-rule" data-rise style="--r: 2">
+  <h2>The 1 / 2-4 / 5+ rule</h2>
+  {{ g.table({"id": "numbers-rule-table", "caption": "Number and noun form", "head": rule.head, "rows": rule.rows}) }}
+  {{ g.bullets(rule.notes) }}
+</section>
+
+<section class="card g-panel" id="numbers-gender" data-rise style="--r: 3">
+  <h2>один / одна / одно, два / две</h2>
+  <p class="g-ru-sub">{{ "Род числи'тельных" | ru_text }}</p>
+  <div id="numbers-one"></div>
+  {{ g.table({"id": "numbers-gender-table", "caption": "Gender of 1, 2, 3, 4", "head": gender.head, "rows": gender.rows}, th_first=true) }}
+  <p class="muted g-note">{{ gender.note | rich }}</p>
+</section>
+
+<section class="card g-panel" id="numbers-nouns" data-rise style="--r: 4">
+  <h2>Words you count most</h2>
+  <p class="g-ru-sub">{{ "рубль, час, год, день..." | ru_text }}</p>
+  {{ g.table({"id": "numbers-nouns-table", "caption": "Counted nouns: 1, 2-4, 5-20", "head": nouns.head, "rows": nouns.rows}, th_first=true) }}
+  <p class="muted g-note">{{ "Note [[год]]: the genitive plural is a different word, [[лет]]. And [[челове'к]] stays [[челове'к]] after 5+ ([[пять челове'к]])." | rich }}</p>
+</section>
+
+{% for b in blocks %}
+<section class="card g-panel" id="{{ b.id }}" data-rise style="--r: {{ loop.index + 4 }}">
+  <h2>{{ b.title }} <span class="g-ru-inline">{{ b.ru | ru_text }}</span></h2>
+  <p>{{ b.intro | rich }}</p>
+  {{ g.examples(b.examples) }}
+</section>
+{% endfor %}
+
+<section class="card g-panel" id="numbers-list" data-rise style="--r: 8">
+  <h2>Numbers to know</h2>
+  <p class="g-ru-sub">{{ "Числа' с ударе'нием" | ru_text }}</p>
+  <div class="g-numgrid">
+    {% for n, w in words %}<div><b>{{ n }}</b><span>{{ w | ru_text }}</span></div>{% endfor %}
+  </div>
+</section>
+
+{{ g.foot_nav("numbers") }}
+{% endblock %}

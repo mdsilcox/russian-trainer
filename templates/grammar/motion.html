@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% import "grammar/_g.html" as g with context %}
+{% block title %}Verbs of motion · Grammar · Russian Trainer{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', path='grammar.css') }}">{% endblock %}
+{% block content %}
+{{ g.header("Verbs of motion", "Глаго'лы движе'ния", "Eight pairs of «go» verbs, then prefixes that add where you are going. Learn the pairs as a contrast, then the prefixes in the order below.") }}
+{{ g.subnav("motion") }}
+
+<section class="card g-panel" id="motion-pairs" data-rise style="--r: 2">
+  <h2>The pairs</h2>
+  <p class="g-ru-sub">{{ "Однонаправленные и разнонаправленные" | ru_text }}</p>
+  <p>The <strong>unidirectional</strong> verb is one trip in one direction, happening now. The <strong>multidirectional</strong> verb is habit, round trips, ability, or movement with no fixed direction. Perfective <strong>по-</strong> is built on the unidirectional verb.</p>
+  <div class="g-table-wrap" role="region" tabindex="0" aria-label="Motion verb pairs" id="motion-pairs-table">
+    <table class="g-table">
+      <thead><tr><th scope="col">One direction</th><th scope="col">Many / round trip</th><th scope="col">Meaning</th><th scope="col">Perfective of the first</th><th scope="col">Forms: я · он · past</th><th scope="col">Forms: я · он</th></tr></thead>
+      <tbody>
+        {% for p in pairs %}
+        <tr><th scope="row">{{ p.uni | ru_text }}</th><td>{{ p.multi | ru_text }}</td><td>{{ p.en }}</td><td>{{ p.pf | ru_text }}</td><td>{{ p.uni_f | ru_text }}</td><td>{{ p.multi_f | ru_text }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="muted g-note">{{ "Watch the English: «I flew to Moscow» is [[Я лете'л в Москву']] if you mean the trip, and [[Я лета'л в Москву']] only for «I flew there (and back)». With vehicles Russian also separates the verb from the means: [[е'хать на метро']] (by metro), [[идти' пешко'м]] (on foot)." | rich }}</p>
+</section>
+
+<section class="card g-panel" id="motion-conjugation" data-rise style="--r: 3">
+  <h2>Conjugation of the four core verbs</h2>
+  <p class="g-ru-sub">{{ "Спряже'ние" | ru_text }}</p>
+  {{ g.table({"id": "motion-conjugation-table", "caption": "идти, ходить, ехать, ездить", "head": conj.head, "rows": conj.rows}, th_first=true) }}
+  <p class="muted g-note">{{ "[[ехать]] has no everyday imperative of its own: say [[поезжа'й(те)]]. [[е'зжу]] is the only first-person form with -зж-." | rich }}</p>
+</section>
+
+<section class="card g-panel" id="motion-use" data-rise style="--r: 4">
+  <h2>When to use which</h2>
+  <p class="g-ru-sub">{{ "Когда' что?" | ru_text }}</p>
+  {{ g.table({"id": "motion-use-table", "caption": "Unidirectional against multidirectional", "head": use.head, "rows": use.rows}) }}
+  <p class="g-note">{{ "The classic trap is the past tense: [[Он ходи'л в магази'н]] means he went and is **back**; [[Он пошёл в магази'н]] means he **has set off** and may still be out." | rich }}</p>
+</section>
+
+<section class="card g-panel" id="motion-prefixes" data-rise style="--r: 5">
+  <h2>Prefixes</h2>
+  <p class="g-ru-sub">{{ "Приставки" | ru_text }}</p>
+  <p>A prefix adds the direction. Learn them in this order: <strong>по-</strong>, <strong>при-/у-</strong>, <strong>в-/вы-</strong>, <strong>пере-</strong>, <strong>за-</strong>, <strong>до-</strong>, <strong>про-</strong>, <strong>под-/от-</strong>, <strong>об-</strong>. They are shown here on the stem <span lang="ru">-йти́ / -ходи́ть / -е́хать / -езжа́ть</span>.</p>
+  {{ g.table({"id": "motion-prefixes-table", "caption": "Motion prefixes", "head": prefixes.head, "rows": prefixes.rows}) }}
+</section>
+
+<section class="card g-panel" id="motion-aspect" data-rise style="--r: 6">
+  <h2>Aspect of prefixed verbs</h2>
+  <p class="g-ru-sub">{{ "Вид с приставками" | ru_text }}</p>
+  <ul class="g-list">
+    <li>{{ "A prefix on the **unidirectional** verb makes a **perfective**: [[идти' → прийти']], [[е'хать → прие'хать]], [[лете'ть → прилете'ть]]." | rich }}</li>
+    <li>{{ "A prefix on the **multidirectional** verb makes the **imperfective** partner: [[приходи'ть]], [[приезжа'ть]], [[прилета'ть]]." | rich }}</li>
+    <li>{{ "**-ехать → -езжать** and **-ходить** are the imperfective stems for riding and walking: [[уезжа'ть]], [[уходи'ть]]." | rich }}</li>
+    <li>{{ "With **вы-** the perfective is stressed on the prefix: [[вы'йти]], [[вы'ехать]], against imperfective [[выходи'ть]], [[выезжа'ть]]." | rich }}</li>
+    <li>{{ "Past tense of the perfective means **arrived / left**, with the result in place: [[Мы прие'хали.]] (We are here.) The imperfective counts habits or the fact: [[Мы ча'сто приезжа'ли.]]" | rich }}</li>
+  </ul>
+</section>
+
+<section class="card g-panel" id="motion-core" data-rise style="--r: 7">
+  <h2>Travel core list</h2>
+  <p class="g-ru-sub">{{ "Что ну'жно в пое'здке" | ru_text }}</p>
+  <div class="g-table-wrap" role="region" tabindex="0" aria-label="Travel motion verbs" id="motion-core-table">
+    <table class="g-table">
+      <thead><tr><th scope="col">Verb</th><th scope="col">Meaning</th><th scope="col">Example</th></tr></thead>
+      <tbody>
+        {% for v, m, ru, en in core %}
+        <tr><th scope="row">{{ v | ru_text }}</th><td>{{ m }}</td><td><span class="g-ex-ru">{{ ru | ru_text }}</span> <span class="g-ex-en">{{ en }}</span></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+{{ g.foot_nav("motion") }}
+{% endblock %}

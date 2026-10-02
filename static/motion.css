@@ -93,11 +93,18 @@
   :hover > .orn-corner-tl, :hover > .orn-corner-br, :focus-within > .orn-corner-tl, :focus-within > .orn-corner-br { rotate: -6deg; }
   :hover > .orn-corner-tr, :hover > .orn-corner-bl, :focus-within > .orn-corner-tr, :focus-within > .orn-corner-bl { rotate: 6deg; }
 
-  /* The breathing berry: the only thing that keeps moving, and only one per page. */
-  @keyframes breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
-  @keyframes breathe-ring { 0%, 100% { transform: scale(1); opacity: .25; } 50% { transform: scale(1.18); opacity: .7; } }
-  .breathe { animation: breathe 4.5s ease-in-out infinite; }
-  .breathe-ring { animation: breathe-ring 4.5s ease-in-out infinite; }
+  /* The breathing berry: the only thing that keeps moving, and only one per page.
+     The berry itself stays still: scaling its sub-pixel hairline strokes every frame makes
+     them shimmer and look jagged. The breath is a soft gold glow behind it, a radial
+     gradient with no hard edges, that scales and fades on the GPU without repainting. */
+  @keyframes breathe-glow { 0%, 100% { transform: scale(0.82); opacity: 0.35; } 50% { transform: scale(1.12); opacity: 0.9; } }
+  .breathe-ring {
+    background: radial-gradient(circle, rgba(226, 196, 106, 0.55) 0%, rgba(226, 196, 106, 0.22) 38%, rgba(226, 196, 106, 0) 70%);
+    border: 0 !important;
+    box-shadow: none !important;
+    will-change: transform, opacity;
+    animation: breathe-glow 4.5s ease-in-out infinite;
+  }
 
   /* Session-end bloom: a sprig inside .bloom draws itself whenever it appears,
      the berry blooms, and a soft gold ring expands once. */

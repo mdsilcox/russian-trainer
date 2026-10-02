@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% import "grammar/_g.html" as g with context %}
+{% block title %}Pitfalls · Grammar · Russian Trainer{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', path='grammar.css') }}">{% endblock %}
+{% block content %}
+{{ g.header("Pitfalls", "Типи'чные оши'бки", "Ten places where English habits lead you astray, each with a wrong and a right version.") }}
+{{ g.subnav("pitfalls") }}
+
+<nav class="g-chips" aria-label="On this page" data-rise style="--r: 2">
+  {% for p in pitfalls %}<a href="#{{ p.id }}">{{ p.title | ru_text if p.title[0] in "абвгдеёжзийклмнопрстуфхцчшщъыьэюя" else p.title }}</a>{% endfor %}
+</nav>
+
+{% for p in pitfalls %}
+<section class="card g-panel g-pit" id="{{ p.id }}" data-rise style="--r: {{ loop.index + 2 }}">
+  <h2>{{ p.title | rich }}</h2>
+  <p>{{ p.why | rich }}</p>
+  <div class="g-compare">
+    <div class="g-wrong"><span class="g-tag">Not this</span><span class="g-x">{{ p.wrong | ru_text }}</span></div>
+    <div class="g-right"><span class="g-tag">Say this</span><span class="g-x">{{ p.right | ru_text }}</span></div>
+  </div>
+  <p class="muted">{{ p.note | rich }}</p>
+</section>
+{% endfor %}
+
+{{ g.foot_nav("pitfalls") }}
+{% endblock %}

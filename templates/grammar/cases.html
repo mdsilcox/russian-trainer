@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% import "grammar/_g.html" as g with context %}
+{% block title %}Cases · Grammar · Russian Trainer{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', path='grammar.css') }}">{% endblock %}
+
+{% macro adj_table(case) %}
+{% set acc = case == "accusative" %}
+<div class="g-table-wrap" role="region" tabindex="0" aria-label="Adjective endings, {{ case }}" id="{{ case }}-adjectives">
+  <table class="g-table">
+    <caption>Adjectives, {{ case }}</caption>
+    <thead><tr><th scope="col">Type</th>
+      {% if acc %}<th scope="col">Masc. inanimate</th><th scope="col">Masc. animate</th><th scope="col">Neuter</th><th scope="col">Fem.</th><th scope="col">Pl. inanimate</th><th scope="col">Pl. animate</th>
+      {% else %}<th scope="col">Masc.</th><th scope="col">Neuter</th><th scope="col">Fem.</th><th scope="col">Plural</th>{% endif %}
+    </tr></thead>
+    <tbody>
+      {% for a in adjectives %}
+      <tr><th scope="row">{{ a.label }} <small>({{ a.word | ru_text }})</small></th>
+        {% for f in adjective_forms(a.key, case) %}<td>{{ f | gform }}</td>{% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endmacro %}
+
+{% block content %}
+{{ g.header("Cases", "Падежи'", "Each case answers a question about the noun's job in the sentence. Learn the job first, then the ending: for most nouns one or two forms cover nearly every use.") }}
+{{ g.subnav("cases") }}
+
+<nav class="g-chips" aria-label="On this page" data-rise style="--r: 2">
+  <a href="#location-direction">Location vs direction</a>
+  {% for c in cases %}<a href="#{{ c.id }}">{{ c.name }}</a>{% endfor %}
+  <a href="#genitive-plural">Genitive plural</a>
+  <a href="#animate-accusative">Animate accusative</a>
+  <a href="#prepositional-locative">{{ "Locative -у'" | rich }}</a>
+  <a href="#adjectives">Adjectives</a>
+  <a href="#pronouns">Pronouns</a>
+  <a href="#possessives">Possessives</a>
+  <a href="#spelling-rules">Spelling rules</a>
+  <a href="#prepositions">Preposition lookup</a>
+</nav>
+
+<section class="card g-panel" id="location-direction" data-rise style="--r: 3">
+  <h2>Location vs direction</h2>
+  <p class="g-ru-sub">{{ "Где? Куда'? Отку'да?" | ru_text }}</p>
+  <p>The same place takes a different case depending on whether you are <em>there</em>, going <em>to</em> it, or coming <em>from</em> it.</p>
+  {{ g.table({"id": "location-direction-table", "caption": "Where, to where, from where", "head": location.head, "rows": location.rows}) }}
+  {{ g.bullets(location.rule) }}
+  <h3 class="g-label" id="v-na">В or на?</h3>
+  {{ g.table({"id": "v-na-table", "caption": "Common places with в and на", "head": location.v_na.head, "rows": location.v_na.rows}) }}
+  <p class="muted g-note">{{ location.v_na.note | rich }}</p>
+</section>
+
+{% for c in cases %}
+{% set ci = case_index[c.id] %}
+<section class="card g-case" id="{{ c.id }}" data-rise style="--r: 4">
+  <div class="g-case-head">
+    <h2>{{ c.name }}</h2>
+    <span class="g-ru">{{ c.ru | ru_text }}</span>
+    <span class="g-q">{{ c.q | ru_text }}</span>
+  </div>
+  <p class="g-gist">{{ c.gist }}</p>
+
+  {{ g.label("What it's for") }}
+  {{ g.bullets(c.functions) }}
+
+  {% if c.preps %}
+  {{ g.label("Prepositions that take it") }}
+  <div class="g-table-wrap" role="region" tabindex="0" aria-label="Prepositions with the {{ c.name }}" id="{{ c.id }}-prepositions">
+    <table class="g-table">
+      <thead><tr><th scope="col">Preposition</th><th scope="col">Meaning</th><th scope="col">Example</th></tr></thead>
+      <tbody>
+        {% for p, meaning, ru, en in c.preps %}
+        <tr><th scope="row">{{ p | ru_text }}</th><td>{{ meaning }}</td><td><span class="g-ex-ru">{{ ru | ru_text }}</span> <span class="g-ex-en">{{ en }}</span></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+  {{ g.label("Travel examples") }}
+  {{ g.examples(c.examples) }}
+
+  {% for sub in c.subs %}
+  <section class="g-sub-section" id="{{ sub.id }}" aria-labelledby="{{ sub.id }}-h">
+    <h3 class="g-sub-h" id="{{ sub.id }}-h">{{ sub.title }} <span class="g-ru-inline">{{ sub.ru | ru_text }}</span></h3>
+    {{ g.bullets(sub.intro) }}
+    {% if sub.table %}{{ g.table(sub.table) }}{% endif %}
+    {% if sub.table2 %}{{ g.table(sub.table2) }}{% endif %}
+  </section>
+  {% endfor %}
+
+  {{ g.label("Endings") }}
+  <div class="g-table-wrap" role="region" tabindex="0" aria-label="Noun endings, {{ c.name }}" id="{{ c.id }}-nouns">
+    <table class="g-table">
+      <caption>Nouns, {{ c.id }}{% if c.id == "accusative" %}: inanimate forms shown (animate masculine and all animate plurals use the genitive){% endif %}</caption>
+      <thead><tr><th scope="col">Type</th><th scope="col">Word</th><th scope="col">Singular</th><th scope="col">Plural</th></tr></thead>
+      <tbody>
+        {% for p in paradigms %}
+        <tr>
+          <th scope="row">{{ p.label }}</th>
+          <td class="g-gloss">{{ p.word | ru_text }} <small>{{ p.gloss }}</small></td>
+          <td>{{ p.sg[ci] | gform }}</td>
+          <td>{{ p.pl[ci] | gform }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if c.id == "prepositional" %}<p class="muted g-note">{{ "Some masculine nouns take stressed -у' after в/на instead of -е: [[в аэропорту', в саду', на мосту']]. See the locative table above." | rich }}</p>{% endif %}
+  {{ adj_table(c.id) }}
+  <div class="g-table-wrap" role="region" tabindex="0" aria-label="Pronouns, {{ c.name }}" id="{{ c.id }}-pronouns">
+    <table class="g-table">
+      <caption>Personal pronouns, {{ c.id }}{% if c.id in pron_after %} (3rd person takes н- after a preposition){% endif %}</caption>
+      <thead><tr><th scope="col">Pronoun</th><th scope="col">Form</th>{% if c.id in pron_after %}<th scope="col">After a preposition</th>{% endif %}</tr></thead>
+      <tbody>
+        {% for p in pronouns %}
+        <tr><th scope="row">{{ p.w | ru_text }}</th><td>{{ p.forms[ci] | ru_text }}</td>
+          {% if c.id in pron_after %}<td>{{ (pron_after[c.id].get(p.w) or "") | ru_text }}</td>{% endif %}</tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endfor %}
+
+<section class="card g-panel" id="adjectives" data-rise style="--r: 4">
+  <h2>Adjectives and agreement</h2>
+  <p>An adjective agrees with its noun in <strong>gender, number and case</strong>. Pick the row by the adjective's ending (hard, soft, after ш ж ч щ, or stressed -ой), then read down to the case. The full tables are in each case section above ({% for c in cases %}<a href="#{{ c.id }}-adjectives">{{ c.name }}</a>{% if not loop.last %}, {% endif %}{% endfor %}).</p>
+  <ul class="g-list">
+    <li>{{ "Masculine accusative: **animate** uses the genitive form (**но'вого** студе'нта), **inanimate** copies the nominative (**но'вый** биле'т)." | rich }}</li>
+    <li>{{ "Feminine instrumental may be written -ою/-ею in literary style; **-ой/-ей** is standard." | rich }}</li>
+    <li>{{ "Stress stays on the stem in **но'вый**, **си'ний**, **хоро'ший**; in **большо'й** it sits on the ending (and the spelling rule gives **больши'м**, **больши'е**)." | rich }}</li>
+  </ul>
+</section>
+
+<section class="card g-panel" id="pronouns" data-rise style="--r: 4">
+  <h2>Pronouns after prepositions</h2>
+  <p>{{ "**He, she, they** (его', её, их; ему', ей, им; им, ей, и'ми) add **н-** after a preposition: **у него'**, **к ней**, **с ни'ми**, **о нём**. The prepositional forms **нём, ней, них** always have it. First and second person never change: **у меня'**, **к тебе'**, **с на'ми**." | rich }}</p>
+  <p class="muted">The per-case pronoun tables above show both forms.</p>
+</section>
+
+<section class="card g-panel" id="possessives" data-rise style="--r: 5">
+  <h2>{{ "мой and э'тот" | rich }} <span class="g-ru-inline">{{ "Притяжа'тельные и указа'тельные" | ru_text }}</span></h2>
+  <p>{{ "**твой** and **свой** decline like **мой**; **наш** and **ваш** like **э'тот** with their own stems (**на'шего, на'шей, на'ших**). **тот** has **того', тому', тем, том** (fem. **той**; plural **те, тех**)." | rich }}</p>
+  <div class="g-table-wrap" role="region" tabindex="0" aria-label="мой and этот" id="possessives-table">
+    <table class="g-table">
+      <thead><tr><th scope="col">Case</th><th scope="col">мой M</th><th scope="col">N</th><th scope="col">F</th><th scope="col">Pl</th><th scope="col">{{ "э'тот" | ru_text }} M</th><th scope="col">N</th><th scope="col">F</th><th scope="col">Pl</th></tr></thead>
+      <tbody>
+        {% set poss = possessives.values() | list %}
+        {% for c in cases %}
+        <tr><th scope="row">{{ c.name }}</th>
+          {% for f in poss[0][c.id] %}<td>{{ f | ru_text }}</td>{% endfor %}
+          {% for f in poss[1][c.id] %}<td>{{ f | ru_text }}</td>{% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="muted g-note">Accusative: the first form is for inanimate nouns, the second (after the slash) for animate ones.</p>
+</section>
+
+<section class="card g-panel" id="spelling-rules" data-rise style="--r: 5">
+  <h2>Spelling rules behind the endings</h2>
+  <p>These explain why an ending is written -и not -ы, or -ем not -ом, and save you from memorising exceptions.</p>
+  {{ g.table({"id": "spelling-rules-table", "caption": "Spelling rules", "head": ["Rule", "What to write", "Examples"], "rows": spelling | map("list") | list}, th_first=true) }}
+</section>
+
+<section class="card g-panel" id="prepositions" data-rise style="--r: 5">
+  <h2>Preposition to case lookup</h2>
+  <p class="muted">Learn each as a preposition plus case pair.</p>
+  <div class="g-table-wrap" role="region" tabindex="0" aria-label="Preposition lookup" id="prepositions-table">
+    <table class="g-table">
+      <thead><tr><th scope="col">Preposition</th><th scope="col">Case</th><th scope="col">Meaning</th><th scope="col">Example</th></tr></thead>
+      <tbody>
+        {% for id, prep, case, meaning, ru, en in prepositions %}
+        <tr id="{{ id }}"><th scope="row">{{ prep | ru_text }}</th><td>{{ case }}</td><td>{{ meaning | ru_text }}</td><td><span class="g-ex-ru">{{ ru | ru_text }}</span> <span class="g-ex-en">{{ en }}</span></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+{{ g.foot_nav("cases") }}
+{% endblock %}

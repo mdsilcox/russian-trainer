@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from sqlalchemy import text
 from sqlmodel import Session, select
 
-from app.db import make_engine, migrate
+from app.db import MIGRATIONS, make_engine, migrate
 from app.models import ApiUsage, Setting
 from app.services import claude
 from app.services.claude import Backend, ClaudeClient, ClaudeError, Task
@@ -145,7 +145,7 @@ def test_migration_adds_backend_column_to_existing_db(tmp_path):
             "output_tokens INTEGER, cache_read_tokens INTEGER, cache_write_tokens INTEGER, cost_usd FLOAT, "
             "request_id VARCHAR, created_at DATETIME)"))
         conn.execute(text("INSERT INTO api_usage (task, model, input_tokens, output_tokens, cost_usd) VALUES ('f','m',1,1,0.1)"))
-    assert migrate(engine) == 4
+    assert migrate(engine) == len(MIGRATIONS)
     with Session(engine) as s:
         assert s.exec(text("SELECT backend FROM api_usage")).one()[0] == "api"
         assert s.get(Setting, "ai_backend").value == "subscription"

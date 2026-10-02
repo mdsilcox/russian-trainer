@@ -95,8 +95,8 @@
 /* Month bar: today's berry */
 .segs-wrap { position: relative; }
 .today-berry { position: absolute; top: 50%; left: var(--p); width: 22px; height: 22px; margin: -11px 0 0 -11px; pointer-events: none; }
-.today-berry svg { position: absolute; inset: 0; }
-.breathe-ring { position: absolute; inset: -3px; border-radius: 50%; border: 1px solid #E2C46A; box-shadow: 0 0 12px rgba(226, 196, 106, 0.55); opacity: 0.3; }
+.today-berry svg { position: absolute; inset: 0; transform: translateZ(0); }
+.breathe-ring { position: absolute; inset: -12px; border-radius: 50%; opacity: 0.35; }
 .done-bloom { position: relative; width: 56px; height: 56px; margin: 0 0 6px 6px; }
 .bloom-ring { position: absolute; left: 50%; top: 12%; width: 22px; height: 22px; margin: -11px 0 0 -11px; border: 1px solid #E2C46A; border-radius: 50%; opacity: 0; }
 .done-bloom svg { position: relative; }

@@ -5,7 +5,7 @@
   <div class="months-head"><span>Month {{ t.month }} of {{ t.total }}</span><span class="gold">{{ t.trip_date.day }} {{ t.trip_date.strftime("%b %Y") }}: Moscow</span></div>
   <div class="segs-wrap">
     <div class="segs" role="img" aria-label="Month {{ t.month }} of {{ t.total }}">{% for i in range(1, t.total + 1) %}<span class="seg{% if i <= t.month %} on{% endif %}"></span>{% endfor %}</div>
-    {% if t.month >= 1 and t.month <= t.total %}<span class="today-berry" aria-hidden="true" style="--p: {{ (t.month * 100 / t.total) | round(2) }}%"><span class="breathe-ring"></span><svg class="breathe" width="22" height="22" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="17" r="9" fill="#B3261E" stroke="#C9A227"/><circle cx="15" cy="17" r="2.4" fill="#E2C46A"/><path d="M15 8 C15 4 18 2 22 2 C22 6 19 8 15 8Z" stroke="#C9A227" fill="none"/></svg></span>{% endif %}
+    {% if t.month >= 1 and t.month <= t.total %}<span class="today-berry" aria-hidden="true" style="--p: {{ (t.month * 100 / t.total) | round(2) }}%"><span class="breathe-ring"></span><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="12.5" r="6.5" fill="#B3261E" stroke="#C9A227"/><circle cx="11" cy="12.5" r="1.8" fill="#E2C46A"/><path d="M11 6 C11 3 13.2 1.5 16 1.5 C16 4.5 13.8 6 11 6Z" stroke="#C9A227" fill="none"/></svg></span>{% endif %}
   </div>
 </div>
 {% endmacro %}

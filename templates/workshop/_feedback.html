@@ -1,6 +1,6 @@
 {% import "_ornaments.html" as orn %}
 {# Feedback panel for one attempt; swapped in place by HTMX after "Get feedback". #}
-<section class="card feedback{% if fresh %} fresh{% endif %}" id="feedback">
+<section class="card feedback{% if fresh %} fresh{% endif %}{% if fb and try_mode %} try-mode{% endif %}" id="feedback" data-attempt="{{ attempt.id if attempt else '' }}">
   {{ orn.corners(44, 8) }}
   {% if not attempt %}
     <p class="muted">Save a translation to get feedback.</p>
@@ -32,10 +32,15 @@
       <span class="legend" aria-hidden="true"><i class="lg lg-error"></i><i class="lg lg-unnatural"></i><i class="lg lg-style"></i></span>
       {{ errors|length }} error{{ "" if errors|length == 1 else "s" }} ·
       {{ unnatural|length }} unnatural · {{ fb.issues|length - errors|length - unnatural|length }} style
-      — hover or tap a highlight for the explanation.
+      — <span class="when-try">hover or focus a highlight to see its category, then try fixing it yourself.</span><span class="when-reveal">hover or tap a highlight for the explanation.</span>
     </p>
+    <p class="try-bar when-try">
+      <span>Try each fix first; the answer appears once you get it right (or after two tries).</span>
+      <button type="button" class="link-button reveal-all" data-act="reveal-all">Reveal all</button>
+    </p>
+    <p class="sr-only" role="status" aria-live="polite" id="fix-status"></p>
 
-    <div class="annotated" lang="ru">{% for seg in segments %}{% if seg.issue is none %}{{ seg.text }}{% else %}{% set issue = fb.issues[seg.issue] %}<mark class="issue sev-{{ issue.severity }}" tabindex="0">{{ seg.text }}<span class="tip" lang="en"><strong lang="ru">{{ issue.right }}</strong> · {{ labels[issue.category] }}<br>{{ issue.explanation }}</span></mark>{% endif %}{% endfor %}</div>
+    <div class="annotated" lang="ru">{% for seg in segments %}{% if seg.issue is none %}{{ seg.text }}{% else %}{% set issue = fb.issues[seg.issue] %}<mark class="issue sev-{{ issue.severity }}" tabindex="0">{{ seg.text }}<span class="tip{% if seg.issue in solved %} revealed{% endif %}" lang="en" data-issue="{{ seg.issue }}"><span class="tip-cat">{{ labels[issue.category] }} · {{ issue.severity }}</span><span class="tip-answer"><strong lang="ru">{{ issue.right }}</strong> · {{ labels[issue.category] }}<br>{{ issue.explanation }}</span></span></mark>{% endif %}{% endfor %}</div>
 
     {% if routed and (routed.new_cards or routed.linked_cards or routed.drill_mistakes) %}
       <div class="routed">
@@ -67,18 +72,29 @@
         <summary>{{ label }} <span class="muted">({{ items|length }})</span></summary>
         <ul>
           {% for i, issue in items %}
-            <li class="sev-{{ issue.severity }}">
-              <span class="pair" lang="ru"><del>{{ issue.wrong }}</del> → <ins>{{ issue.right }}</ins></span>
+            <li class="issue-item sev-{{ issue.severity }}{% if i in solved %} resolved solved{% endif %}" data-issue="{{ i }}" data-right="{{ norm(issue.right) }}"
+                data-category="{{ label }}"{% if i in issue_mistake %} data-mistake="{{ issue_mistake[i] }}"{% endif %}>
+              <span class="pair" lang="ru"><del>{{ issue.wrong }}</del><span class="answer"> → <ins>{{ issue.right }}</ins></span></span>
               <span class="badge">{{ issue.severity }}</span>
               {% if issue.subcategory %}<span class="muted">{{ issue.subcategory }}</span>{% endif %}
-              <br><span class="explain">{{ issue.explanation }}</span>
+              <a class="rule-link" href="{{ grammar_link(issue.category, issue.subcategory) }}">Rule</a>
+              <span class="fix-done" aria-hidden="true">&#10003;</span>
+              <br><span class="explain answer">{{ issue.explanation }}</span>
               {% if i in unplaced %}<span class="muted small">(couldn't highlight this one in the text)</span>{% endif %}
+              <span class="fix">
+                <label class="sr-only" for="fix-{{ i }}">Your fix for “{{ issue.wrong }}”</label>
+                <input type="text" id="fix-{{ i }}" class="fix-input" lang="ru" placeholder="Your fix" autocomplete="off" autocapitalize="off" spellcheck="false">
+                <button type="button" data-act="check">Check</button>
+                <button type="button" class="link-button" data-act="show">Show answer</button>
+                <span class="fix-msg" aria-live="polite"></span>
+              </span>
             </li>
           {% endfor %}
         </ul>
       </details>
     {% endfor %}
 
+    <div class="reveal-only">
     <h3>Corrected text</h3>
     <div class="diff" lang="ru">{% for op, text in correction_diff %}{% if op == "same" %}{{ text }}{% elif op == "del" %}<del>{{ text }}</del>{% else %}<ins>{{ text }}</ins>{% endif %}{% endfor %}</div>
 
@@ -90,8 +106,10 @@
         {% endfor %}
       </ul>
     {% endif %}
+    </div>
 
     {% if fb.vocab %}
+      <div class="reveal-only">
       <h3>Worth learning</h3>
       <ul class="vocab">
         {% for v in fb.vocab %}
@@ -100,6 +118,7 @@
             <small class="muted">{{ v.why }}</small></li>
         {% endfor %}
       </ul>
+      </div>
     {% endif %}
 
     {% if fb.translation_notes %}
@@ -110,4 +129,5 @@
     <div class="divider-row">{{ orn.divider(120) }}</div>
     <p class="muted small closing">Revise your translation above and save a new version to see how much you've improved.</p>
   {% endif %}
+  {% if fb %}<script src="{{ url_for('static', path='feedback.js') }}" defer></script>{% endif %}
 </section>
