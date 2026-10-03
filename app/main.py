@@ -9,6 +9,7 @@ from app.db import get_engine, migrate
 from app.routes import backup, cards, dashboard, drills, grammar, medals, review, scenarios, shelf, starter, today, workshop
 from app.services.backup import run_startup_backup
 from app.services.claude import load_backend
+from app.services.plan import seed as seed_plan
 from app.services.scenarios import seed as seed_scenarios
 
 
@@ -18,6 +19,7 @@ async def lifespan(_app: FastAPI):
     migrate()
     with Session(get_engine()) as session:
         seed_scenarios(session)
+        seed_plan(session)
         load_backend(session)
     yield
 

@@ -102,6 +102,7 @@ class TopicScore:
     success_weight: float = 0.0
     mistake_ids: list[int] = field(default_factory=list)  # open mistakes, newest first
     subcategories: list[str] = field(default_factory=list)  # free-text labels seen, for the drill generator
+    month_focus: bool = False  # boosted by this month's plan block
 
 
 def _decay(when: datetime, now: datetime) -> float:
@@ -150,12 +151,21 @@ def topic_scores(session: Session, now: datetime | None = None) -> list[TopicSco
         t = get(topic, category)
         t.success_weight += _decay(created_at, now) * SUCCESS_WEIGHT
 
-    for topic in HIGH_YIELD:
-        get(topic, Category.motion_verb if topic.startswith(MOTION) else Category.case)
+    from app.services.plan import MONTH_BOOST, MONTH_PRIOR, month_topic_boosts  # plan doesn't import weakness
+
+    def category_of(topic: str) -> Category:
+        return Category.motion_verb if topic.startswith(MOTION) else Category.aspect if topic.startswith(ASPECT) else Category.case
+
+    month_topics = month_topic_boosts(session, now)
+    for topic in HIGH_YIELD | month_topics:
+        get(topic, category_of(topic))
 
     for t in topics.values():
         base = max(0.0, t.mistake_weight - t.success_weight)
         t.score = base * HIGH_YIELD_BOOST + HIGH_YIELD_PRIOR if t.high_yield else base
+        if t.topic in month_topics:  # this month's plan block
+            t.month_focus = True
+            t.score = t.score * MONTH_BOOST + MONTH_PRIOR
     return sorted(topics.values(), key=lambda t: (-t.score, -len(t.mistake_ids), t.label))
 
 
