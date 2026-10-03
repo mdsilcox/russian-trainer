@@ -169,7 +169,7 @@ Category enum: case, aspect, motion_verb, participle, agreement, word_choice, wo
       <expected_output>Two-step feedback panel (try → reveal) with per-issue fix inputs and checking; self-correction success recorded on the mistake; tests</expected_output>
       <risks>Must not add friction for long texts: allow 'reveal all'.</risks>
     </node>
-    <node id="p1_done" type="task" status="pending">
+    <node id="p1_done" type="task" status="completed">
       <title>P1.15: MVP checkpoint: one week of real use</title>
       <description>Use the MVP daily for ~1 week. Collect friction notes (slow pages, annoying feedback, bad card quality) and tune prompts, new-card limit and session length before building Phase 2.</description>
       <complexity>low</complexity>
@@ -208,7 +208,7 @@ Category enum: case, aspect, motion_verb, participle, agreement, word_choice, wo
       <complexity>medium</complexity>
       <expected_output>Summary generator + send, questions inbox, post-lesson capture routed through the mistake router</expected_output>
     </node>
-    <node id="p2_weakness" type="task" status="pending">
+    <node id="p2_weakness" type="task" status="completed">
       <title>P2.1: Weakness scoring + high-yield priorities</title>
       <description>Score each category/subcategory by recency-weighted mistakes minus spaced drill successes, boosted by the research's high-yield travel list (prepositional after в/на, accusative of direction + animate accusative, genitive after нет/много/из/до/у/без and genitive plural, numerals with cases, dative мне нужно/нравится, core verbs of motion). Mistakes become mastered after N correct answers spaced over days.</description>
       <complexity>medium</complexity>

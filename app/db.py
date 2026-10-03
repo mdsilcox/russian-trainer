@@ -91,6 +91,14 @@ def _add_medal_awards(engine: Engine) -> None:
     models.MedalAward.__table__.create(engine, checkfirst=True)
 
 
+def _add_mistake_last_drilled(engine: Engine) -> None:
+    """Weakness scoring: mastery needs correct drill answers on separate days."""
+    with engine.begin() as conn:
+        columns = {row[1] for row in conn.execute(text("PRAGMA table_info(mistakes)"))}
+        if columns and "last_drilled_on" not in columns:
+            conn.execute(text("ALTER TABLE mistakes ADD COLUMN last_drilled_on DATE"))
+
+
 MIGRATIONS: list[Callable[[Engine], None]] = [
     _initial_schema,
     _seed_settings,
@@ -98,6 +106,7 @@ MIGRATIONS: list[Callable[[Engine], None]] = [
     _add_ai_backend,
     _add_mistake_self_correction,
     _add_medal_awards,
+    _add_mistake_last_drilled,
 ]
 
 

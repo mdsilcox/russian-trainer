@@ -133,6 +133,7 @@ class Mistake(SQLModel, table=True):
     mastered: bool = False
     self_corrected: bool | None = None  # story feedback: did the learner fix it before seeing the answer?
     fix_attempts: int = 0
+    last_drilled_on: Date | None = None  # local day of the last counted correct drill answer
     created_at: datetime = Field(default_factory=utcnow, index=True)
 
 
