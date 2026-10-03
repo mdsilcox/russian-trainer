@@ -37,6 +37,7 @@ Personal, single-user, local web app taking an English-speaking B1 learner to co
 - No em dashes (—) in English UI text, prompts, comments or docs; use commas, colons or full stops. Russian keeps a dash only where grammar needs it.
 - Russian stress: U+0301 after the stressed vowel on every word of 2+ syllables, never on ё or one-syllable words. Claude sometimes writes Latin á/é; pass its output through `fix_latin_accents`.
 - Explanations to the learner are in English.
+- English is American spelling everywhere (UI, prompts, comments, docs): practice (also the verb), color, center, theater, traveler. `claude.py` appends `SPELLING` to every system prompt.
 
 ## Tests
 - Fixtures in `tests/conftest.py`: `session`, `client` (TestClient on a per-test database), `engine`.
