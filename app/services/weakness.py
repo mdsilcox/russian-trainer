@@ -127,7 +127,7 @@ def topic_scores(session: Session, now: datetime | None = None) -> list[TopicSco
         .order_by(col(Mistake.created_at).desc(), col(Mistake.id).desc())
     ).all()
     for m in open_mistakes:
-        t = get(topic_for(m.category, m.subcategory), m.category)
+        t = get(m.topic or topic_for(m.category, m.subcategory), m.category)
         weight = _decay(m.created_at, now) * (SELF_CORRECTED_WEIGHT if m.self_corrected else 1.0)
         t.mistake_weight += weight
         t.mistake_ids.append(m.id)
@@ -136,14 +136,18 @@ def topic_scores(session: Session, now: datetime | None = None) -> list[TopicSco
 
     since = now.timestamp() - SUCCESS_WINDOW_DAYS * 86400
     rows = session.exec(
-        select(DrillAnswer.created_at, DrillSet.category, DrillSet.subcategory)
+        select(DrillAnswer.created_at, DrillAnswer.item_idx, DrillSet)
         .join(DrillSet, DrillSet.id == DrillAnswer.drill_set_id)
         .where(DrillAnswer.correct == True)  # noqa: E712
     ).all()
-    for created_at, category, subcategory in rows:
+    for created_at, item_idx, drill_set in rows:
         if srs._utc(created_at).timestamp() < since:
             continue
-        t = get(topic_for(category, subcategory), category)
+        items = drill_set.items_json or []
+        item = items[item_idx] if 0 <= item_idx < len(items) and isinstance(items[item_idx], dict) else {}
+        category = drill_set.category
+        topic = item.get("topic") or drill_set.topic or topic_for(category, drill_set.subcategory)
+        t = get(topic, category)
         t.success_weight += _decay(created_at, now) * SUCCESS_WEIGHT
 
     for topic in HIGH_YIELD:

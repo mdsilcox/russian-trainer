@@ -64,11 +64,12 @@ def log_mistake(
     explanation: str | None,
     example_ru: str | None = None,
     make_card: bool = True,
+    topic: str | None = None,
 ) -> Mistake:
     """Record one mistake; vocabulary-type ones also get (or reuse) a card."""
     mistake = Mistake(
         module=module, ref_id=ref_id, category=category, subcategory=subcategory or None,
-        wrong=wrong, right=right, explanation=explanation,
+        wrong=wrong, right=right, explanation=explanation, topic=topic,
     )
     if make_card and category in CARD_CATEGORIES:
         card = card_service.find_duplicate(session, right)

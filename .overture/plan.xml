@@ -214,7 +214,7 @@ Category enum: case, aspect, motion_verb, participle, agreement, word_choice, wo
       <complexity>medium</complexity>
       <expected_output>- weakness service + tests</expected_output>
     </node>
-    <node id="p2_generator" type="task" status="pending">
+    <node id="p2_generator" type="task" status="completed">
       <title>P2.2: Drill generator: explicit rule → drills, then interleaved</title>
       <description>Evidence: explicit instruction + practice (Norris &amp; Ortega; Spada &amp; Tomita) and interleaving (Nakata &amp; Suzuki). A new pattern starts with a short rule card (linked to the grammar reference) + a focused block of drills; once introduced it joins MIXED sessions (cases + motion + aspect). Formats: case-ending fill-ins in travel sentences, preposition+case choice, numeral agreement with prices/times, aspect choice in context, verb-of-motion choice (incl. prefixes). Uses the learner's own mistakes as seeds. Answer keys double-checked.</description>
       <complexity>high</complexity>

@@ -134,6 +134,7 @@ class Mistake(SQLModel, table=True):
     self_corrected: bool | None = None  # story feedback: did the learner fix it before seeing the answer?
     fix_attempts: int = 0
     last_drilled_on: Date | None = None  # local day of the last counted correct drill answer
+    topic: str | None = None  # grammar reference section when known exactly (drills); else derived from subcategory
     created_at: datetime = Field(default_factory=utcnow, index=True)
 
 
@@ -144,6 +145,10 @@ class DrillSet(SQLModel, table=True):
     subcategory: str | None = None
     items_json: list = Field(sa_column=Column(JSON))
     from_mistake_ids: list = Field(default_factory=list, sa_column=Column(JSON))
+    topic: str | None = None  # grammar reference section (weakness topic); mixed sets tag each item instead
+    kind: str = "focused"  # "focused" (one topic, opens with a rule card) or "mixed" (interleaved topics)
+    intro_json: dict | None = Field(default=None, sa_column=Column(JSON))  # the rule card
+    completed_at: datetime | None = None
     created_at: datetime = Field(default_factory=utcnow)
 
 

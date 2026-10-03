@@ -40,6 +40,7 @@ class Task(str, Enum):
     roleplay_corrections = "roleplay_corrections"
     enrichment = "enrichment"
     drill_generation = "drill_generation"
+    drill_review = "drill_review"
     answer_check = "answer_check"
     deck_generation = "deck_generation"
 
@@ -52,7 +53,8 @@ TASK_MODELS: dict[Task, str] = {
     Task.roleplay: SONNET,
     Task.roleplay_corrections: SONNET,
     Task.enrichment: HAIKU,
-    Task.drill_generation: HAIKU,
+    Task.drill_generation: SONNET,  # answer keys must be right; Haiku slipped on Russian
+    Task.drill_review: SONNET,
     Task.answer_check: HAIKU,
     Task.deck_generation: HAIKU,
 }
@@ -62,6 +64,8 @@ TASK_EFFORT: dict[Task, str] = {
     Task.feedback: "medium",
     Task.roleplay: "low",
     Task.roleplay_corrections: "low",
+    Task.drill_generation: "low",
+    Task.drill_review: "medium",
 }
 
 # On the subscription, per-token price doesn't matter, so every task uses Sonnet:
@@ -73,6 +77,7 @@ SUBSCRIPTION_EFFORT: dict[Task, str] = {
     Task.roleplay_corrections: "low",
     Task.enrichment: "low",
     Task.drill_generation: "low",
+    Task.drill_review: "medium",
     Task.answer_check: "low",
     Task.deck_generation: "low",
 }

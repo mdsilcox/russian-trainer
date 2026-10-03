@@ -99,6 +99,32 @@ def _add_mistake_last_drilled(engine: Engine) -> None:
             conn.execute(text("ALTER TABLE mistakes ADD COLUMN last_drilled_on DATE"))
 
 
+
+def _add_drill_set_topic(engine: Engine) -> None:
+    """Drill generator: sets know their topic, kind (focused/mixed), rule card and completion."""
+    with engine.begin() as conn:
+        columns = {row[1] for row in conn.execute(text("PRAGMA table_info(drill_sets)"))}
+        if not columns:
+            return
+        for name, ddl in [
+            ("topic", "VARCHAR"),
+            ("kind", "VARCHAR NOT NULL DEFAULT 'focused'"),
+            ("intro_json", "JSON"),
+            ("completed_at", "DATETIME"),
+        ]:
+            if name not in columns:
+                conn.execute(text(f"ALTER TABLE drill_sets ADD COLUMN {name} {ddl}"))
+
+
+
+def _add_mistake_topic(engine: Engine) -> None:
+    """Drill mistakes record their exact weakness topic."""
+    with engine.begin() as conn:
+        columns = {row[1] for row in conn.execute(text("PRAGMA table_info(mistakes)"))}
+        if columns and "topic" not in columns:
+            conn.execute(text("ALTER TABLE mistakes ADD COLUMN topic VARCHAR"))
+
+
 MIGRATIONS: list[Callable[[Engine], None]] = [
     _initial_schema,
     _seed_settings,
@@ -107,6 +133,8 @@ MIGRATIONS: list[Callable[[Engine], None]] = [
     _add_mistake_self_correction,
     _add_medal_awards,
     _add_mistake_last_drilled,
+    _add_drill_set_topic,
+    _add_mistake_topic,
 ]
 
 
