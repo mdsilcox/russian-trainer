@@ -1,6 +1,7 @@
 """Story workshop: stories, translation attempts, revision diffs and bulk import."""
 
 import difflib
+import math
 import re
 from dataclasses import dataclass
 from datetime import datetime
@@ -66,12 +67,33 @@ def delete_story(session: Session, story_id: int) -> None:
     session.commit()
 
 
+_ACUTE = chr(0x0301)  # combining stress mark; \w does not match it
+_JOINERS = "-'" + chr(0x2019)
+_PART = rf"[^\W_](?:[^\W_]|{_ACUTE})*"
+_WORD = re.compile(rf"{_PART}(?:[{re.escape(_JOINERS)}]{_PART})*")
+WORDS_PER_MINUTE = {"en": 180, "ru": 120}
+
+
+def word_count(text: str) -> int:
+    """Words as runs of letters or digits. Stress marks, and hyphens or apostrophes between parts, don't split one."""
+    return len(_WORD.findall(text or ""))
+
+
+def reading_minutes(words: int, lang: str) -> int:
+    """Whole minutes to read `words`, rounded up: 180 wpm in English, 120 in Russian."""
+    if words <= 0:
+        return 0
+    return math.ceil(words / WORDS_PER_MINUTE.get(lang, WORDS_PER_MINUTE["en"]))
+
+
 @dataclass
 class StoryRow:
     story: Story
     attempts: int
     last_activity: datetime
     mistakes: int
+    words: int = 0
+    reading_minutes: int = 0
 
 
 def list_stories(session: Session) -> list[StoryRow]:
@@ -93,10 +115,15 @@ def list_stories(session: Session) -> list[StoryRow]:
         story_id = attempt_story.get(ref_id)
         if story_id:
             mistakes[story_id] = mistakes.get(story_id, 0) + 1
-    rows = [
-        StoryRow(s, attempts.get(s.id, 0), last.get(s.id) or s.created_at, mistakes.get(s.id, 0))
-        for s in session.exec(select(Story)).all()
-    ]
+    rows = []
+    for s in session.exec(select(Story)).all():
+        words = word_count(s.source_text)
+        rows.append(
+            StoryRow(
+                s, attempts.get(s.id, 0), last.get(s.id) or s.created_at, mistakes.get(s.id, 0),
+                words, reading_minutes(words, s.source_lang),
+            )
+        )
     return sorted(rows, key=lambda r: r.last_activity, reverse=True)
 
 

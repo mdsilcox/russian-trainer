@@ -17,8 +17,8 @@ VOWELS = "аеёиоуыэюяАЕЁИОУЫЭЮЯ"
 # Fields where an apostrophe after a vowel means "stress here".
 STRESSABLE_FIELDS = ("ru_stressed", "example_ru", "aspect_partner")
 
-KINDS = ("word", "form", "stress", "chunk")
-KIND_LABELS = {"form": "Form in context", "stress": "Stress shift", "chunk": "Phrase"}
+KINDS = ("word", "form", "stress", "chunk", "cloze")
+KIND_LABELS = {"form": "Form in context", "stress": "Stress shift", "chunk": "Phrase", "cloze": "Cloze"}
 
 EDITABLE_FIELDS = (
     "ru", "ru_stressed", "en", "example_ru", "example_en", "pos", "gender",

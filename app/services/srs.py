@@ -164,6 +164,9 @@ def maybe_unlock_production(session: Session, cs: CardState) -> CardState | None
         return None
     if (cs.stability or 0) < PRODUCTION_UNLOCK_STABILITY:
         return None
+    card = session.get(Card, cs.card_id)
+    if card is not None and card.kind == "cloze":
+        return None  # cloze cards are only ever reviewed Russian to English
     exists = session.exec(
         select(CardState).where(CardState.card_id == cs.card_id, CardState.direction == Direction.production)
     ).first()

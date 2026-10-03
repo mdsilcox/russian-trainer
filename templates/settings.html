@@ -94,6 +94,7 @@
 
 <section class="settings-block card">
   <h2>Current settings</h2>
+  {% if saved == "study" %}<p class="notice" role="status">Study settings saved.</p>{% endif %}
   <table class="ledger kv">
     <tbody>
     {% for label, value in settings %}
@@ -101,6 +102,6 @@
     {% endfor %}
     </tbody>
   </table>
-  <p class="muted">Read-only for now.</p>
+  <p><a class="button" href="/settings/study">Edit study settings</a></p>
 </section>
 {% endblock %}

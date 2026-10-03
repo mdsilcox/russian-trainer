@@ -15,6 +15,7 @@
 </div>
 <div class="divider-row">{{ orn.divider(200) }}</div>
 <p class="muted lede">Write a short story, translate it, get feedback, and revise. Mistakes are logged so they come back as cards and drills.</p>
+<p class="side-link"><a href="/cloze">Make cloze cards from your sentences</a></p>
 
 {% if request.query_params.get("imported") %}
   <p class="notice">Imported {{ request.query_params.get("imported") }} stor{{ "y" if request.query_params.get("imported") == "1" else "ies" }}.</p>
@@ -29,7 +30,7 @@
       <a href="/workshop/{{ row.story.id }}" class="story-title" lang="{{ row.story.source_lang }}">{{ row.story.title }}</a>
       <span class="muted">
         {{ langs[row.story.source_lang] }} → {{ "English" if row.story.source_lang == "ru" else "Russian" }}
-        · {{ row.attempts }} attempt{{ "" if row.attempts == 1 else "s" }}
+        · <span class="story-stats">{{ row.words }} word{{ "" if row.words == 1 else "s" }} · {{ row.reading_minutes }} min read · {{ row.attempts }} attempt{{ "" if row.attempts == 1 else "s" }}</span>
         {% if row.mistakes %}· {{ row.mistakes }} mistake{{ "" if row.mistakes == 1 else "s" }} logged{% endif %}
         · {{ row.last_activity.strftime("%d %b %Y") }}
       </span>

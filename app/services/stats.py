@@ -165,6 +165,7 @@ SOURCE_LABELS = {
     Module.drill: "Drills",
     Module.scenario: "Scenarios",
     Module.media: "Media",
+    Module.tutor: "Tutor lessons",
 }
 
 
@@ -398,3 +399,82 @@ def practice_heatmap(session: DbSession, now: datetime | None = None, weeks: int
         labels.pop(0)
 
     return Heatmap(columns, labels, busiest, sum(totals), sum(1 for t in totals if t > 0))
+
+
+# --- Weekly summary ---------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class WeeklySummary:
+    week_start: date  # Monday of the current local week
+    days_practiced: int  # local days this week with a completed session or logged input
+    minutes: float  # minutes in completed sessions this week, rounded to 0.1
+    reviews: int  # reviews this week, including first reviews of new cards
+    new_cards: int  # distinct cards (not card directions) reviewed for the first time this week
+    retention: float | None  # this week's reviews, same definition as `retention`; None without data
+    input_minutes: int  # logged input minutes this week
+    prev_minutes: float  # minutes in completed sessions in the previous Monday-Sunday week
+    prev_reviews: int  # reviews in the previous week
+
+
+def weekly_summary(session: DbSession, now: datetime | None = None) -> WeeklySummary:
+    """This local Monday-to-Sunday week so far, with the previous week for comparison."""
+    week_start = _week_start(local_date(now))
+    week_end = week_start + timedelta(days=7)
+    prev_start = week_start - timedelta(days=7)
+    start_utc, end_utc = _local_midnight_utc(week_start), _local_midnight_utc(week_end)
+    prev_start_utc = _local_midnight_utc(prev_start)
+
+    def session_minutes(first: date, last: date) -> float:
+        total = session.exec(
+            select(func.coalesce(func.sum(Session.minutes), 0)).where(
+                Session.completed == True, Session.date >= first, Session.date < last  # noqa: E712
+            )
+        ).one()
+        return round(float(total or 0), 1)
+
+    def review_count(first: datetime, last: datetime) -> int:
+        return session.exec(
+            select(func.count()).select_from(ReviewLog).where(ReviewLog.reviewed_at >= first, ReviewLog.reviewed_at < last)
+        ).one()
+
+    session_days = set(
+        session.exec(
+            select(Session.date).where(Session.completed == True, Session.date >= week_start, Session.date < week_end)  # noqa: E712
+        ).all()
+    )
+    input_days = set(
+        session.exec(select(InputLog.date).where(InputLog.date >= week_start, InputLog.date < week_end)).all()
+    )
+    input_minutes = session.exec(
+        select(func.coalesce(func.sum(InputLog.minutes), 0)).where(InputLog.date >= week_start, InputLog.date < week_end)
+    ).one()
+
+    first_review = func.min(ReviewLog.reviewed_at)
+    new_cards = len(
+        session.exec(
+            select(CardState.card_id)
+            .select_from(ReviewLog)
+            .join(CardState, CardState.id == ReviewLog.card_state_id)
+            .group_by(CardState.card_id)
+            .having(first_review >= start_utc, first_review < end_utc)
+        ).all()
+    )
+
+    ratings = session.exec(
+        select(ReviewLog.rating).where(
+            ReviewLog.state_before != srs.NEW, ReviewLog.reviewed_at >= start_utc, ReviewLog.reviewed_at < end_utc
+        )
+    ).all()
+
+    return WeeklySummary(
+        week_start=week_start,
+        days_practiced=len(session_days | input_days),
+        minutes=session_minutes(week_start, week_end),
+        reviews=review_count(start_utc, end_utc),
+        new_cards=new_cards,
+        retention=sum(1 for r in ratings if r > 1) / len(ratings) if ratings else None,
+        input_minutes=int(input_minutes or 0),
+        prev_minutes=session_minutes(prev_start, week_start),
+        prev_reviews=review_count(prev_start_utc, start_utc),
+    )

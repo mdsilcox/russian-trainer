@@ -3,7 +3,8 @@
 {% block title %}Review · Russian Trainer{% endblock %}
 {% block head %}<link rel="stylesheet" href="/static/review.css">
 <link rel="stylesheet" href="/static/speak.css">
-<script>
+{% if cloze %}<link rel="stylesheet" href="/static/cloze.css">
+{% endif %}<script>
   /* Listen-first mode is set before first paint so a hidden word never flashes. */
   try { if (localStorage.getItem("speak-listen-first") === "1") document.documentElement.classList.add("speak-lf"); } catch (e) {}
 </script>
@@ -91,11 +92,13 @@
       {{ orn.corners(64, 14) }}
       <div class="front">
         {# Size the Russian word so its longest word fits on one line (never break inside a word). #}
-        {% set fit_chars = [card.ru.split() | map("length") | max, 7] | max %}
-        {% set kind_label = {"form": "Form in context", "stress": "Stress shift", "chunk": "Phrase"}.get(card.kind) %}
+        {% if not cloze %}{% set fit_chars = [card.ru.split() | map("length") | max, 7] | max %}{% endif %}
+        {% set kind_label = kind_labels.get(card.kind) if card.kind != "word" else none %}
         {% if kind_label %}<p class="rv-kind"><span>{{ kind_label }}</span></p>{% endif %}
         {% if cs.state == 0 %}<p class="rv-new"><span class="badge">new</span></p>{% endif %}
-        {% if production %}
+        {% if cloze %}
+          <p class="rv-cloze" lang="ru" data-cloze>{{ cloze.blanked }}</p>
+        {% elif production %}
           {% if card.pos %}<p class="rv-pos">{{ card.pos }}{% if card.aspect %}, {{ card.aspect }}{% endif %}</p>{% endif %}
           <p class="rv-word is-en">{{ card.en }}</p>
           <input id="typed" class="typed rv-typed" lang="ru" placeholder="Type it in Russian (optional), then press Enter" autocomplete="off">
@@ -108,7 +111,13 @@
 
       <div class="back" hidden>
         {{ orn.divider(200) }}
-        {% if production %}
+        {% if cloze %}
+          <p class="rv-cloze-full">
+            <span class="rv-cloze-text" lang="ru">{% if cloze.parts %}{{ cloze.parts[0] }}<mark>{{ cloze.parts[1] }}</mark>{{ cloze.parts[2] }}{% else %}{{ card.example_ru }}{% endif %}</span>
+            <button type="button" class="speak" data-speak="{{ card.example_ru }}" data-hotkey="s"></button>
+          </p>
+          <p class="rv-trans">{{ card.en }}</p>
+        {% elif production %}
           <p class="rv-trans is-ru fit" lang="ru" style="--chars: {{ fit_chars }}" data-speak="{{ ru_spoken }}" data-speak-hotkey="s">{{ (card.ru_stressed or card.ru)|ru }}</p>
           <p id="typed-result" class="rv-typed-result muted"></p>
           {% if details %}<p class="rv-pos">{{ details | join(", ") }}</p>{% endif %}
@@ -117,7 +126,7 @@
           <p class="rv-trans">{{ card.en }}</p>
         {% endif %}
         {% if card.aspect_partner %}<p class="rv-pos">partner <span lang="ru">{{ card.aspect_partner|ru }}</span></p>{% endif %}
-        {% if card.example_ru %}
+        {% if card.example_ru and not cloze %}
           <blockquote class="example rv-example">
             <span class="rv-example-line">
               <span class="rv-example-ru" lang="ru">{{ card.example_ru|ru }}</span>
@@ -170,7 +179,7 @@
       const typed = document.getElementById("typed");
       const result = document.getElementById("typed-result");
       if (typed && result && typed.value.trim()) {
-        const ok = normalize(typed.value) === normalize({{ card.ru | tojson }});
+        const ok = normalize(typed.value) === normalize({{ ("" if cloze else card.ru) | tojson }});
         result.textContent = ok ? "✓ You typed it correctly" : "✗ You typed: " + typed.value;
         result.className = "rv-typed-result " + (ok ? "ok" : "error");
         typed.blur();

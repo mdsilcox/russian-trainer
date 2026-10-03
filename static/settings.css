@@ -64,3 +64,17 @@
 .voice-form { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; margin: 10px 0; }
 .voice-form select { max-width: 100%; min-width: 0; }
 #voice .button { max-width: 100%; }
+
+/* Study settings editor */
+.study-form .field > label { font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-light); font-weight: 500; }
+.study-form .field > small { font-size: 13px; }
+.study-form .field > small.error { font-weight: 600; }
+.study-form .field input[aria-invalid="true"] { border-color: var(--cinnabar-text); }
+.study-form .fields { margin-bottom: 8px; }
+.study-form .fields.row { align-items: start; }
+.study-form .fields > .field { min-width: 0; }
+.study-form fieldset.split { border: 1px solid var(--gold-line); margin: 22px 0 0; padding: 4px 16px 16px; min-width: 0; }
+.study-form fieldset.split.invalid { border-color: var(--cinnabar-text); }
+.study-form fieldset.split legend { padding: 0 8px; font: 600 12px/1.4 var(--sans); letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-light); }
+.page-head .eyebrow { font: 600 12px/1.4 var(--sans); letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold-light); margin: 0 0 6px; }
+.study-form fieldset.split p.error { font-size: 14px; }

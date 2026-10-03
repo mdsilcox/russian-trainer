@@ -29,7 +29,7 @@ def _format_setting(value) -> str:
 
 
 @router.get("/settings", response_class=HTMLResponse)
-def settings_page(request: Request, backed_up: str = "", error: str = "", session: Session = Depends(get_session)):
+def settings_page(request: Request, backed_up: str = "", error: str = "", saved: str = "", session: Session = Depends(get_session)):
     config = get_config()
     stored = {s.key: s.value for s in session.exec(select(Setting))}
     rows = [(label, _format_setting(stored[key])) for key, label in SETTING_LABELS if key in stored]
@@ -44,6 +44,7 @@ def settings_page(request: Request, backed_up: str = "", error: str = "", sessio
             "keep": backup_service.KEEP_BACKUPS,
             "backed_up": backed_up,
             "error": error,
+            "saved": saved,
             "backends": [(b, claude.BACKEND_LABELS[b], *claude.ai_status(b)) for b in claude.Backend],
             "current_backend": claude.current_backend(),
             "claude_cli": claude.claude_cli(),

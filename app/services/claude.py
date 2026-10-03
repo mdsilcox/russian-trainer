@@ -43,6 +43,8 @@ class Task(str, Enum):
     drill_review = "drill_review"
     answer_check = "answer_check"
     deck_generation = "deck_generation"
+    leech_rewrite = "leech_rewrite"
+    lesson_summary = "lesson_summary"
 
 
 SONNET = "claude-sonnet-5-5"
@@ -57,6 +59,8 @@ TASK_MODELS: dict[Task, str] = {
     Task.drill_review: SONNET,
     Task.answer_check: HAIKU,
     Task.deck_generation: HAIKU,
+    Task.leech_rewrite: SONNET,
+    Task.lesson_summary: SONNET,
 }
 
 # Effort for Sonnet tasks (Haiku 4.5 doesn't take effort). Chat stays snappy.
@@ -66,6 +70,8 @@ TASK_EFFORT: dict[Task, str] = {
     Task.roleplay_corrections: "low",
     Task.drill_generation: "low",
     Task.drill_review: "medium",
+    Task.leech_rewrite: "low",
+    Task.lesson_summary: "low",
 }
 
 # On the subscription, per-token price doesn't matter, so every task uses Sonnet:
@@ -80,6 +86,8 @@ SUBSCRIPTION_EFFORT: dict[Task, str] = {
     Task.drill_review: "medium",
     Task.answer_check: "low",
     Task.deck_generation: "low",
+    Task.leech_rewrite: "low",
+    Task.lesson_summary: "low",
 }
 
 

@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Cloze cards · Russian Trainer{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', path='cloze.css') }}">
+<script src="{{ url_for('static', path='cloze.js') }}" defer></script>{% endblock %}
+{% block content %}
+<header class="cz-head">
+  <p class="cz-eyebrow">Fill in the blank</p>
+  <h1>Cloze cards <span class="cz-ru" lang="ru">Про́пуски</span></h1>
+  <p class="muted cz-intro">Pick a word in one of your own sentences to blank out, then add its meaning. In review you see the sentence with a gap and recall the missing word.</p>
+</header>
+
+{% if made %}
+<section class="card cz-made" role="status">
+  <p class="cz-made-title">Card added</p>
+  <p class="cz-sentence" lang="ru">{{ made.blanked }}</p>
+  <p class="cz-made-answer"><span lang="ru">{{ made.answer }}</span> <span class="muted">means</span> {{ made.en }}</p>
+  <p class="cz-links"><a href="/cards/{{ made.id }}">Edit card</a> <a href="/review">Review</a></p>
+</section>
+{% endif %}
+
+{% if error and not inline_error %}
+<p class="notice cz-error" role="alert">{{ error.message }}</p>
+{% endif %}
+
+{% if not groups %}
+<section class="card cz-empty">
+  <p>No sentences yet. They come from your Russian translations of English stories.</p>
+  <p class="cz-links"><a class="button primary" href="/workshop/new">Translate a story</a></p>
+</section>
+{% else %}
+  {% for group in groups %}
+  <section class="cz-group">
+    <h2 class="cz-story">From ‘{{ group.title }}’</h2>
+    {% for item in group.sentences %}
+    {% set mine = error and inline_error and error.sentence == item.text and error.story_id == (item.story_id | string) %}
+    <form method="post" action="/cloze" class="card cz-item" data-cloze-form>
+      <p class="cz-sentence" lang="ru">{% for t in item.tokens %}{% if t.word %}<button type="button" class="cz-word" data-word="{{ t.word }}">{{ t.shown }}</button>{% else %}{{ t.shown }}{% endif %}{% if not loop.last %} {% endif %}{% endfor %}{% if item.has_card %} <span class="badge cz-has" title="You already have a cloze card from this sentence">has a card</span>{% endif %}</p>
+      <input type="hidden" name="sentence" value="{{ item.text }}">
+      <input type="hidden" name="story_id" value="{{ item.story_id }}">
+      <div class="cz-fields">
+        <label class="field">
+          <span>Word to blank out</span>
+          <input name="word" lang="ru" required autocomplete="off" placeholder="Tap a word above" value="{{ error.word if mine else '' }}">
+        </label>
+        <label class="field">
+          <span>Meaning</span>
+          <input name="en" required autocomplete="off" placeholder="in English" value="{{ error.en if mine else '' }}">
+        </label>
+        <button type="submit" class="primary">Add card</button>
+      </div>
+      {% if mine %}<p class="error cz-error-line" role="alert">{{ error.message }}</p>{% endif %}
+    </form>
+    {% endfor %}
+  </section>
+  {% endfor %}
+{% endif %}
+{% endblock %}

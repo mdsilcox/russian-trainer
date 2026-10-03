@@ -6,8 +6,9 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlmodel import Session
 
 from app.db import get_session
-from app.models import Card, CardState, Conversation, Module, Scenario, Story
-from app.services import srs
+from app.models import Card, CardState, Conversation, Lesson, Module, Scenario, Story
+from app.services import cards as cards_service
+from app.services import cloze, srs
 from app.web import templates
 
 router = APIRouter(prefix="/review")
@@ -28,7 +29,19 @@ def source_label(session: Session, card: Card) -> str | None:
         return "from a grammar drill"
     if card.source_module == Module.starter:
         return "travel starter deck"
+    if card.source_module == Module.tutor and card.source_ref_id:
+        lesson = session.get(Lesson, card.source_ref_id)
+        return f"from your lesson ‘{lesson.topic}’" if lesson else "from a tutor lesson"
     return None
+
+
+def cloze_context(card: Card) -> dict:
+    """What the review screen needs for a cloze card: the blanked sentence and the parts around the answer."""
+    try:
+        before, answer, after = cloze.split_cloze(card.example_ru or "", card.ru_stressed or card.ru)
+    except ValueError:
+        return {"blanked": cloze.BLANK, "parts": None}
+    return {"blanked": before + cloze.BLANK + after, "parts": (before, answer, after)}
 
 
 @router.get("", response_class=HTMLResponse)
@@ -52,7 +65,10 @@ def review_page(request: Request, session: Session = Depends(get_session)):
             "source": source_label(session, card),
             "ratings": [(int(r), label, srs.format_interval(intervals[int(r)])) for r, label in RATINGS],
             "new_left": sum(1 for c in queue if c.state == srs.NEW),
+            "kind_labels": cards_service.KIND_LABELS,
         }
+        if card.kind == "cloze":
+            context["cloze"] = cloze_context(card)
     return templates.TemplateResponse(request, "review.html", context)
 
 

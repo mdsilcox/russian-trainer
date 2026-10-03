@@ -23,6 +23,7 @@ class Module(str, Enum):
     drill = "drill"
     scenario = "scenario"
     media = "media"  # sentence mined from a show, book or video
+    tutor = "tutor"  # word list from a tutor lesson
 
 
 class Category(str, Enum):
@@ -334,3 +335,62 @@ class TopicReview(SQLModel, table=True):
     due: Date
     last_result: float | None = None
     flagged: bool = False
+
+
+
+class Activity(SQLModel, table=True):
+    """Phase 6: one row per piece of practice, kept in step with its source row (see services/activity.py)."""
+
+    __tablename__ = "activity"
+    __table_args__ = (UniqueConstraint("kind", "ref_id"),)
+    id: int | None = Field(default=None, primary_key=True)
+    kind: str = Field(index=True)  # one of activity.KINDS
+    ref_id: int  # id of the source row
+    at: datetime  # UTC: started_at for sessions, the source row's own timestamp otherwise
+    day: Date = Field(index=True)  # the learner's local day it counts for
+    minutes: float = 0.0
+    detail: dict | None = Field(default=None, sa_column=Column(JSON))
+
+
+class Lesson(SQLModel, table=True):
+    """Phase 6: a lesson with the learner's tutor."""
+
+    __tablename__ = "lessons"
+    id: int | None = Field(default=None, primary_key=True)
+    date: Date = Field(index=True)
+    topic: str
+    goals_json: list = Field(default_factory=list, sa_column=Column(JSON))  # list[str]
+    materials_json: list = Field(default_factory=list, sa_column=Column(JSON))  # list[{"title": str, "url": str}]
+    notes: str = ""
+    created_at: datetime = Field(default_factory=utcnow)
+
+    @property
+    def goals(self) -> list[str]:
+        return list(self.goals_json or [])
+
+    @property
+    def materials(self) -> list[dict]:
+        return list(self.materials_json or [])
+
+
+class TutorTask(SQLModel, table=True):
+    """Phase 6: homework from a lesson, with a due date."""
+
+    __tablename__ = "tutor_tasks"
+    id: int | None = Field(default=None, primary_key=True)
+    lesson_id: int | None = Field(default=None, foreign_key="lessons.id", index=True)
+    title: str
+    due: Date = Field(index=True)
+    done_at: datetime | None = None
+    created_at: datetime = Field(default_factory=utcnow)
+
+
+class TutorQuestion(SQLModel, table=True):
+    """Phase 6: a question the learner wants to ask at the next lesson."""
+
+    __tablename__ = "tutor_questions"
+    id: int | None = Field(default=None, primary_key=True)
+    text: str
+    page: str = ""  # the path the learner was on, e.g. /review
+    asked: bool = False
+    created_at: datetime = Field(default_factory=utcnow)

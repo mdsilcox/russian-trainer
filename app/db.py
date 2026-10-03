@@ -183,6 +183,12 @@ def _add_units(engine: Engine) -> None:
         model.__table__.create(engine, checkfirst=True)
 
 
+def _add_tutor_lessons(engine: Engine) -> None:
+    """Phase 6: tutor lessons, their tasks and the learner's questions."""
+    for model in (models.Lesson, models.TutorTask, models.TutorQuestion):
+        model.__table__.create(engine, checkfirst=True)
+
+
 MIGRATIONS: list[Callable[[Engine], None]] = [
     _initial_schema,
     _seed_settings,
@@ -198,6 +204,8 @@ MIGRATIONS: list[Callable[[Engine], None]] = [
     _add_phase4_schema,
     _add_scenario_voice,
     _add_units,
+    _add_tutor_lessons,
+    # Phase 6 lane B appends _add_activity here (creates the table, then activity.backfill).
 ]
 
 

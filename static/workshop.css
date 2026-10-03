@@ -181,3 +181,6 @@ mark.sev-error:hover, mark.sev-error:focus, mark.sev-unnatural:hover, mark.sev-u
 /* The auto-created cards show the corrected words, which would give away the answers:
    keep that box back until you've tried (it appears on reveal or when all are fixed). */
 .feedback.try-mode .routed { display: none; }
+
+.side-link { margin: -6px 0 18px; font-size: 15px; }
+.story-list .muted { overflow-wrap: anywhere; }

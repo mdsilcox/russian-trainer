@@ -1,0 +1,50 @@
+/* Cloze cards: the picker page and the review screen */
+main:has(.cz-head) { max-width: 760px; }
+.cz-head { margin-bottom: 14px; }
+.cz-head h1 { margin-bottom: 8px; }
+.cz-ru { font-family: var(--serif); font-style: italic; font-weight: 500; font-size: 0.5em; color: var(--gold-light); margin-left: 10px; letter-spacing: 0; }
+.cz-eyebrow { font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold-light); margin: 6px 0 0; }
+.cz-intro { max-width: 60ch; margin: 0; }
+
+.cz-group { margin-top: 26px; }
+.cz-story { font-size: 1.3rem; margin: 0 0 10px; color: var(--gold-light); overflow-wrap: anywhere; }
+
+.cz-item { padding: 18px 20px; margin: 0 0 12px; min-width: 0; }
+.cz-sentence { margin: 0 0 14px; font-family: var(--serif); font-size: 1.5rem; line-height: 1.4; color: var(--cream); overflow-wrap: anywhere; }
+.cz-word {
+  display: inline; margin: 0; padding: 0 2px; border: 0; border-bottom: 1px dotted var(--gold-line);
+  background: none; color: inherit; font: inherit; letter-spacing: inherit; text-transform: none; cursor: pointer;
+}
+.cz-word:hover, .cz-word:focus-visible { background: rgba(201, 162, 39, 0.16); color: var(--cream); }
+.cz-word.is-picked { background: rgba(201, 162, 39, 0.28); border-bottom-color: var(--gold); }
+.cz-has { margin-left: 6px; vertical-align: middle; font-family: var(--sans); }
+
+.cz-fields { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: 12px; align-items: end; }
+.cz-fields .field { min-width: 0; }
+.cz-error-line { margin: 12px 0 0; overflow-wrap: anywhere; }
+.cz-error { overflow-wrap: anywhere; }
+
+.cz-made { padding: 18px 20px; margin: 18px 0 0; border-color: var(--gold); }
+.cz-made-title { margin: 0 0 8px; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold-light); }
+.cz-made .cz-sentence { margin-bottom: 8px; }
+.cz-made-answer { margin: 0 0 10px; overflow-wrap: anywhere; }
+.cz-links { display: flex; gap: 16px; flex-wrap: wrap; margin: 0; }
+.cz-empty { padding: 22px 24px; margin-top: 22px; }
+
+@media (max-width: 640px) {
+  .cz-fields { grid-template-columns: minmax(0, 1fr); }
+  .cz-sentence { font-size: 1.3rem; }
+  .cz-item { padding: 14px 14px; }
+}
+
+/* Review screen */
+.rv-cloze {
+  margin: 0; max-width: 100%; font-family: var(--serif); font-weight: 600; color: var(--cream);
+  font-size: clamp(30px, 6vw, 56px); line-height: 1.25; text-align: center; overflow-wrap: anywhere;
+}
+.rv-cloze-full {
+  display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap;
+  margin: 0 0 14px; max-width: 100%; text-align: center;
+}
+.rv-cloze-text { font-family: var(--serif); font-weight: 500; font-size: clamp(24px, 4.5vw, 40px); line-height: 1.3; color: var(--cream); overflow-wrap: anywhere; }
+.rv-cloze-text mark { background: rgba(201, 162, 39, 0.18); color: var(--gold-light); font-weight: 700; padding: 0 .12em; border-bottom: 2px solid var(--gold); }

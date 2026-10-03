@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Study settings · Russian Trainer{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', path='settings.css') }}">{% endblock %}
+{% block content %}
+{% import "_ornaments.html" as orn %}
+<header class="page-head">
+  <p class="eyebrow">Settings</p>
+  <h1>Study settings</h1>
+  <p class="subtitle" lang="ru">Настро́йки заня́тий</p>
+  {{ orn.divider(150) }}
+</header>
+{% macro field(name, label, hint, mode) %}
+<div class="field{% if errors.get(name) %} invalid{% endif %}">
+  <label for="{{ name }}">{{ label }}</label>
+  <input type="text" id="{{ name }}" name="{{ name }}" value="{{ values.get(name, '') }}" inputmode="{{ mode }}" autocomplete="off"
+         aria-describedby="{{ name }}-hint{% if errors.get(name) %} {{ name }}-error{% endif %}"
+         {% if errors.get(name) %}aria-invalid="true"{% endif %}>
+  <small class="muted" id="{{ name }}-hint">{{ hint }}</small>
+  {% if errors.get(name) %}<small class="error" id="{{ name }}-error">{{ errors[name] }}</small>{% endif %}
+</div>
+{% endmacro %}
+<form method="post" action="/settings/study" class="settings-block card study-form" novalidate>
+  {% if errors %}<p class="notice" role="alert">Nothing was saved. Please fix the highlighted fields.</p>{% endif %}
+  <h2>Reviews</h2>
+  <div class="fields">
+    {{ field("daily_new_cards", "Daily new cards", "How many new cards Review introduces per day.", "numeric") }}
+    {{ field("desired_retention", "Desired retention", "How likely you want to be to remember a card when it comes back. Higher means more reviews. Between 0.70 and 0.97, or 70% to 97%.", "decimal") }}
+  </div>
+
+  <fieldset class="split{% if errors.get('session_split') %} invalid{% endif %}"
+            aria-describedby="split-hint{% if errors.get('session_split') %} session_split-error{% endif %}">
+    <legend>Session split (minutes)</legend>
+    <p class="muted small" id="split-hint">Minutes for Today's three blocks: cards, drill or story, and speaking.</p>
+    {% if errors.get('session_split') %}<p class="error" id="session_split-error">{{ errors['session_split'] }}</p>{% endif %}
+    <div class="fields row three">
+      {{ field("split_srs", "Cards", "Review, 0 to 60.", "numeric") }}
+      {{ field("split_drill_or_story", "Drill or story", "Writing, 0 to 60.", "numeric") }}
+      {{ field("split_scenario", "Speaking", "Role-play, 0 to 60.", "numeric") }}
+    </div>
+  </fieldset>
+
+  <div class="actions">
+    <button type="submit" class="primary">Save</button>
+    <a class="button" href="/settings">Cancel</a>
+  </div>
+</form>
+{% endblock %}

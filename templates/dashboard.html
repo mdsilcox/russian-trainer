@@ -11,6 +11,46 @@
   {{ orn.divider(150) }}
 </header>
 
+{% macro change(now_value, before) -%}
+  {%- set d = (now_value - before)|round(1) -%}
+  {%- if d == 0 %}same as last week
+  {%- elif d > 0 %}{{ "%g"|format(d) }} more than last week
+  {%- else %}{{ "%g"|format(-d) }} fewer than last week{% endif -%}
+{%- endmacro %}
+
+<section class="card week-summary" data-weekly-summary data-rise style="--r: 0" aria-labelledby="week-h">
+  <div class="heading-row">
+    <h2 id="week-h">This week so far</h2>
+    <p class="muted">since Monday {{ week.week_start.day }} {{ week.week_start.strftime("%B") }}</p>
+  </div>
+  <ul class="week-list">
+    <li>
+      <span class="week-main">Practiced on <strong>{{ week.days_practiced }}</strong> {{ "day" if week.days_practiced == 1 else "days" }}</span>
+    </li>
+    <li>
+      <span class="week-main"><strong>{{ "%g"|format(week.minutes) }}</strong> {{ "minute" if week.minutes == 1 else "minutes" }} of practice,</span>
+      <span class="week-delta">{{ change(week.minutes, week.prev_minutes) }}</span>
+    </li>
+    <li>
+      <span class="week-main"><strong>{{ week.reviews }}</strong> {{ "review" if week.reviews == 1 else "reviews" }},</span>
+      <span class="week-delta">{{ change(week.reviews, week.prev_reviews) }}</span>
+    </li>
+    <li>
+      <span class="week-main"><strong>{{ week.new_cards }}</strong> new {{ "card" if week.new_cards == 1 else "cards" }}</span>
+    </li>
+    <li>
+      {% if week.retention is none %}
+        <span class="week-main">Not enough reviews yet to measure how much you remember</span>
+      {% else %}
+        <span class="week-main">Remembered <strong>{{ (week.retention * 100) | round | int }}%</strong> of reviews</span>
+      {% endif %}
+    </li>
+    <li>
+      <span class="week-main"><strong>{{ week.input_minutes }}</strong> {{ "minute" if week.input_minutes == 1 else "minutes" }} of reading, listening and watching</span>
+    </li>
+  </ul>
+</section>
+
 <div class="dash-grid">
   <section class="card stat" data-rise style="--r: 0">
     <h2>Streak</h2>
