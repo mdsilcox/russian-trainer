@@ -24,3 +24,16 @@ Answers from plan review, 2026-10-02. Machine-readable copy: `config/settings_se
 | Language | Bot speaks Russian (she's fluent in both; it's also good immersion for the learner when reading her messages) | Bot replies and summaries in Russian, app screens in English. |
 | Visibility | She can see everything | Weekly summary can include stories with feedback, mistakes and stats; still sent only to her chat. |
 | Hosting | The app moves to a dedicated always-on machine (new hardware coming) | Run as a background service that starts on boot; backups copied off that machine; the learner uses it from other devices over the home network. |
+
+## 2026-10-03: Phase 3 built as orchestrated lanes
+
+Phase 3 runs as parallel lanes: the orchestrator (main agent) keeps the role-play engine (prompts and correction pipeline) and the review gate; Sonnet agents take scoped lanes. The orchestrator makes all schema changes up front (migration `_add_phase3_schema`) so lanes never edit `app/db.py` or `app/models.py` in parallel.
+
+| Lane | Owner | Steps | Owns |
+|---|---|---|---|
+| Engine | Orchestrator | P3.2a | `app/services/roleplay.py`, `tests/test_roleplay.py` |
+| A | Sonnet A | P3.1, then P3.2b and P3.3 | `app/services/scenarios.py`, `app/routes/scenarios.py`, `templates/scenarios/*`, `static/scenarios.*`, scenario tests |
+| B | Sonnet B | P3.5 | `app/services/shelf.py`, `app/routes/shelf.py`, `templates/shelf/*`, `static/shelf.*`, dashboard input tile, nav link |
+| C | Sonnet C | P3.4 | `static/speak.js`, `static/speak.css`, review-card integration |
+
+Each lane step is accepted only after review: tests, diff, a click-through, scores 1-5 for correctness, spec fit, code quality and UX, must-fix issues returned to the same agent. Accepted when no must-fix remains and every score is at least 4.

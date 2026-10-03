@@ -136,6 +136,25 @@ def _add_card_kind(engine: Engine) -> None:
             conn.execute(text("UPDATE cards SET kind = 'chunk' WHERE instr(trim(ru), ' ') > 0"))
 
 
+
+def _add_phase3_schema(engine: Engine) -> None:
+    """Phase 3: scenario details, conversation level and goals, and the input log."""
+    models.InputLog.__table__.create(engine, checkfirst=True)
+    with engine.begin() as conn:
+        for table, cols in {
+            "scenarios": [("group", "VARCHAR NOT NULL DEFAULT ''"), ("persona", "VARCHAR NOT NULL DEFAULT ''"),
+                          ("opening_ru", "VARCHAR NOT NULL DEFAULT ''"), ("vocab_json", "JSON"),
+                          ("sort", "INTEGER NOT NULL DEFAULT 0")],
+            "conversations": [("level", "INTEGER NOT NULL DEFAULT 1"), ("goals_met_json", "JSON")],
+        }.items():
+            existing = {row[1] for row in conn.execute(text(f"PRAGMA table_info({table})"))}
+            if not existing:
+                continue
+            for name, ddl in cols:
+                if name not in existing:
+                    conn.execute(text(f'ALTER TABLE {table} ADD COLUMN "{name}" {ddl}'))
+
+
 MIGRATIONS: list[Callable[[Engine], None]] = [
     _initial_schema,
     _seed_settings,
@@ -147,6 +166,7 @@ MIGRATIONS: list[Callable[[Engine], None]] = [
     _add_drill_set_topic,
     _add_mistake_topic,
     _add_card_kind,
+    _add_phase3_schema,
 ]
 
 

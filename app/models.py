@@ -22,6 +22,7 @@ class Module(str, Enum):
     story = "story"
     drill = "drill"
     scenario = "scenario"
+    media = "media"  # sentence mined from a show, book or video
 
 
 class Category(str, Enum):
@@ -170,8 +171,13 @@ class Scenario(SQLModel, table=True):
     title: str
     setting: str
     partner_role: str
-    goals_json: list = Field(default_factory=list, sa_column=Column(JSON))
-    level: int = 1
+    goals_json: list = Field(default_factory=list, sa_column=Column(JSON))  # list[str]: what the learner should achieve
+    level: int = 1  # suggested starting level: 1 slow and clear, 2 everyday, 3 natural speed with slang
+    group: str = ""  # situation group for the list page, e.g. "Getting around"
+    persona: str = ""  # who the partner is and how they talk (English, for the prompt)
+    opening_ru: str = ""  # the partner's first line, so a conversation starts without a Claude call
+    vocab_json: list = Field(default_factory=list, sa_column=Column(JSON))  # list[{"ru": stressed, "en": str}]
+    sort: int = 0
 
 
 class Conversation(SQLModel, table=True):
@@ -180,6 +186,8 @@ class Conversation(SQLModel, table=True):
     scenario_id: int = Field(foreign_key="scenarios.id", index=True)
     started_at: datetime = Field(default_factory=utcnow)
     ended_at: datetime | None = None
+    level: int = 1
+    goals_met_json: list = Field(default_factory=list, sa_column=Column(JSON))  # indexes into the scenario's goals
     debrief_json: dict | None = Field(default=None, sa_column=Column(JSON))
 
 
@@ -237,3 +245,16 @@ class MedalAward(SQLModel, table=True):
     key: str = Field(primary_key=True)
     earned_at: datetime = Field(default_factory=utcnow)
     seen: bool = False
+
+
+class InputLog(SQLModel, table=True):
+    """Minutes of extensive input (reading, listening, watching) outside the app."""
+
+    __tablename__ = "input_log"
+    id: int | None = Field(default=None, primary_key=True)
+    date: Date = Field(index=True)
+    minutes: int
+    kind: str  # "reading", "listening" or "watching"
+    title: str = ""  # free text or a shelf item's title
+    shelf_slug: str | None = None
+    created_at: datetime = Field(default_factory=utcnow)

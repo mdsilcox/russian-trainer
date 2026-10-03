@@ -152,11 +152,12 @@ def test_create_card_kind_defaults(session):
 def test_migration_adds_kind_and_backfills_chunks(engine):
     from sqlalchemy import text
 
-    from app.db import MIGRATIONS, migrate
+    from app.db import MIGRATIONS, _add_card_kind, migrate
 
+    version = MIGRATIONS.index(_add_card_kind) + 1  # rerun from this migration on
     with engine.begin() as conn:
         conn.execute(text("ALTER TABLE cards DROP COLUMN kind"))
-        conn.execute(text("DELETE FROM schema_version WHERE version = :v"), {"v": len(MIGRATIONS)})
+        conn.execute(text("DELETE FROM schema_version WHERE version >= :v"), {"v": version})
         conn.execute(text("INSERT INTO cards (ru, en, tags, source_module, stress_verified, suspended, created_at) "
                           "VALUES ('вокзал', 'station', '', 'manual', 0, 0, '2026-01-01'), "
                           "('где вокзал', 'where is the station', '', 'manual', 0, 0, '2026-01-01')"))
