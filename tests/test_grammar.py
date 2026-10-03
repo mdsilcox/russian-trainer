@@ -53,7 +53,7 @@ def forms(p, number):
 # ---- key paradigm cells (checked against English Wiktionary) ----
 
 def test_genitive_plural_cells():
-    assert plain(para("f-velar")["pl"][1]) == "кни" + ACUTE + "г"
+    assert plain(para("f-velar")["pl"][1]) == "книг"  # one syllable: no stress mark
     assert plain(para("m-hard")["pl"][1]) == "столо" + ACUTE + "в"
     assert plain(para("m-soft")["pl"][1]) == "рубле" + ACUTE + "й"
     assert plain(para("n-hard")["pl"][1]) == "о" + ACUTE + "кон"
@@ -223,3 +223,45 @@ def test_link_for_targets_exist(pages):
         assert path in pages, url
         if frag:
             assert frag in ids_of(pages[path]), url
+
+
+# ---- living tables and the word-change morph ----
+
+def test_living_table_endings_and_chips(pages):
+    html = pages["/grammar/cases"]
+    assert 'id="case-table"' in html and "data-living" in html
+    for case in gc.CASE_ORDER:
+        assert f'<tr data-case="{case}">' in html
+        assert f'class="g-cname" data-case="{case}"' in html
+        assert f'class="g-chip" data-case="{case}"' in html
+    # endings sit in their own spans with a case marker and a stagger index
+    assert re.search(r'<span lang="ru">стол<b class="end" data-case="genitive" style="--i:0">а' + ACUTE + r'</b></span>', html)
+    assert re.search(r'<b class="end" data-case="genitive" style="--i:3">ы' + ACUTE, html) is None  # gen pl is -ов
+    assert re.search(r'книг<b class="end zero" data-case="genitive" style="--i:4">', html)
+    assert "zero ending" in html
+    assert "grammar.js" in html
+
+
+def test_morph_panel_forms_and_fallback(pages):
+    html = pages["/grammar/cases"]
+    assert 'id="word-change"' in html and "Watch the word change" in html and "data-morph-live" in html
+    paths = {q["name"]: q["path"] for q in gc.MORPH}
+    assert paths["Genitive sg and pl"] == f"стол → стола{ACUTE} → столо{ACUTE}в"
+    assert paths["Zero ending"] == f"кни{ACUTE}га → книг"
+    assert paths["Inserted vowel and stress shift"] == f"окно{ACUTE} → о{ACUTE}кон"
+    assert paths["Mobile stress"] == f"рука{ACUTE} → ру{ACUTE}ку"
+    # no-JS fallback lists every form and rule in the HTML
+    static = html.split("data-morph-static", 1)[1].split("data-morph-live", 1)[0]
+    for text in ("стола" + ACUTE, "столо" + ACUTE + "в", "книг", "о" + ACUTE + "кон", "ру" + ACUTE + "ку"):
+        assert text in static
+    assert "книг" + ACUTE not in html and "книѓ" not in html
+    assert "\u2014" not in static
+
+
+def test_morph_data_matches_paradigms():
+    assert plain(para("m-hard")["sg"][1]) == gc.MORPH[0]["forms"][1]["text"]
+    assert plain(para("m-hard")["pl"][1]) == gc.MORPH[0]["forms"][2]["text"]
+    assert plain(para("f-velar")["pl"][1]).replace(ACUTE, "") == gc.MORPH[1]["forms"][1]["text"]  # monosyllable: the morph shows no mark
+    assert plain(para("n-hard")["pl"][1]) == gc.MORPH[2]["forms"][1]["text"]
+    assert plain(para("f-velar")["sg"][0]) == gc.MORPH[1]["forms"][0]["text"]
+    assert plain(para("n-hard")["sg"][0]) == gc.MORPH[2]["forms"][0]["text"]

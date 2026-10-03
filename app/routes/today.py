@@ -26,6 +26,8 @@ def today_page(request: Request, msg: str = "", session: Session = Depends(get_s
         "trip": today.trip_progress(session, now),
         "weak_spots": today.weak_spots(session, now),
         "word": today.word_of_the_day(session),
+        "clock": today.moscow_clock(now),
+        "growth": today.growth_stage(stats.days_until_trip(session, now)),
         "too_short": msg == "too_short",
     }
     return templates.TemplateResponse(request, "today.html", context)

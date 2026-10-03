@@ -31,8 +31,16 @@
 {% elif not cs %}
   <div class="card done rv-state" data-rv-done>
     <span class="rv-sprig">{{ orn.sprig(72) }}<span class="bloom-ring" aria-hidden="true"></span></span>
-    <h1>All done for now <span lang="ru" class="rv-well">— <em>молоде́ц!</em></span></h1>
+    <h1>All done for now. <span lang="ru" class="rv-well"><em>Молоде́ц!</em></span></h1>
     <p class="muted">No reviews are due. New cards appear here as you add them, up to your daily limit.</p>
+    <div class="rv-branch" data-rv-branch role="img" hidden>
+      <p class="rv-branch-title">Your branch today</p>
+      <svg viewBox="0 0 880 100" width="100%" fill="none" aria-hidden="true">
+        <circle cx="24" cy="50" r="4" fill="#0B0B0C" stroke="#C9A227" stroke-width="1.5"/>
+        <g class="rv-vine-nodes"></g>
+      </svg>
+      <p class="rv-branch-count" data-rv-berries></p>
+    </div>
     {{ orn.divider(120) }}
     <p class="rv-links"><a href="/cards/new">Add a card</a> <a href="/cards">Browse cards</a></p>
   </div>
@@ -63,6 +71,13 @@
       <div class="rv-bar" role="img" aria-label="{{ remaining }} cards left today">
         {% for i in range(shown) %}<span></span>{% endfor %}
       </div>
+    </div>
+
+    <div class="rv-vine" data-rv-vine role="img" aria-label="Review vine: no berries yet">
+      <svg viewBox="0 0 880 100" width="100%" fill="none" aria-hidden="true">
+        <circle cx="24" cy="50" r="4" fill="#0B0B0C" stroke="#C9A227" stroke-width="1.5"/>
+        <g class="rv-vine-nodes"></g>
+      </svg>
     </div>
 
     <article class="rv-card" id="review">

@@ -75,7 +75,9 @@ Rules:
 - Stress marks: U+0301 COMBINING ACUTE ACCENT directly after the stressed vowel, on every word of two or more syllables. Never mark ё or one-syllable words.
 - For verbs give the aspect and partner; give gender for nouns.
 - Example sentences: natural modern Russian, stress-marked, ideally involving a family of travellers.
-- Explanations in English."""
+- Explanations in English.
+
+Punctuation: never use em dashes (—) in English text; use a comma, colon, full stop or parentheses instead. Inside Russian sentences, keep the dash only where Russian grammar requires it (e.g. Москва́ — столи́ца)."""
 
 
 def pending_path(name: str = "starter") -> Path:
@@ -160,7 +162,7 @@ SEPARATORS = re.compile(r"\t|\s+[-–—]\s+|\s*;\s*")
 
 
 def parse_paste(text: str) -> tuple[list[dict], int]:
-    """Parse lines of `слово` or `слово - english` (also –, —, tab, `;`). Returns (items, duplicates dropped)."""
+    """Parse lines of `слово` or `слово - english` (an en or em dash, a tab or `;` also separate). Returns (items, duplicates dropped)."""
     items, seen, dropped = [], set(), 0
     for line in text.splitlines():
         parts = SEPARATORS.split(line.strip(), maxsplit=1)

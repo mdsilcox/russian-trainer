@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% import "_ornaments.html" as orn %}
+{% from "_growth_vine.html" import growth_vine %}
 {% macro month_bar(t) %}
 <div class="months">
   <div class="months-head"><span>Month {{ t.month }} of {{ t.total }}</span><span class="gold">{{ t.trip_date.day }} {{ t.trip_date.strftime("%b %Y") }}: Moscow</span></div>
@@ -10,25 +11,58 @@
 </div>
 {% endmacro %}
 {% block title %}Today · Russian Trainer{% endblock %}
-{% block head %}<link rel="stylesheet" href="{{ url_for('static', path='today.css') }}">{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', path='today.css') }}">
+<script src="{{ url_for('static', path='today.js') }}" defer></script>{% endblock %}
 {% block content %}
 <header class="t-head">
   <div class="t-title">
     <p class="t-date">{{ date_label }}</p>
     <h1>Today</h1>
-    <div class="t-sub"><span class="t-ru" lang="ru">Сегодня</span>{{ orn.divider(120) }}</div>
+    <div class="t-sub"><span class="t-ru" lang="ru">Сегодня</span>{{ growth_vine(growth, 300) }}</div>
   </div>
   <div class="t-tiles">
+    <div class="tile tile-clock sky-{{ clock.phase }}" data-moscow-clock data-rise style="--r: 0">
+      <svg width="48" height="57" viewBox="0 0 64 76" aria-hidden="true" class="sky-svg">
+        <defs>
+          <clipPath id="sk-arch"><path d="M2 76 V32 A30 30 0 0 1 62 32 V76 Z"/></clipPath>
+          <linearGradient id="sk-gDawn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8E5A78"/><stop offset="0.55" stop-color="#E39A8E"/><stop offset="1" stop-color="#E8C46A"/></linearGradient>
+          <linearGradient id="sk-gDay" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FBF1CC"/><stop offset="1" stop-color="#E2C46A"/></linearGradient>
+          <linearGradient id="sk-gDusk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#342559"/><stop offset="0.55" stop-color="#7A2A52"/><stop offset="1" stop-color="#B3261E"/></linearGradient>
+          <linearGradient id="sk-gNight" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#04050C"/><stop offset="1" stop-color="#141F45"/></linearGradient>
+          <mask id="sk-cres"><rect x="0" y="0" width="64" height="76" fill="#fff"/><circle cx="45" cy="17" r="7" fill="#000"/></mask>
+        </defs>
+        <g clip-path="url(#sk-arch)">
+          <rect width="64" height="76" fill="#0B0B0C"/>
+          <g class="sk sk-dawn"><rect width="64" height="76" fill="url(#sk-gDawn)"/><circle cx="32" cy="58" r="10" fill="#FFF1B8"/></g>
+          <g class="sk sk-day"><rect width="64" height="76" fill="url(#sk-gDay)"/><circle cx="42" cy="24" r="12" fill="#FFFBE8" opacity="0.35"/><circle cx="42" cy="24" r="6.5" fill="#FFFBE8"/></g>
+          <g class="sk sk-dusk"><rect width="64" height="76" fill="url(#sk-gDusk)"/><circle cx="20" cy="56" r="8" fill="#E2C46A"/></g>
+          <g class="sk sk-night"><rect width="64" height="76" fill="url(#sk-gNight)"/>
+            <circle cx="40" cy="20" r="8" fill="#F3E9D2" mask="url(#sk-cres)"/>
+            <circle class="star" style="animation-delay:0s" cx="14" cy="16" r="1.1" fill="#F3E9D2"/>
+            <circle class="star" style="animation-delay:1.3s" cx="24" cy="34" r="0.9" fill="#F3E9D2"/>
+            <circle class="star" style="animation-delay:2.6s" cx="52" cy="38" r="1" fill="#E2C46A"/>
+            <circle class="star" style="animation-delay:3.6s" cx="30" cy="10" r="0.8" fill="#F3E9D2"/>
+          </g>
+          <path d="M2 76 V66 H12 V60 Q12 55 16 52 Q20 55 20 60 V66 H30 V58 H34 V66 H44 V62 Q44 58 48 55 Q52 58 52 62 V66 H62 V76Z" fill="#0B0B0C"/>
+        </g>
+        <path d="M2 76 V32 A30 30 0 0 1 62 32 V76" fill="none" stroke="#C9A227" stroke-width="1.2"/>
+      </svg>
+      <span class="tile-text clock-text">
+        <span class="clock-label" lang="ru">В Москве́ сейча́с</span>
+        <span class="clock-time" data-clock-time>{{ clock.time }}</span>
+        <span class="clock-phase" lang="ru" data-clock-phase>{{ {"dawn": "рассве́т", "day": "день", "dusk": "зака́т", "night": "ночь"}[clock.phase] }}</span>
+      </span>
+    </div>
     {% if trip_days is not none and trip_days > 0 %}
-    <div class="tile" data-rise style="--r: 0">
+    <div class="tile" data-rise style="--r: 1">
       <span class="sr">{{ trip_days }} {{ "day" if trip_days == 1 else "days" }} to Moscow</span>
       <span class="tile-num tile-num-lg" aria-hidden="true" data-count="{{ trip_days }}">{{ trip_days }}</span>
       <span class="tile-text" aria-hidden="true"><b>{{ "day" if trip_days == 1 else "days" }} to Moscow</b>{% if trip %}<small>{{ trip.trip_date.day }} {{ trip.trip_date.strftime("%b %Y") }}</small>{% endif %}</span>
     </div>
     {% elif trip_days == 0 %}
-    <div class="tile" data-rise style="--r: 0"><span class="tile-text"><b>Moscow today! <span lang="ru">Удачи!</span></b></span></div>
+    <div class="tile" data-rise style="--r: 1"><span class="tile-text"><b>Moscow today! <span lang="ru">Удачи!</span></b></span></div>
     {% endif %}
-    <div class="tile tile-streak" data-rise style="--r: 1">
+    <div class="tile tile-streak" data-rise style="--r: 2">
       <span class="sr">Streak: {{ streak.current }} {{ "day" if streak.current == 1 else "days" }}</span>
       {{ orn.sprig(44) }}
       <span class="tile-text" aria-hidden="true"><span class="tile-num" data-count="{{ streak.current }}">{{ streak.current }}</span><b>day streak</b></span>
@@ -40,7 +74,7 @@
 <p class="notice">{{ ai_off_reason() }} <a href="/settings">Settings</a></p>
 {% endif %}
 {% if too_short %}
-<p class="notice">Less than a minute has passed — keep going, then finish the session.</p>
+<p class="notice">Less than a minute has passed. Keep going, then finish the session.</p>
 {% endif %}
 
 {% set r = plan.reviews %}
@@ -156,7 +190,8 @@
     {{ orn.sprig(64) }}
     <div>
       <h3>Word of the day</h3>
-      <p><span class="word-ru" lang="ru">{{ word.ru_stressed or word.ru }}</span><span class="word-en">— {{ word.en }}</span></p>
+      {% set ru_text = word.ru_stressed or word.ru %}
+      <p><span class="word-ink"><span class="word-ru ink-base" lang="ru">{{ ru_text }}</span><span class="word-ru ink-wet" lang="ru" aria-hidden="true">{{ ru_text }}</span></span><span class="word-en">· {{ word.en }}</span></p>
     </div>
   </section>
   {% endif %}

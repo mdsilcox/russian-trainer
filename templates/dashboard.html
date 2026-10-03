@@ -1,8 +1,9 @@
 {% extends "base.html" %}
 {% block title %}Dashboard · Russian Trainer{% endblock %}
-{% block head %}<link rel="stylesheet" href="{{ url_for('static', path='dashboard.css') }}">{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', path='dashboard.css') }}"><link rel="stylesheet" href="{{ url_for('static', path='medals.css') }}">{% endblock %}
 {% block content %}
 {% import "_ornaments.html" as orn %}
+{% import "_medals.html" as mdl %}
 <header class="page-head">
   <h1>Dashboard</h1>
   <p class="subtitle" lang="ru">Обзор</p>
@@ -19,7 +20,7 @@
   <section class="card stat" data-rise style="--r: 1">
     <h2>Trip</h2>
     {% if trip_days is none %}
-      <p class="big">—</p>
+      <p class="big">n/a</p>
       <p class="muted">No trip date set.</p>
     {% elif trip_days < 0 %}
       <p class="big"><span data-count="{{ -trip_days }}">{{ -trip_days }}</span> <small>{{ "day" if trip_days == -1 else "days" }} ago</small></p>
@@ -35,7 +36,7 @@
 
   <section class="card stat" data-rise style="--r: 2">
     <h2>Retention <small>30 days</small></h2>
-    <p class="big">{% if retention is none %}—{% else %}{{ (retention * 100) | round | int }}%{% endif %}</p>
+    <p class="big">{% if retention is none %}n/a{% else %}{{ (retention * 100) | round | int }}%{% endif %}</p>
     <p class="muted">{% if retention is none %}No reviews of learned cards yet.{% else %}Reviews not rated Again.{% endif %}</p>
   </section>
 
@@ -91,4 +92,14 @@
     {% endif %}
   </section>
 </div>
+
+<section class="medals-section" id="medals" aria-labelledby="medals-h">
+  <header class="page-head medals-head">
+    <h2 id="medals-h">Medallions <small>{{ medals_earned }} of {{ medals|length }} earned</small></h2>
+    <p class="subtitle" lang="ru">«Награ́ды»</p>
+    {{ orn.divider(120) }}
+  </header>
+  {{ mdl.grid(medals) }}
+  <p class="medals-note">Select a lit medallion to read its story.</p>
+</section>
 {% endblock %}

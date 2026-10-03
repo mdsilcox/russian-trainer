@@ -3,7 +3,7 @@
 from fastapi import APIRouter, Request
 
 from app import grammar_content as gc
-from app.services.grammar import gform, ru_text, rich
+from app.services.grammar import gform, live_form, ru_text, rich
 from app.web import templates
 
 router = APIRouter()
@@ -11,6 +11,7 @@ router = APIRouter()
 templates.env.filters["rich"] = rich
 templates.env.filters["gform"] = gform
 templates.env.filters["ru_text"] = ru_text
+templates.env.filters["live_form"] = live_form
 
 CASE_INDEX = {name: i for i, name in enumerate(gc.CASE_ORDER)}
 
@@ -31,7 +32,8 @@ def cases(request: Request):
         request, "cases", cases=gc.CASES, case_index=CASE_INDEX, paradigms=gc.PARADIGMS,
         adjectives=gc.ADJECTIVES, adjective_forms=gc.adjective_forms, pronouns=gc.PRONOUNS,
         pron_after=gc.PRON_AFTER, possessives=gc.POSSESSIVES, location=gc.LOCATION_DIRECTION,
-        prepositions=gc.PREPOSITIONS, spelling=gc.SPELLING_RULES)
+        prepositions=gc.PREPOSITIONS, spelling=gc.SPELLING_RULES, case_brief=gc.CASE_BRIEF,
+        living_nouns=[next(p for p in gc.PARADIGMS if p["key"] == k) for k in gc.LIVING_NOUNS], morph=gc.MORPH)
 
 
 @router.get("/grammar/numbers")

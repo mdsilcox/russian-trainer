@@ -1,7 +1,8 @@
 {% extends "base.html" %}
 {% import "grammar/_g.html" as g with context %}
 {% block title %}Cases · Grammar · Russian Trainer{% endblock %}
-{% block head %}<link rel="stylesheet" href="{{ url_for('static', path='grammar.css') }}">{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', path='grammar.css') }}">
+<script src="{{ url_for('static', path='grammar.js') }}" defer></script>{% endblock %}
 
 {% macro adj_table(case) %}
 {% set acc = case == "accusative" %}
@@ -29,8 +30,10 @@
 
 <nav class="g-chips" aria-label="On this page" data-rise style="--r: 2">
   <a href="#location-direction">Location vs direction</a>
+  <a href="#case-table">All cases at a glance</a>
   {% for c in cases %}<a href="#{{ c.id }}">{{ c.name }}</a>{% endfor %}
   <a href="#genitive-plural">Genitive plural</a>
+  <a href="#word-change">Watch the word change</a>
   <a href="#animate-accusative">Animate accusative</a>
   <a href="#prepositional-locative">{{ "Locative -у'" | rich }}</a>
   <a href="#adjectives">Adjectives</a>
@@ -49,6 +52,47 @@
   <h3 class="g-label" id="v-na">В or на?</h3>
   {{ g.table({"id": "v-na-table", "caption": "Common places with в and на", "head": location.v_na.head, "rows": location.v_na.rows}) }}
   <p class="muted g-note">{{ location.v_na.note | rich }}</p>
+</section>
+
+
+<section class="card g-panel g-live" id="case-table" data-living data-rise style="--r: 3">
+  <h2>All six cases at a glance</h2>
+  <p>Hover or focus a case, or pick one below: its endings glow across the whole row, left to right. On a touch screen, tap to pin. Accusative shows inanimate forms.</p>
+  <div class="g-chiprow" role="group" aria-label="Choose a case" hidden data-chiprow>
+    {% for cid in case_index %}{% set b = case_brief[cid] %}
+    <button type="button" class="g-chip" data-case="{{ cid }}" aria-pressed="false">{{ b.ab }}</button>
+    {% endfor %}
+  </div>
+  <div class="g-table-wrap" role="region" tabindex="0" aria-label="Noun endings, all six cases" id="case-table-wrap">
+    <table class="g-table g-living-table">
+      <caption>Nouns by case: stem stays, the ending changes</caption>
+      <thead>
+        <tr><th scope="col" rowspan="2">Case</th><th scope="colgroup" colspan="{{ living_nouns | length }}">Singular</th><th scope="colgroup" colspan="{{ living_nouns | length }}" class="g-sep">Plural</th></tr>
+        <tr>
+          {% for number in ("sg", "pl") %}{% for p in living_nouns %}
+          <th scope="col"{% if number == "pl" and loop.first %} class="g-sep"{% endif %}>{{ p.word | ru_text }} <small>{{ p.label }}</small></th>
+          {% endfor %}{% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for cid, ci in case_index.items() %}
+        <tr data-case="{{ cid }}">
+          <th scope="row"><button type="button" class="g-cname" data-case="{{ cid }}" aria-pressed="false">{{ cid | capitalize }}</button>{% if cid == "genitive" %} <a class="g-tag" href="#genitive-plural">hardest set</a>{% endif %}</th>
+          {% for number in ("sg", "pl") %}{% for p in living_nouns %}
+          <td{% if number == "pl" and loop.first %} class="g-sep"{% endif %}>{{ p[number][ci] | live_form(loop.index0 + (3 if number == "pl" else 0), cid) }}</td>
+          {% endfor %}{% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="g-desc" aria-live="polite" data-desc>
+    <ul class="g-desc-static g-list" data-desc-static>
+      {% for cid in case_index %}<li><strong>{{ cid | capitalize }}</strong> {{ case_brief[cid].q | ru_text }}: {{ case_brief[cid].use }}</li>{% endfor %}
+    </ul>
+    <p class="g-desc-live" data-desc-live hidden></p>
+  </div>
+  <script type="application/json" data-brief>{{ case_brief | tojson }}</script>
 </section>
 
 {% for c in cases %}
@@ -89,6 +133,26 @@
     {% if sub.table2 %}{{ g.table(sub.table2) }}{% endif %}
   </section>
   {% endfor %}
+
+
+  {% if c.id == "genitive" %}
+  <section class="g-sub-section g-morph" id="word-change" aria-labelledby="word-change-h" data-morph>
+    <h3 class="g-sub-h" id="word-change-h">Watch the word change <span class="g-ru-inline">{{ "Слово' меня'ется" | ru_text }}</span></h3>
+    <p>The stem holds still. The old ending sinks away in red, the new one rises in gold, and the stress mark moves to its new home.</p>
+    <div class="g-morph-static" data-morph-static>
+      {% for q in morph %}
+      <div class="g-morph-seq">
+        <h4>{{ q.name }}: <span lang="ru">{{ q.path }}</span></h4>
+        <ol>
+          {% for f in q.forms %}<li><span lang="ru" class="g-morph-form">{{ f.text }}</span> <span class="g-morph-label">{{ f.label }}</span>. {{ f.rule }}</li>{% endfor %}
+        </ol>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="g-morph-live" data-morph-live hidden></div>
+    <script type="application/json" data-morph-data>{{ morph | tojson }}</script>
+  </section>
+  {% endif %}
 
   {{ g.label("Endings") }}
   <div class="g-table-wrap" role="region" tabindex="0" aria-label="Noun endings, {{ c.name }}" id="{{ c.id }}-nouns">

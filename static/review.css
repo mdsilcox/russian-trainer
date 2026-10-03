@@ -1,4 +1,4 @@
-/* Review page — Khokhloma Night */
+/* Review page · Khokhloma Night */
 .rv { max-width: 880px; width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
 
 .rv-progress { display: flex; flex-direction: column; gap: 14px; }
@@ -139,3 +139,36 @@
 /* Room for tails (д, р, у, ф, щ) and stress marks: at `line-height: 1` the big serif's
    descenders reached into the Show answer button. Scales with the font size. */
 .rv-word, .rv-trans.is-ru { line-height: 1.1; padding-bottom: 0.14em; padding-top: 0.04em; }
+
+/* ---- Review vine: grows one node per rating this session ---- */
+.rv-vine { width: 100%; margin: 0 0 -8px; }
+.rv-vine svg, .rv-branch svg { display: block; overflow: visible; height: auto; }
+.v-node .v-seg, .v-node .v-stem { stroke-dasharray: 1 1; stroke-dashoffset: 0; }
+.v-leafL, .v-leafR, .v-berry, .halo { transform-box: fill-box; }
+.v-leafL { transform-origin: 100% 100%; }
+.v-leafR { transform-origin: 0% 100%; }
+.v-berry { transform-origin: 50% 50%; }
+.rv-branch { width: 100%; max-width: 720px; display: flex; flex-direction: column; align-items: center; gap: 6px; margin: 6px 0 4px; }
+.rv-branch[hidden] { display: none; }
+.rv-branch .rv-branch-title { margin: 0; font-family: var(--serif); font-style: italic; font-weight: 600; font-size: 30px; line-height: 1.1; color: var(--gold-light); }
+.rv-branch .rv-branch-count { margin: 0; font-size: 14px; letter-spacing: .06em; color: var(--cream-muted); }
+.rv-branch svg { width: 100%; }
+
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes v-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+  @keyframes v-leaf-grow { from { transform: scale(0) rotate(-12deg); } to { transform: scale(1) rotate(0deg); } }
+  @keyframes v-berry-pop { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+  @keyframes v-ripen { from { fill: #C9A227; } to { fill: #B3261E; } }
+  @keyframes v-shiver { 0% { transform: rotate(0deg); } 25% { transform: rotate(-1deg); } 55% { transform: rotate(1deg); } 80% { transform: rotate(-.5deg); } 100% { transform: rotate(0deg); } }
+  @keyframes v-shimmer { 0% { transform: scale(1); filter: none; } 40% { transform: scale(1.22); filter: drop-shadow(0 0 6px rgba(226,196,106,.9)); } 100% { transform: scale(1); filter: none; } }
+
+  .v-node.is-new .v-seg { animation: v-draw 420ms ease-out both; }
+  .v-node.is-new .v-stem { animation: v-draw 220ms ease-out 300ms both; }
+  .v-node.is-new .v-leaf { animation: v-leaf-grow 380ms cubic-bezier(.2,.8,.3,1.2) 260ms both; }
+  .v-node.is-new .v-berry { animation: v-berry-pop 460ms cubic-bezier(.3,1.5,.5,1) 480ms both; }
+  .v-node.is-new .v-berry .bf { animation: v-ripen 900ms ease-out 480ms both; }
+  .rv-vine.shiver { transform-origin: 50% 50%; animation: v-shiver 360ms ease-in-out both; }
+
+  /* Session end: berries shimmer once, one after another, after the sprig has bloomed. */
+  .rv-branch.is-shimmer .v-berry { animation: v-shimmer 700ms ease-in-out calc(1500ms + var(--i, 0) * 170ms) both; }
+}

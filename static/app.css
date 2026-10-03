@@ -35,6 +35,8 @@
    !important because every `font:` shorthand would otherwise reset it to old-style. */
 *, *::before, *::after { font-variant-numeric: lining-nums !important; }
 
+/* Always reserve the scrollbar's space so the frame and nav sit in the same place on short and long pages. */
+html { scrollbar-gutter: stable; }
 body {
   margin: 0;
   background: var(--lacquer);
@@ -42,6 +44,17 @@ body {
   font: 16px/1.6 var(--sans);
   padding: 28px 24px 48px;
   min-height: 100vh;
+}
+
+/* Lacquer grain: a fine, still noise over the black, like real lacquerware. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0.08;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.89 0 0 0 0 0.77 0 0 0 0 0.42 0 0 0 0.9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 ::selection { background: rgba(201, 162, 39, 0.35); color: var(--cream); }

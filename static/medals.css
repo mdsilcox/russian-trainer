@@ -1,0 +1,98 @@
+/* Medallions: the dashboard grid, the detail panel and the ceremony toast. Motion is opt-in below. */
+
+.medals-section { margin: 34px 0 10px; scroll-margin-top: 20px; }
+.medals-head { margin-bottom: 22px; }
+.medals-head h2 { margin-bottom: 4px; }
+
+.mgrid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 32px 24px; }
+@media (max-width: 1040px) { .mgrid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 760px) { .mgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 14px; } }
+@media (max-width: 420px) { .mgrid { grid-template-columns: minmax(0, 1fr); } }
+
+.cell {
+  box-sizing: border-box; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 12px;
+  padding: 26px 16px 20px; background: var(--raised, #151416);
+  border: 1px solid rgba(201, 162, 39, 0.7); outline: 1px solid rgba(201, 162, 39, 0.25); outline-offset: 4px;
+}
+.cell.locked { background: #121113; border: 1px dashed rgba(201, 162, 39, 0.4); outline-color: rgba(201, 162, 39, 0.12); }
+
+.medal { display: block; width: 100%; max-width: 140px; padding: 0; margin: 0; background: none; border: 0; border-radius: 50%; cursor: pointer; color: inherit; }
+.medal.locked { cursor: default; }
+.medal:focus-visible { outline: 2px solid var(--gold-light, #E2C46A); outline-offset: 6px; }
+.tilt { display: block; border-radius: 50%; transform: none; }
+
+.mdl { position: relative; display: block; width: 100%; aspect-ratio: 1 / 1; border-radius: 50%; }
+.mdl .base, .mdl .em { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.mdl.earned { filter: drop-shadow(0 0 12px rgba(226, 196, 106, 0.32)); }
+.mdl.lk .base, .mdl.lk .em { filter: grayscale(1) brightness(0.5) contrast(0.9); }
+
+.sweep {
+  position: absolute; inset: 0; border-radius: 50%; overflow: hidden; pointer-events: none;
+  -webkit-mask-image: radial-gradient(circle closest-side, transparent 77%, #000 80%, #000 97%, transparent 99%);
+  mask-image: radial-gradient(circle closest-side, transparent 77%, #000 80%, #000 97%, transparent 99%);
+}
+.sweep::after {
+  content: ""; position: absolute; top: -10%; bottom: -10%; left: 0; width: 40%; opacity: 0;
+  transform: translateX(-160%) skewX(-20deg);
+  background: linear-gradient(90deg, rgba(255, 248, 220, 0), rgba(255, 248, 220, 0.9), rgba(255, 248, 220, 0));
+}
+
+.ctitle { font: 600 26px/1.05 var(--serif); color: var(--cream, #F3E9D2); text-align: center; }
+.locked .ctitle { color: var(--cream-muted, #CFC3A6); }
+.cen { font: italic 500 19px/1.1 var(--serif); color: var(--gold-light, #E2C46A); text-align: center; }
+.locked .cen { color: var(--cream-muted, #CFC3A6); }
+.chow { font-size: 13px; line-height: 1.45; color: var(--cream-muted, #CFC3A6); text-align: center; margin: 0; }
+.cdate { font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold-light, #E2C46A); font-weight: 600; margin-top: auto; }
+.prog { width: 100%; display: flex; flex-direction: column; gap: 6px; align-items: stretch; margin-top: auto; }
+.pbar { height: 5px; border: 1px solid rgba(201, 162, 39, 0.5); box-sizing: border-box; position: relative; }
+.pbar > i { position: absolute; left: 0; top: 0; bottom: 0; background: #8f7620; }
+.ptxt { font-size: 12.5px; letter-spacing: 0.04em; color: var(--cream-muted, #CFC3A6); text-align: center; }
+.medals-note { margin: 22px 0 0; text-align: center; font: italic 500 1.15rem/1.3 var(--serif); color: var(--cream-muted, #CFC3A6); }
+
+/* Ceremony: detail panel (centred, dim backdrop) and toast (bottom right) */
+.mback { position: fixed; inset: 0; z-index: 50; background: rgba(11, 11, 12, 0.82); display: flex; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+.mback.toastpos { inset: auto 20px 20px auto; background: none; padding: 0; z-index: 40; display: block; }
+.mstage {
+  box-sizing: border-box; position: relative; background: var(--raised, #151416); border: 1px solid var(--gold, #C9A227);
+  outline: 1px solid rgba(201, 162, 39, 0.3); outline-offset: 5px; display: flex; flex-direction: column; align-items: center; gap: 14px;
+}
+.mstage.panel { --sz: 230px; --k: 1; width: min(520px, 100%); padding: 34px 30px 26px; max-height: 100%; overflow: auto; }
+.mstage.toast { --sz: 120px; --k: 0.55; width: min(300px, calc(100vw - 52px)); padding: 20px 18px 18px; gap: 10px; }
+.mstage.toast .story, .mstage.toast .stbtns, .mstage.toast .kick.panel-kick { display: none; }
+.mstage.panel .kick.new-kick, .mstage.panel .toast-links { display: none; }
+.xbtn { position: absolute; top: 8px; right: 8px; width: 32px; height: 32px; cursor: pointer; background: transparent; border: 1px solid rgba(201, 162, 39, 0.5); color: var(--gold-light, #E2C46A); font-size: 18px; line-height: 1; border-radius: 0; }
+.xbtn:hover { background: rgba(201, 162, 39, 0.16); }
+.xbtn:focus-visible, .tbtn:focus-visible, .toast-links a:focus-visible { outline: 2px solid var(--gold-light, #E2C46A); outline-offset: 3px; }
+.stagemedal { position: relative; width: var(--sz); height: var(--sz); margin: 0 auto; }
+.drop { display: block; width: 100%; height: 100%; }
+.fleck { position: absolute; left: 50%; top: 50%; border-radius: 50%; opacity: 0; pointer-events: none; }
+.ribbon {
+  display: inline-block; margin-top: -6px; padding: 7px 34px; background: #B3261E; box-shadow: inset 0 0 0 1px #C9A227;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 12px) 50%, 100% 100%, 0 100%, 12px 50%); transform-origin: center;
+}
+.ribbon span { display: block; font: 600 24px/1.1 var(--serif); color: var(--cream, #F3E9D2); text-align: center; }
+.mstage.toast .ribbon span { font-size: 21px; }
+.kick { font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold-light, #E2C46A); font-weight: 600; }
+.story { margin: 0; font-size: 16px; line-height: 1.55; color: var(--cream, #F3E9D2); text-align: center; }
+.stbtns { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+.tbtn { cursor: pointer; font: 600 13px var(--sans); letter-spacing: 0.08em; text-transform: uppercase; border-radius: 0; padding: 12px 22px; }
+.tbtn.gold { color: #0B0B0C; background: #C9A227; border: 1px solid #E2C46A; }
+.tbtn.ghost { color: var(--gold-light, #E2C46A); background: transparent; border: 1px solid #C9A227; }
+.tbtn.ghost:hover { background: rgba(201, 162, 39, 0.16); color: var(--cream, #F3E9D2); }
+.toast-links { font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .tilt { transition: transform 320ms ease-out; }
+  .tilt.moving { transition: transform 90ms ease-out; }
+  .medal.earned:hover .sweep::after, .medal.earned:focus-visible .sweep::after { animation: msheen 700ms ease-out 1; }
+  .cer .sweep::after { animation: msheen 700ms ease-out 650ms 1 both; }
+  .cer .drop { animation: mdrop 700ms cubic-bezier(0.3, 0.7, 0.3, 1) 1 both; }
+  .cer .fleck { animation: mburst 1000ms ease-out 1 both; }
+  .cer .ribbon { animation: munfurl 480ms cubic-bezier(0.3, 0.7, 0.3, 1) 800ms 1 both; }
+  .cer .ribbon span { animation: mfadein 360ms ease-out 1000ms 1 both; }
+}
+@keyframes msheen { 0% { opacity: 1; transform: translateX(-160%) skewX(-20deg); } 100% { opacity: 1; transform: translateX(420%) skewX(-20deg); } }
+@keyframes mdrop { 0% { transform: scale(0.6) rotate(-8deg); opacity: 0; } 45% { opacity: 1; } 65% { transform: scale(1.07) rotate(1.5deg); } 82% { transform: scale(0.98) rotate(-0.5deg); } 100% { transform: scale(1) rotate(0); opacity: 1; } }
+@keyframes mburst { 0% { opacity: 0; transform: translate(0, 0) scale(0.3); } 15% { opacity: 1; } 60% { opacity: 1; transform: translate(calc(var(--dx) * var(--k)), calc(var(--dy) * var(--k))) scale(1); } 100% { opacity: 0; transform: translate(calc(var(--dx) * var(--k) * 0.88), calc(var(--dy) * var(--k) * 0.88 + 10px)) scale(0.6); } }
+@keyframes munfurl { from { transform: scaleX(0); opacity: 0.2; } to { transform: scaleX(1); opacity: 1; } }
+@keyframes mfadein { from { opacity: 0; } to { opacity: 1; } }

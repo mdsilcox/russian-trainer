@@ -87,12 +87,17 @@ def _add_mistake_self_correction(engine: Engine) -> None:
             conn.execute(text("ALTER TABLE mistakes ADD COLUMN fix_attempts INTEGER NOT NULL DEFAULT 0"))
 
 
+def _add_medal_awards(engine: Engine) -> None:
+    models.MedalAward.__table__.create(engine, checkfirst=True)
+
+
 MIGRATIONS: list[Callable[[Engine], None]] = [
     _initial_schema,
     _seed_settings,
     _add_api_usage,
     _add_ai_backend,
     _add_mistake_self_correction,
+    _add_medal_awards,
 ]
 
 

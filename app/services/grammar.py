@@ -209,3 +209,18 @@ def gform(spec: str | None) -> Markup:
 def ru_text(text: str | None) -> Markup:
     """Plain Russian text (stress already marked) in a lang="ru" span."""
     return Markup('<span lang="ru">{}</span>').format(stress(text or ""))
+
+
+def live_form(spec: str | None, index: int = 0, case: str = "") -> Markup:
+    """One cell of the living case table: 'стол|а́' -> stem plus the ending in its own span.
+    `index` sets the left-to-right glow order (--i); a zero ending shows a small ∅ badge."""
+    if not spec:
+        return Markup("")
+    stem, _, ending = stress(spec).partition("|")
+    attrs = f'data-case="{escape(case)}" style="--i:{int(index)}"'
+    if ending:
+        end = f'<b class="end" {attrs}>{escape(ending)}</b>'
+    else:
+        end = (f'<b class="end zero" {attrs}><span aria-hidden="true">∅</span>'
+               f'<span class="g-sr">zero ending</span></b>')
+    return Markup(f'<span lang="ru">{escape(stem)}{end}</span>')

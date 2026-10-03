@@ -5,7 +5,7 @@ made in /review are attributed to a session by time window, not by hooks.
 """
 
 from dataclasses import dataclass
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone, tzinfo
 
 from sqlalchemy import func
 from sqlmodel import Session as DbSession, col, select
@@ -256,3 +256,54 @@ def word_of_the_day(db: DbSession) -> Card | None:
     return db.exec(
         select(Card).where(Card.suspended == False).order_by(col(Card.created_at).desc(), col(Card.id).desc())  # noqa: E712
     ).first()
+
+
+# --- Flair: Moscow clock and the year's growth -----------------------------------
+
+GROWTH_SPAN_DAYS = 365
+GROWTH_STAGES = 5  # 0 bare stem, 1 leaves, 2 flowers, 3 berries forming, 4 full bloom
+
+
+def _moscow_tz() -> tzinfo:
+    """Europe/Moscow, or a fixed UTC+3 (Moscow has no DST) when tzdata is missing."""
+    try:
+        from zoneinfo import ZoneInfo
+
+        return ZoneInfo("Europe/Moscow")
+    except Exception:
+        return timezone(timedelta(hours=3), "MSK")
+
+
+def sky_phase(hour: int) -> str:
+    """dawn 5-7, day 8-17, dusk 18-20, night otherwise (mirrors static/today.js)."""
+    if 5 <= hour < 8:
+        return "dawn"
+    if 8 <= hour < 18:
+        return "day"
+    if 18 <= hour < 21:
+        return "dusk"
+    return "night"
+
+
+@dataclass(frozen=True)
+class MoscowClock:
+    time: str  # "HH:MM"
+    phase: str  # dawn | day | dusk | night
+
+
+def moscow_clock(now: datetime | None = None) -> MoscowClock:
+    local = _now(now).astimezone(_moscow_tz())
+    return MoscowClock(local.strftime("%H:%M"), sky_phase(local.hour))
+
+
+def growth_stage(days_left: int | None, span: int = GROWTH_SPAN_DAYS) -> int:
+    """Stage 0..4 from the share of the final `span` days already elapsed.
+
+    No trip date -> 0 (bare stem); trip reached or passed -> 4 (full bloom).
+    """
+    if days_left is None:
+        return 0
+    if days_left <= 0:
+        return GROWTH_STAGES - 1
+    elapsed = min(max(span - days_left, 0), span)
+    return min(elapsed * GROWTH_STAGES // span, GROWTH_STAGES - 1)

@@ -114,7 +114,7 @@ PARADIGMS = [
      "pl": ["ко'мнат|ы", "ко'мнат|", "ко'мнат|ам", "ко'мнат|ы", "ко'мнат|ами", "ко'мнат|ах"]},
     {"key": "f-velar", "label": "Fem. after г/к/х", "word": "кни'га", "gloss": "book",
      "sg": ["кни'г|а", "кни'г|и", "кни'г|е", "кни'г|у", "кни'г|ой", "кни'г|е"],
-     "pl": ["кни'г|и", "кни'г|", "кни'г|ам", "кни'г|и", "кни'г|ами", "кни'г|ах"]},
+     "pl": ["кни'г|и", "книг|", "кни'г|ам", "кни'г|и", "кни'г|ами", "кни'г|ах"]},
     {"key": "f-soft", "label": "Fem. soft (-я)", "word": "неде'ля", "gloss": "week",
      "sg": ["неде'л|я", "неде'л|и", "неде'л|е", "неде'л|ю", "неде'л|ей", "неде'л|е"],
      "pl": ["неде'л|и", "неде'л|ь", "неде'л|ям", "неде'л|и", "неде'л|ями", "неде'л|ях"]},
@@ -316,7 +316,7 @@ CASES = [
             "**Age**: [[Мне три'дцать пять лет.]] (numbers follow the 1 / 2-4 / 5+ rule).",
             "**Towards a person or place** with [[к]]: [[к врачу']], [[к метро']].",
             "**Along / by / on schedule** with [[по]]: [[по у'лице]], [[по телефо'ну]], [[по расписа'нию]].",
-            "Mind the structure: [[Мне ну'жна ка'рта]] — the thing needed is the nominative subject, and agrees with the adjective [[ну'жен / нужна' / ну'жно / нужны']].",
+            "Mind the structure: [[Мне ну'жна ка'рта]]: the thing needed is the nominative subject, and agrees with the adjective [[ну'жен / нужна' / ну'жно / нужны']].",
         ],
         "preps": [
             ("к", "to, towards (a person or place), up to", "Мы идём к друзья'м.", "We are going to our friends'."),
@@ -897,3 +897,75 @@ for _name in ("SECTIONS", "HIGH_YIELD", "PARADIGMS", "ADJECTIVES", "PRONOUNS", "
 del _name
 
 CASE_BY_ID = {c["id"]: c for c in CASES}
+
+
+# --------------------------------------------------------------------------------------------
+# Living case table and word-change morph (rendered by templates/grammar/cases.html, animated by
+# static/grammar.js). Added after the stress conversion above, so stress() is applied here.
+# --------------------------------------------------------------------------------------------
+
+# Chip label and the one-line purpose shown under the living table (order N G D A I P).
+CASE_BRIEF = {
+    "nominative": {"ab": "Nom", "q": "кто? что?", "use": "Who or what does it: the subject, and the dictionary form."},
+    "genitive": {"ab": "Gen", "q": "кого? чего?", "use": "Of, none of, quantities, and after из, до, у, без."},
+    "dative": {"ab": "Dat", "q": "кому? чему?", "use": "To or for someone: the receiver. Also after к and по."},
+    "accusative": {"ab": "Acc", "q": "кого? что?", "use": "The direct object; also direction after в and на (into, onto)."},
+    "instrumental": {"ab": "Ins", "q": "кем? чем?", "use": "With, by means of; also after с, над, перед, за."},
+    "prepositional": {"ab": "Prep", "q": "о ком? о чём?", "use": "About, in, on: only ever after a preposition, mostly в, на, о, при."},
+}
+# Paradigm keys (see PARADIGMS) shown as the columns of the living table.
+LIVING_NOUNS = ["m-hard", "f-velar", "n-hard"]
+
+
+def _morph_text(f: dict) -> str:
+    """Display form with the stress mark: 'окно́'. st indexes the letters of stem + ending."""
+    hid = f.get("hid")
+    vis = "".join(ch for i, ch in enumerate(f["stem"]) if i != hid) + f["end"]
+    if f["st"] < 0:
+        return vis
+    idx = f["st"] - 1 if hid is not None and f["st"] > hid else f["st"]
+    return vis[: idx + 1] + ACUTE + vis[idx + 1:]
+
+
+def _mf(stem, end, st, label, sn, rule, **kw):
+    return {"stem": stem, "end": end, "st": st, "label": label, "sn": sn, "rule": stress(rule), **kw}
+
+
+# st = index of the stressed letter counting the stem letters first, then the ending (-1: no mark,
+# the word has a single syllable). hid = stem letter that is not shown yet; grow = letter that appears.
+MORPH = [
+    {"name": "Genitive sg and pl", "forms": [
+        _mf("стол", "", -1, "Nominative sg", "none",
+            "Nominative is the bare stem. A hard masculine noun ends in a consonant, so its ending is zero (∅): стол. One syllable, so no stress mark."),
+        _mf("стол", "а", 4, "Genitive sg", "ending",
+            "Genitive singular adds -а. The stem стол- stays put, and the stress moves onto the new ending: стола'."),
+        _mf("стол", "ов", 4, "Genitive pl", "ending",
+            "Genitive plural of a hard masculine noun takes -ов. Same stem, stress on the ending: столо'в."),
+    ]},
+    {"name": "Zero ending", "forms": [
+        _mf("книг", "а", 2, "Nominative sg", "stem",
+            "Nominative: the stem кни'г- plus the feminine ending -а."),
+        _mf("книг", "", -1, "Genitive pl", "none",
+            "Genitive plural drops -а altogether. The zero ending (∅) leaves the bare stem: книг. With one syllable left, "
+            "the stress mark disappears."),
+    ]},
+    {"name": "Inserted vowel and stress shift", "forms": [
+        _mf("окон", "о", 4, "Nominative sg", "ending",
+            "Nominative: the stem окн- plus the neuter ending -о, with the stress on that ending: окно'.", hid=2),
+        _mf("окон", "", 0, "Genitive pl", "stem",
+            "Genitive plural drops -о, and the bare stem окн- would be a clump of consonants, so a vowel о is inserted "
+            "between к and н. The stress travels from the last syllable to the first: о'кон.", grow=2),
+    ]},
+    {"name": "Mobile stress", "forms": [
+        _mf("рук", "а", 3, "Nominative sg", "ending",
+            "Nominative: the stem рук- plus -а, with the stress sitting on the ending: рука'."),
+        _mf("рук", "у", 1, "Accusative sg", "stem",
+            "Accusative singular: the ending changes -а to -у, and the stress jumps back onto the stem: ру'ку. "
+            "Both change at once. That is mobile stress."),
+    ]},
+]
+for _q in MORPH:
+    for _f in _q["forms"]:
+        _f["text"] = _morph_text(_f)
+    _q["path"] = " → ".join(_f["text"] for _f in _q["forms"])
+del _q, _f

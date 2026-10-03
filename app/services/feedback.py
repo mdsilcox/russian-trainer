@@ -82,7 +82,9 @@ This learner's known weak spots: {weak_spots}. Look especially carefully at thes
 corrected_text: apply every "error" and "unnatural" fix and nothing else, so it stays the learner's own story.
 rephrasings: up to 3 places where even the corrected text sounds translated from English; show what a Muscovite would say.
 vocab: 2-3 words or phrases the learner reached for or avoided, useful for everyday life in Moscow, with stress marks.
-summary: encouraging and specific; mention the one or two patterns most worth practising."""
+summary: encouraging and specific; mention the one or two patterns most worth practising.
+
+Punctuation: never use em dashes (—) in English text; use a comma, colon, full stop or parentheses instead. Inside Russian sentences, keep the dash only where Russian grammar requires it (e.g. Москва́ — столи́ца)."""
 
 
 def _setting(session: Session, key: str, default):

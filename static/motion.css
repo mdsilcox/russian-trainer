@@ -67,6 +67,45 @@
     animation: title-sheen 900ms cubic-bezier(.4, .1, .3, 1) 1000ms backwards;
   }
 
+  /* ---- Living lacquer: grain + a slow pool of light drifting across the black ---- */
+  @keyframes lacquer-drift {
+    0%   { transform: translate(-30vw, -20vh) scale(1); }
+    50%  { transform: translate(35vw, 25vh) scale(1.15); }
+    100% { transform: translate(-30vw, -20vh) scale(1); }
+  }
+  body::after {
+    content: "";
+    position: fixed;
+    left: 50%; top: 50%;
+    width: 110vmax; height: 110vmax;
+    margin: -55vmax 0 0 -55vmax;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(226, 196, 106, 0.09) 0%, rgba(226, 196, 106, 0.035) 35%, rgba(226, 196, 106, 0) 65%);
+    pointer-events: none;
+    z-index: -1;
+    will-change: transform;
+    animation: lacquer-drift 26s ease-in-out infinite;
+  }
+
+  /* ---- Gold-leaf ripple (motion.js adds .gold-ripple at the click point) ---- */
+  @keyframes ripple-ring { from { transform: translate(-50%, -50%) scale(0.2); opacity: 0.9; } to { transform: translate(-50%, -50%) scale(1); opacity: 0; } }
+  @keyframes ripple-fleck {
+    from { transform: translate(-50%, -50%) rotate(var(--a)) translateY(0) scale(1); opacity: 1; }
+    to { transform: translate(-50%, -50%) rotate(var(--a)) translateY(calc(-1 * var(--dist))) scale(0.4); opacity: 0; }
+  }
+  .gold-ripple { position: fixed; left: 0; top: 0; width: 0; height: 0; pointer-events: none; z-index: 1000; }
+  .gold-ripple .ring {
+    position: absolute; left: 0; top: 0; width: 84px; height: 84px; border-radius: 50%;
+    border: 1px solid rgba(226, 196, 106, 0.85);
+    box-shadow: 0 0 14px rgba(226, 196, 106, 0.35), inset 0 0 10px rgba(226, 196, 106, 0.2);
+    animation: ripple-ring 600ms cubic-bezier(.2, .7, .2, 1) forwards;
+  }
+  .gold-ripple .fleck {
+    position: absolute; left: 0; top: 0; width: 4px; height: 4px; border-radius: 1px;
+    background: #E2C46A;
+    animation: ripple-fleck 650ms ease-out forwards;
+  }
+
   /* ---- 3 · Details: hover sheens, turning flourishes ------------------ */
 
   @keyframes sheen { from { transform: translateX(-160%) skewX(-20deg); } to { transform: translateX(420%) skewX(-20deg); } }

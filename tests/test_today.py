@@ -265,3 +265,46 @@ def test_word_of_the_day_latest_active(session):
     session.add(Card(ru="скрыт", en="hidden", created_at=NOW, suspended=True))
     session.commit()
     assert today.word_of_the_day(session).ru == "новый"
+
+
+# --- flair: Moscow clock and growth ------------------------------------------------
+
+
+def test_growth_stage_boundaries():
+    assert today.growth_stage(None) == 0
+    assert today.growth_stage(365) == 0
+    assert today.growth_stage(293) == 0
+    assert today.growth_stage(292) == 1
+    assert today.growth_stage(220) == 1
+    assert today.growth_stage(219) == 2
+    assert today.growth_stage(147) == 2
+    assert today.growth_stage(146) == 3
+    assert today.growth_stage(74) == 3
+    assert today.growth_stage(73) == 4
+    assert today.growth_stage(1) == 4
+    assert today.growth_stage(0) == 4
+    assert today.growth_stage(-10) == 4
+    assert today.growth_stage(900) == 0
+
+
+def test_sky_phase_hours():
+    assert [today.sky_phase(h) for h in (4, 5, 7, 8, 17, 18, 20, 21, 23, 0)] == [
+        "night", "dawn", "dawn", "day", "day", "dusk", "dusk", "night", "night", "night"]
+
+
+def test_moscow_clock_is_utc_plus_three():
+    c = today.moscow_clock(datetime(2026, 10, 3, 21, 30, tzinfo=timezone.utc))
+    assert (c.time, c.phase) == ("00:30", "night")
+    c = today.moscow_clock(datetime(2026, 7, 1, 5, 5, tzinfo=timezone.utc))
+    assert (c.time, c.phase) == ("08:05", "day")
+    assert today.moscow_clock(datetime(2026, 1, 1, 2, 0, tzinfo=timezone.utc)).phase == "dawn"
+
+
+def test_page_has_clock_vine_and_ink_word(client, session):
+    session.add(Card(ru="вокзал", ru_stressed="вокза́л", en="railway station"))
+    session.merge(Setting(key="trip_date", value=(local_date(datetime.now(timezone.utc)) + timedelta(days=100)).isoformat()))
+    session.commit()
+    text = client.get("/").text
+    assert "data-moscow-clock" in text and "В Москве́ сейча́с" in text
+    assert 'class="gv st3"' in text
+    assert "ink-base" in text and "вокза́л" in text

@@ -14,3 +14,13 @@ Answers from plan review, 2026-10-02. Machine-readable copy: `config/settings_se
 | API budget | ~$10/month | Sonnet 5.5 for story feedback and role-play, Haiku 4.5 for card enrichment, drill generation and answer checks (mapping in `app/services/claude.py`). Usage and cost logged per call, with a warning at 80% of the budget. |
 | Audio | Cloud TTS later | No browser TTS in the MVP. P3.4 adds a cloud TTS provider with its own key from an env var. |
 | AI backend | Claude subscription via `claude -p` (added 2026-10-02) | Default backend, switchable to the API key in Settings. Calls count against plan limits, logged with cost 0; only API calls count toward the $10 budget. Personal use only. |
+
+## Tutor (decided 2026-10-02)
+
+| Topic | Decision | Effect on the build |
+|---|---|---|
+| Who | A friend in Russia, fluent in Russian and English, weekly lessons | She sets a weekly topic, word lists and tasks; lessons are the anchor of the week. |
+| Channel | Telegram bot | No hosting: the app on the always-on machine long-polls a private bot (token from `TELEGRAM_BOT_TOKEN`, never stored). Only her Telegram account (allow-listed chat id) can talk to it. A hosted web portal stays an option later if editing long lists in chat gets clunky. |
+| Language | Bot speaks Russian (she's fluent in both; it's also good immersion for the learner when reading her messages) | Bot replies and summaries in Russian, app screens in English. |
+| Visibility | She can see everything | Weekly summary can include stories with feedback, mistakes and stats; still sent only to her chat. |
+| Hosting | The app moves to a dedicated always-on machine (new hardware coming) | Run as a background service that starts on boot; backups copied off that machine; the learner uses it from other devices over the home network. |

@@ -173,7 +173,9 @@ Rules:
 - Keep the learner's spelling of the headword; fix it only if it's clearly misspelt.
 - For verbs give the aspect and its partner (e.g. говори́ть → сказа́ть). Verbs of motion: note the unidirectional/multidirectional pair instead when that's more useful.
 - The example sentence must be natural modern Russian at roughly B1 level, ideally something a family visiting Moscow would say or hear.
-- Explanations and glosses in English."""
+- Explanations and glosses in English.
+
+Punctuation: never use em dashes (—) in English text; use a comma, colon, full stop or parentheses instead. Inside Russian sentences, keep the dash only where Russian grammar requires it (e.g. Москва́ — столи́ца)."""
 
 
 def enrich(client: ClaudeClient, ru: str, en: str = "") -> CardEnrichment:

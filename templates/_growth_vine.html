@@ -1,0 +1,35 @@
+{# The year's growth: a small vine whose stage (0..4) follows progress toward the trip. #}
+{% macro growth_vine(stage=0, width=300) -%}
+{% set leaf_xs = [40, 80, 120, 160, 200, 240, 280] %}
+{% set flower_xs = [40, 120, 200, 280] %}
+{% set berry_xs = [80, 160, 240] %}
+<svg class="gv st{{ stage }}" width="{{ width }}" height="{{ (width * 46 / 320) | round | int }}" viewBox="0 0 320 46" fill="none" role="img" aria-label="The year's growth: stage {{ stage + 1 }} of 5" style="flex-shrink: 0">
+  <path class="gv-stem" pathLength="1" d="M0 14 C13 8 27 8 40 14 C53 20 67 20 80 14 C93 8 107 8 120 14 C133 20 147 20 160 14 C173 8 187 8 200 14 C213 20 227 20 240 14 C253 8 267 8 280 14 C293 20 307 20 320 14"/>
+  {% if stage >= 1 %}
+  {% for x in leaf_xs %}
+  <g transform="translate({{ x }} 14) rotate({{ -50 if loop.index is odd else -130 }}) scale(.62)"><g class="gv-lf" style="--d: {{ loop.index0 }}"><path d="M0 0 C5 -7 15 -8 25 0 C15 7 5 7 0 0Z"/><path class="gv-vein" d="M3 0 L19 0"/></g></g>
+  {% endfor %}
+  {% for x in [64, 144, 224, 304] %}<path class="gv-tend" pathLength="1" style="--d: {{ loop.index0 }}" d="M{{ x }} 17 c 3 6 9 6 9 2 c 0 -2 -4 -2 -4 1"/>{% endfor %}
+  {% endif %}
+  {% for x in flower_xs %}
+  <path class="gv-stem gv-stalk" pathLength="1" d="M{{ x }} 14 L{{ x }} 25"/>
+  {% if stage < 2 %}<circle class="gv-bud" cx="{{ x }}" cy="25" r="2.2"/>
+  {% else %}
+  <g transform="translate({{ x }} 31)"><g class="gv-fl" style="--d: {{ loop.index0 }}">{% for a in [0, 72, 144, 216, 288] %}<ellipse class="gv-petal" cx="0" cy="-4" rx="2.4" ry="4.6" transform="rotate({{ a }})"/>{% endfor %}<circle class="gv-fl-c" r="1.9"/></g></g>
+  {% endif %}
+  {% endfor %}
+  {% for x in berry_xs %}
+  <path class="gv-stem gv-stalk" pathLength="1" d="M{{ x }} 14 L{{ x }} 25"/>
+  {% if stage < 3 %}<circle class="gv-bud" cx="{{ x }}" cy="25" r="2.2"/>
+  {% else %}
+  <g class="gv-br {{ 'ripe' if stage >= 4 else 'green' }}" style="--d: {{ loop.index0 }}">
+    <circle class="gv-b" cx="{{ x - 4 }}" cy="30" r="3.6"/><circle class="gv-b" cx="{{ x + 4 }}" cy="30" r="3.6"/><circle class="gv-b" cx="{{ x }}" cy="34.5" r="3.6"/>
+    {% if stage >= 4 %}<circle class="gv-bd" cx="{{ x - 5 }}" cy="29" r="0.9"/><circle class="gv-bd" cx="{{ x + 3 }}" cy="29" r="0.9"/><circle class="gv-bd" cx="{{ x - 1 }}" cy="33.5" r="0.9"/>{% endif %}
+  </g>
+  {% endif %}
+  {% endfor %}
+  {% if stage >= 4 %}
+  {% for x in [20, 100, 180, 260] %}<path class="gv-curl" pathLength="1" style="--d: {{ loop.index0 }}" d="M{{ x }} 11 c 0 -7 6 -9 9 -6 c 2 3 -1 5 -3 3"/><circle class="gv-gd" style="--d: {{ loop.index0 }}" cx="{{ x + 9 }}" cy="5" r="1.2"/>{% endfor %}
+  {% endif %}
+</svg>
+{%- endmacro %}

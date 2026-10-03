@@ -221,3 +221,12 @@ class PlanMonth(SQLModel, table=True):
     focus: str
     goals_json: list = Field(default_factory=list, sa_column=Column(JSON))
     status: str = "planned"
+
+
+class MedalAward(SQLModel, table=True):
+    """A medallion once earned stays earned; `seen` is false until its ceremony has been shown."""
+
+    __tablename__ = "medal_awards"
+    key: str = Field(primary_key=True)
+    earned_at: datetime = Field(default_factory=utcnow)
+    seen: bool = False

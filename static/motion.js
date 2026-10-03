@@ -46,3 +46,28 @@
 window.addEventListener("pageshow", (event) => {
   if (event.persisted) document.documentElement.classList.remove("arrive");
 });
+
+// Gold-leaf ripple: a ring and a few gold flecks from exactly where a button is pressed.
+(function () {
+  if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  document.addEventListener("pointerdown", (event) => {
+    const target = event.target.closest("button, .button, [role=button]");
+    if (!target || target.disabled || event.button > 0) return;
+    const burst = document.createElement("span");
+    burst.className = "gold-ripple";
+    burst.setAttribute("aria-hidden", "true");
+    burst.style.transform = `translate(${event.clientX}px, ${event.clientY}px)`;
+    const ring = document.createElement("span");
+    ring.className = "ring";
+    burst.appendChild(ring);
+    for (let i = 0; i < 6; i++) {
+      const fleck = document.createElement("span");
+      fleck.className = "fleck";
+      fleck.style.setProperty("--a", `${i * 60 + Math.random() * 30}deg`);
+      fleck.style.setProperty("--dist", `${22 + Math.random() * 18}px`);
+      burst.appendChild(fleck);
+    }
+    document.body.appendChild(burst);
+    setTimeout(() => burst.remove(), 700);
+  }, { passive: true });
+})();

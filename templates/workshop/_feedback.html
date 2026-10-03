@@ -32,7 +32,7 @@
       <span class="legend" aria-hidden="true"><i class="lg lg-error"></i><i class="lg lg-unnatural"></i><i class="lg lg-style"></i></span>
       {{ errors|length }} error{{ "" if errors|length == 1 else "s" }} ·
       {{ unnatural|length }} unnatural · {{ fb.issues|length - errors|length - unnatural|length }} style
-      — <span class="when-try">hover or focus a highlight to see its category, then try fixing it yourself.</span><span class="when-reveal">hover or tap a highlight for the explanation.</span>
+      · <span class="when-try">hover or focus a highlight to see its category, then try fixing it yourself.</span><span class="when-reveal">hover or tap a highlight for the explanation.</span>
     </p>
     <p class="try-bar when-try">
       <span>Try each fix first; the answer appears once you get it right (or after two tries).</span>
@@ -46,11 +46,11 @@
       <div class="routed">
         {% if routed.new_cards %}
           <p><strong>Added {{ routed.new_cards|length }} card{{ "" if routed.new_cards|length == 1 else "s" }} to your deck</strong>
-            <span class="muted">— remove any you don't want.</span></p>
+            <span class="muted">Remove any you don't want.</span></p>
           <ul class="auto-cards">
             {% for card in routed.new_cards %}
               <li>
-                <span lang="ru">{{ card.ru_stressed or card.ru }}</span> <span class="muted">— {{ card.en }}</span>
+                <span lang="ru">{{ card.ru_stressed or card.ru }}</span> <span class="muted">· {{ card.en }}</span>
                 <button type="button" class="link-button" title="Don't make a card"
                         hx-post="/workshop/cards/{{ card.id }}/discard" hx-target="closest li" hx-swap="outerHTML">✕</button>
               </li>
@@ -113,7 +113,7 @@
       <h3>Worth learning</h3>
       <ul class="vocab">
         {% for v in fb.vocab %}
-          <li><strong lang="ru">{{ v.ru }}</strong> — {{ v.en }}<br>
+          <li><strong lang="ru">{{ v.ru }}</strong> · {{ v.en }}<br>
             <span lang="ru">{{ v.example_ru }}</span> <span class="muted">{{ v.example_en }}</span><br>
             <small class="muted">{{ v.why }}</small></li>
         {% endfor %}

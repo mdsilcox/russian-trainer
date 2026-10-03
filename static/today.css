@@ -103,3 +103,83 @@
 @media (prefers-reduced-motion: no-preference) {
   .bloom-ring { opacity: 1; }
 }
+
+/* ---- Flair: Moscow clock + sky ---- */
+.tile-clock { max-width: 320px; gap: 16px; }
+.sky-svg { flex-shrink: 0; }
+.clock-text { gap: 2px; }
+.clock-label { font-family: var(--serif); font-style: italic; font-size: 20px; line-height: 1.1; color: var(--gold-light); }
+.clock-time { font-family: var(--serif); font-weight: 700; font-size: 48px; line-height: 0.95; color: var(--cream); font-variant-numeric: tabular-nums; }
+.clock-phase { font-size: 12px; letter-spacing: 0.06em; color: var(--cream-muted); }
+.sk { opacity: 0; }
+.sky-dawn .sk-dawn, .sky-day .sk-day, .sky-dusk .sk-dusk, .sky-night .sk-night { opacity: 1; }
+.star { opacity: 0.85; }
+
+/* ---- Flair: the year's growth vine ---- */
+.gv { overflow: visible; max-width: 100%; height: auto; }
+.gv-stem { fill: none; stroke: #C9A227; stroke-width: 1.5; stroke-linecap: round; }
+.gv-stalk { stroke-width: 1.1; }
+.gv-tend, .gv-curl { fill: none; stroke: #C9A227; stroke-width: 1.1; }
+.gv-lf, .gv-fl, .gv-br { transform-box: fill-box; transform-origin: center; }
+.gv-lf { transform-origin: 0% 50%; }
+.gv-lf path:first-child { fill: rgba(201, 162, 39, 0.16); stroke: #C9A227; stroke-width: 1.2; }
+.gv-vein { fill: none; stroke: #C9A227; stroke-width: 0.7; opacity: 0.7; }
+.gv-bud { fill: #C9A227; stroke: #E2C46A; stroke-width: 0.5; }
+.gv-petal { fill: #C9A227; stroke: #E2C46A; stroke-width: 0.5; }
+.gv-fl-c { fill: #B3261E; stroke: #E2C46A; stroke-width: 0.6; }
+.gv-b { fill: #5B2A24; stroke: #C9A227; stroke-width: 0.9; }
+.gv-br.ripe .gv-b { fill: #B3261E; }
+.gv-br.green { transform: scale(0.7); }
+.gv-bd, .gv-gd { fill: #E2C46A; }
+
+/* ---- Flair: handwritten word of the day ---- */
+.word-ink { position: relative; display: inline-block; padding: 2px 8px 6px 2px; }
+.word-ink .word-ru { font-family: "Marck Script", "Bad Script", var(--serif), cursive; font-weight: 400; font-size: 52px; line-height: 1.1; white-space: nowrap; }
+.word-ink .ink-base { display: block; }
+.word-ink .ink-wet { display: none; position: absolute; left: 2px; top: 2px; color: #FFF0B8; text-shadow: 0 0 12px rgba(226, 196, 106, 0.7); pointer-events: none; }
+.word-en { font-style: italic; }
+
+@keyframes gv-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes gv-pop { from { opacity: 0; transform: scale(0); } to { opacity: 1; transform: scale(1); } }
+@keyframes gv-pop-sm { from { opacity: 0; transform: scale(0); } to { opacity: 1; transform: scale(0.7); } }
+@keyframes twinkle { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+@keyframes ink-reveal { from { clip-path: inset(-20% 100% -20% -6%); } to { clip-path: inset(-20% -6% -20% -6%); } }
+@keyframes ink-settle { from { opacity: 1; } to { opacity: 0; } }
+@keyframes ink-gloss { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+@media (prefers-reduced-motion: no-preference) {
+  .sk { transition: opacity 1400ms ease; }
+  .star { animation: twinkle 5s ease-in-out infinite; }
+
+  /* Vine: on arrival the stem draws, then only the current stage's new parts grow in. */
+  .arrive .gv-stem { stroke-dasharray: 1; animation: gv-draw 1400ms cubic-bezier(.45, .05, .25, 1) 200ms backwards; }
+  .arrive .st1 .gv-lf, .arrive .st2 .gv-lf, .arrive .st3 .gv-lf, .arrive .st4 .gv-lf { animation: none; }
+  .arrive .st1 .gv-lf { animation: gv-pop 700ms cubic-bezier(.2, .7, .2, 1) calc(900ms + var(--d, 0) * 70ms) backwards; }
+  .arrive .st1 .gv-tend { stroke-dasharray: 1; animation: gv-draw 900ms ease calc(1000ms + var(--d, 0) * 90ms) backwards; }
+  .arrive .st2 .gv-fl { animation: gv-pop 800ms cubic-bezier(.2, .7, .2, 1) calc(900ms + var(--d, 0) * 110ms) backwards; }
+  .arrive .st3 .gv-br.green { animation: gv-pop-sm 800ms cubic-bezier(.2, .7, .2, 1) calc(900ms + var(--d, 0) * 110ms) backwards; }
+  .arrive .st4 .gv-br.ripe, .arrive .st4 .gv-gd { animation: gv-pop 800ms cubic-bezier(.2, .7, .2, 1) calc(900ms + var(--d, 0) * 110ms) backwards; }
+  .arrive .st4 .gv-curl { stroke-dasharray: 1; animation: gv-draw 900ms ease calc(1100ms + var(--d, 0) * 90ms) backwards; }
+
+  /* Word: ink writes left to right, a gold sheen settles away. */
+  .arrive .word-ink .ink-base { animation: ink-reveal 1600ms cubic-bezier(.45, .1, .3, 1) 400ms both; }
+  .arrive .word-ink .ink-wet { display: block; animation: ink-reveal 1600ms cubic-bezier(.45, .1, .3, 1) 400ms both, ink-settle 1100ms ease-out 1900ms forwards; }
+  .arrive .word-en { animation: ink-gloss 700ms cubic-bezier(.2, .7, .2, 1) 1700ms backwards; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .star { animation: none; }
+}
+@media (max-width: 640px) {
+  .tile-clock { max-width: none; }
+  .word-ink .word-ru { font-size: 44px; }
+}
+
+/* Header tiles: one tidy column of equal widths (clock, countdown, streak) instead of a ragged stack. */
+.t-tiles { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; flex: 0 1 340px; }
+.t-tiles .tile { max-width: none; }
+@media (max-width: 760px) { .t-tiles { flex-basis: 100%; } }
+
+/* Word of the day: phrases wrap between words and scale down instead of running off the panel. */
+.word-ink { max-width: 100%; }
+.word-ink .word-ru { white-space: normal; font-size: clamp(30px, 4.2vw, 52px); }
+.word-ink .ink-wet { right: 8px; }

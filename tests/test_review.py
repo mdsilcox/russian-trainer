@@ -81,3 +81,20 @@ def test_waiting_message_when_learning_card_due_soon(client, session):
     client.post(f"/review/{cs.id}", data={"rating": 3})
     page = client.get("/review").text
     assert "Next card in 10 min" in page
+
+
+def test_review_page_has_vine_container_and_script(client, session):
+    card_service.create_card(session, ru="дом", en="house")
+    page = client.get("/review").text
+    assert "data-rv-vine" in page and 'class="rv-vine-nodes"' in page
+    assert "/static/review.js" in page
+
+
+def test_done_page_has_hidden_branch_summary(client):
+    page = client.get("/review").text
+    assert "data-rv-branch" in page and "Your branch today" in page
+
+
+def test_review_js_records_ratings_in_session_storage(client):
+    js = client.get("/static/review.js").text
+    assert "rv-vine" in js and "sessionStorage" in js

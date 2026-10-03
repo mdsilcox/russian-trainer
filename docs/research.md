@@ -96,7 +96,7 @@ Nominative after numbers and negation; missing animate accusative; в vs. на (
 | Thu | Travel role-play (metro, café, pharmacy, tickets, hotel) using chunk cards | *Ку́хня* or a Mosfilm comedy |
 | Fri | Translation task + stress drill (mobile-stress nouns, past-tense verbs) | *Slow Russian* |
 | Sat | Extensive reading or listening (longer, no drills) | Film with family |
-| Sun | Light: review error log, spawn cards, 5 min shadowing | — |
+| Sun | Light: review error log, spawn cards, 5 min shadowing | (rest) |
 
 ### 12-month arc
 - **Oct–Dec 2026, case foundations:** location vs. direction with в/на; genitive (incl. plurals and numbers); animate accusative. Start Mosfilm classics; *Иро́ния судьбы́* at New Year.
