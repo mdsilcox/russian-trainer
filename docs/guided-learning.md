@@ -1,6 +1,6 @@
 # Guided learning: design
 
-Status: proposal for review (2026-10-03). Nothing here is built yet.
+Status: approved 2026-10-03, building as Phase 5.
 
 ## Why
 
@@ -107,9 +107,9 @@ Every table is keyed so adding a `profile_id` later is one migration.
 
 Lanes A, B and C start once the engine's contracts (item shape, unit service API) are written; the engine's content work continues in parallel.
 
-## Questions for the learner
+## Decisions (2026-10-03)
 
-1. One unit a week, about 25 minutes a day: the right size?
-2. Pre-tests to fast-track known topics: yes, or always do the full unit?
-3. Pass mark 80%, remediation under 60%: too strict or about right?
-4. Should units replace the monthly activity goals on Today and the plan page, or sit beside them?
+1. One unit a week at about 25 minutes a day.
+2. Pre-tests on: 85% or more offers to fast-track to the quiz.
+3. Pass at 80%; remediation under 60%; one more practice day between.
+4. Units replace the monthly activity goals on Today and the plan page. Months without units yet show their focus until their units are written.
