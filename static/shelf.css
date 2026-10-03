@@ -1,0 +1,65 @@
+/* Shelf («Полка»): Khokhloma Night. Builds on app.css variables, .card, .badge and cards.css field styles. */
+.page-head { text-align: center; margin-bottom: 18px; }
+.subtitle { font: italic 500 1.7rem/1.2 var(--serif); color: var(--gold-light); margin: 0 0 6px; }
+.page-head .ornament { margin-top: 4px; }
+.sh-lead { max-width: 56ch; margin: 14px auto 0; color: var(--cream-muted); }
+
+main h2 { font: 600 12px/1.4 var(--sans); letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold-light); margin: 0 0 10px; }
+main h3 { margin: 0; }
+
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Input this week */
+.sh-top { margin: 22px 0 34px; display: grid; gap: 14px; }
+.sh-total-main { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+.sh-total-num { font: 600 clamp(3.4rem, 9vw, 4.6rem)/1 var(--serif); color: var(--gold-light); }
+.sh-total-unit { font: 600 12px/1.6 var(--sans); letter-spacing: 0.18em; text-transform: uppercase; color: var(--cream-muted); }
+.sh-total-sub { margin: 6px 0 0; color: var(--cream-muted); font-size: 14px; }
+.sh-free { border-top: 1px solid var(--gold-line); padding-top: 14px; }
+.sh-free h3 { font: 600 12px/1.4 var(--sans); letter-spacing: 0.14em; text-transform: uppercase; color: var(--cream-muted); margin-bottom: 10px; }
+
+/* Log forms */
+.sh-log { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
+.sh-mini { display: grid; gap: 4px; min-width: 0; }
+.sh-mini > span { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-light); font-weight: 500; }
+.sh-mini input[type="number"] { width: 6rem; }
+.sh-mini select { width: auto; min-width: 8.5rem; }
+.sh-mini.sh-title { flex: 1 1 14rem; }
+.sh-log button { padding: 11px 18px; }
+.sh-result { min-height: 0; }
+.sh-msg { margin: 8px 0 0; font-size: 14px; }
+
+/* Level sections */
+.sh-level { margin: 0 0 38px; }
+.sh-level-head { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; border-bottom: 1px solid var(--gold); padding-bottom: 6px; }
+.sh-level-head h2 { font: 600 clamp(30px, 6vw, 40px)/1.1 var(--serif); letter-spacing: 0; text-transform: none; color: var(--cream); margin: 0; }
+.sh-cefr { font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold-light); }
+.sh-blurb { margin: 8px 0 16px; font-size: 14px; }
+
+.sh-items { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr)); gap: 18px; }
+.sh-item { margin: 0; display: flex; flex-direction: column; gap: 10px; min-width: 0; scroll-margin-top: 16px; }
+.sh-title-ru { font: 600 1.7rem/1.15 var(--serif); color: var(--cream); overflow-wrap: anywhere; }
+.sh-title-ru:not(:lang(ru)) { font-size: 1.45rem; }
+.sh-title-en { margin: 2px 0 0; font-size: 14px; color: var(--cream-muted); }
+.sh-tags { margin: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.sh-why { margin: 0; flex: 1; }
+.sh-link { margin: 0; font-size: 14px; }
+.sh-item .sh-log { border-top: 1px solid var(--gold-faint); padding-top: 12px; }
+
+/* Sentence mining */
+.sh-mine { margin-top: 10px; }
+.sh-mine .stack { margin-top: 14px; }
+.sh-opt { font-style: normal; text-transform: none; letter-spacing: 0; color: var(--cream-muted); font-size: 12px; margin-left: 6px; }
+.sh-loading { color: var(--cream-muted); font-size: 14px; }
+.sh-mine-result { margin-top: 18px; }
+.sh-preview { border-top: 1px solid var(--gold-line); padding-top: 18px; }
+.sh-preview h3 { font: 600 1.6rem/1.2 var(--serif); }
+.sh-preview .muted { margin: 0; }
+.sh-preview .fsec h3 { font: 600 12px/1.4 var(--sans); letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold-light); }
+
+@media (max-width: 600px) {
+  .sh-mini select { min-width: 7rem; }
+  .sh-log button { flex: 1 1 100%; }
+  .subtitle { font-size: 1.4rem; }
+}
+@media (prefers-reduced-motion: reduce) { .htmx-indicator { transition: none; } }

@@ -2,6 +2,11 @@
 {% import "_ornaments.html" as orn %}
 {% block title %}Review · Russian Trainer{% endblock %}
 {% block head %}<link rel="stylesheet" href="/static/review.css">
+<link rel="stylesheet" href="/static/speak.css">
+<script>
+  /* Listen-first mode is set before first paint so a hidden word never flashes. */
+  try { if (localStorage.getItem("speak-listen-first") === "1") document.documentElement.classList.add("speak-lf"); } catch (e) {}
+</script>
 <script>
   /* Card-to-card slide: tag review -> review navigations so review.css can style them.
      Must be registered early (before first render), so it is inline rather than deferred. */
@@ -17,6 +22,7 @@
     });
   })();
 </script>
+<script src="/static/speak.js" defer></script>
 <script src="/static/review.js" defer></script>{% endblock %}
 {% block content %}
 {% if not cs and wait_seconds %}
@@ -61,6 +67,7 @@
   </script>
 {% else %}
   {% set shown = [remaining, 30] | min %}
+  {% set ru_spoken = card.ru_stressed or card.ru %}
   {% set details = [card.pos, {"m": "masculine", "f": "feminine", "n": "neuter"}.get(card.gender, card.gender), card.aspect] | select | list %}
   <div class="rv" data-remaining="{{ remaining }}">
     <div class="rv-progress">
@@ -93,7 +100,7 @@
           <p class="rv-word is-en">{{ card.en }}</p>
           <input id="typed" class="typed rv-typed" lang="ru" placeholder="Type it in Russian (optional), then press Enter" autocomplete="off">
         {% else %}
-          <p class="rv-word fit" lang="ru" style="--chars: {{ fit_chars }}">{{ (card.ru_stressed or card.ru)|ru }}</p>
+          <p class="rv-word fit" lang="ru" style="--chars: {{ fit_chars }}" data-speak="{{ ru_spoken }}" data-speak-hotkey="s" data-listen-first>{{ (card.ru_stressed or card.ru)|ru }}</p>
         {% endif %}
       </div>
 
@@ -102,7 +109,7 @@
       <div class="back" hidden>
         {{ orn.divider(200) }}
         {% if production %}
-          <p class="rv-trans is-ru fit" lang="ru" style="--chars: {{ fit_chars }}">{{ (card.ru_stressed or card.ru)|ru }}</p>
+          <p class="rv-trans is-ru fit" lang="ru" style="--chars: {{ fit_chars }}" data-speak="{{ ru_spoken }}" data-speak-hotkey="s">{{ (card.ru_stressed or card.ru)|ru }}</p>
           <p id="typed-result" class="rv-typed-result muted"></p>
           {% if details %}<p class="rv-pos">{{ details | join(", ") }}</p>{% endif %}
         {% else %}
@@ -112,7 +119,10 @@
         {% if card.aspect_partner %}<p class="rv-pos">partner <span lang="ru">{{ card.aspect_partner|ru }}</span></p>{% endif %}
         {% if card.example_ru %}
           <blockquote class="example rv-example">
-            <span class="rv-example-ru" lang="ru">{{ card.example_ru|ru }}</span>
+            <span class="rv-example-line">
+              <span class="rv-example-ru" lang="ru">{{ card.example_ru|ru }}</span>
+              <button type="button" class="speak" data-speak="{{ card.example_ru }}"></button>
+            </span>
             {% if card.example_en %}<span class="rv-example-en">{{ card.example_en }}</span>{% endif %}
           </blockquote>
         {% endif %}
@@ -134,7 +144,11 @@
 
     <div class="rv-foot">
       <a href="/cards/{{ card.id }}">Edit card</a>
-      <p>Space to reveal · 1–4 to rate</p>
+      <div class="rv-audio">
+        <span data-speak-speed></span>
+        <label class="speak-toggle"><input type="checkbox" data-listen-first-toggle> Listen first</label>
+      </div>
+      <p>Space to reveal · S to hear it · 1–4 to rate</p>
     </div>
   </div>
 
@@ -151,6 +165,7 @@
       revealed = true;
       document.querySelectorAll(".back").forEach((el) => { el.hidden = false; });
       document.querySelector(".reveal").hidden = true;
+      if (window.Speak) Speak.reveal();
       document.getElementById("duration").value = Math.round(performance.now() - shownAt);
       const typed = document.getElementById("typed");
       const result = document.getElementById("typed-result");

@@ -45,6 +45,12 @@
     <p class="big"><span data-count="{{ deck.cards }}">{{ deck.cards }}</span> <small>cards</small></p>
     <p class="muted">{{ deck.new_waiting }} new waiting</p>
   </section>
+
+  <section class="card stat" data-rise style="--r: 4; grid-column: 1 / -1">
+    <h2>Input <small>reading, listening, watching</small></h2>
+    <p class="big"><span data-count="{{ input_week }}">{{ input_week }}</span> <small>min this week</small></p>
+    <p class="muted">{{ input_month }} min in the last 30 days · <a href="/shelf">Open the shelf</a></p>
+  </section>
 </div>
 
 <section class="card">

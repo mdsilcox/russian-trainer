@@ -5,7 +5,7 @@ from fastapi.responses import HTMLResponse
 from sqlmodel import Session
 
 from app.db import get_session
-from app.services import medals, stats
+from app.services import medals, shelf, stats
 from app.services.claude import month_spend
 from app.web import templates
 
@@ -31,5 +31,7 @@ def dashboard(request: Request, session: Session = Depends(get_session)):
         "spend": spend,
         "spend_pct": min(100, round(spend.spent_usd / spend.budget_usd * 100)) if spend.budget_usd else None,
         "deck": stats.deck_counts(session),
+        "input_week": shelf.this_week(session, now),
+        "input_month": shelf.input_minutes(session, 30, now),
     }
     return templates.TemplateResponse(request, "dashboard.html", context)

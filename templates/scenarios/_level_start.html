@@ -1,0 +1,13 @@
+{# Level picker plus Start button. Needs `s` (scenario) and `levels`. #}
+<form class="sc-start" method="post" action="/scenarios/{{ s.slug }}/start">
+  <fieldset class="sc-levels">
+    <legend class="sc-legend">Level</legend>
+    {% for n, label in levels.items() %}
+      <label class="sc-level">
+        <input type="radio" name="level" value="{{ n }}" {% if n == s.level %}checked{% endif %}>
+        <span><b>{{ n }}</b> {{ label }}</span>
+      </label>
+    {% endfor %}
+  </fieldset>
+  <button class="primary" type="submit">Start</button>
+</form>

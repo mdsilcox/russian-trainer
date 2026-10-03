@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}{{ s.title }} · Russian Trainer{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', path='speak.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', path='scenarios.css') }}">
+<script src="{{ url_for('static', path='speak.js') }}" defer></script>
+<script src="{{ url_for('static', path='scenarios.js') }}" defer></script>{% endblock %}
+{% block content %}
+<div class="ch" id="chat" data-base="/scenarios/c/{{ conv.id }}" data-ended="{{ 'true' if ended else 'false' }}" data-awaiting="{{ 'true' if awaiting_reply else 'false' }}">
+  <p class="sc-back"><a href="/scenarios/{{ s.slug }}">&larr; {{ s.title }}</a></p>
+  <header class="ch-head">
+    <p class="sc-eyebrow">{{ s.partner_role }} · level {{ conv.level }}, {{ levels[conv.level] }}</p>
+    <h1>{{ s.title }}</h1>
+    <div class="ch-tools">
+      <label class="speak-toggle"><input type="checkbox" data-listen-first-toggle> Listen first</label>
+      <span data-speak-speed></span>
+    </div>
+  </header>
+
+  <section class="card ch-goals" aria-labelledby="goals-h">
+    <h2 id="goals-h">Goals</h2>
+    <ul id="goals">
+      {% for g in s.goals_json %}
+        <li data-goal="{{ loop.index0 }}"{% if loop.index0 in conv.goals_met_json %} class="done"{% endif %}><span class="ch-tick" aria-hidden="true"></span>{{ g }}<span class="ch-sr"> ({% if loop.index0 in conv.goals_met_json %}done{% else %}not yet{% endif %})</span></li>
+      {% endfor %}
+    </ul>
+    <details class="ch-vocab">
+      <summary>Useful words and phrases</summary>
+      <ul>
+        {% for v in s.vocab_json %}<li><span lang="ru">{{ v.ru }}</span> <span class="muted">{{ v.en }}</span></li>{% endfor %}
+      </ul>
+    </details>
+  </section>
+
+  <div id="log" class="ch-log" role="log" aria-live="polite" aria-label="Conversation">
+    {% for m, view in rows %}
+      {% if m.role == 'partner' %}
+        <div class="ch-msg partner"><p class="ch-who">{{ s.partner_role }}</p><p class="ch-text" lang="ru" data-speak data-listen-first>{{ m.content }}</p></div>
+      {% else %}
+        <div class="ch-msg you" data-mid="{{ m.id }}"><p class="ch-who">You</p>{% with m=view.m, issues=view.issues, segments=view.segments, unplaced=view.unplaced, better=view.better, reviewed=view.reviewed %}{% include "scenarios/_learner_text.html" %}{% endwith %}</div>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  <p id="chat-error" class="ch-error" role="alert" hidden><span></span> <button type="button" id="chat-retry">Try again</button></p>
+
+  {% if ended %}
+    {% if debrief %}
+      {% include "scenarios/_debrief.html" %}
+    {% else %}
+      <section class="card ch-debrief" id="debrief" hx-post="/scenarios/c/{{ conv.id }}/debrief" hx-trigger="load" hx-swap="outerHTML" aria-busy="true">
+        <p class="sc-eyebrow">Conversation ended</p>
+        <h2>Debrief</h2>
+        <p class="muted ch-loading"><span class="ch-dot"></span><span class="ch-dot"></span><span class="ch-dot"></span> Looking back over your conversation. This takes a few seconds.</p>
+        <div class="actions"><a class="button" href="/scenarios/{{ s.slug }}">Back to the scenario</a></div>
+      </section>
+    {% endif %}
+  {% else %}
+    <div id="hint" class="card ch-hint" hidden>
+      <p class="sc-legend">Hint</p>
+      <p class="ch-hint-ru" lang="ru"></p>
+      <p class="ch-hint-en"></p>
+      <p class="ch-hint-tip muted"></p>
+      <button type="button" id="hint-use">Use this</button>
+    </div>
+    <form id="composer" class="ch-composer" autocomplete="off">
+      <label class="ch-sr" for="msg">Your reply in Russian</label>
+      <textarea id="msg" name="text" lang="ru" rows="2" autofocus placeholder="Reply in Russian. Enter sends, Shift+Enter for a new line."></textarea>
+      <div class="ch-actions">
+        <button type="submit" class="primary" id="send">Send</button>
+        <button type="button" id="hint-btn">Hint</button>
+        <button type="submit" class="ch-end" form="end-form">End conversation</button>
+      </div>
+    </form>
+    <form id="end-form" method="post" action="/scenarios/c/{{ conv.id }}/end"></form>
+  {% endif %}
+</div>
+{% endblock %}

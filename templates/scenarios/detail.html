@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}{{ s.title }} · Russian Trainer{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', path='scenarios.css') }}">{% endblock %}
+{% block content %}
+<p class="sc-back"><a href="/scenarios">&larr; All scenarios</a></p>
+<header class="sc-head">
+  <p class="sc-eyebrow">{{ s.group }}</p>
+  <h1>{{ s.title }}</h1>
+</header>
+{% if flash %}<p class="notice" role="status">{{ flash }}</p>{% endif %}
+{% if unfinished %}
+<p class="notice ch-continue">You have an unfinished conversation here (level {{ unfinished.level }}). <a href="/scenarios/c/{{ unfinished.id }}">Continue</a></p>
+{% endif %}
+<div class="card sc-detail">
+  <h2>The situation</h2>
+  <p>{{ s.setting }}</p>
+  <h2>Who you are talking to</h2>
+  <p><b class="sc-role-inline">{{ s.partner_role }}.</b> {{ s.persona }}</p>
+  <h2>Your goals</h2>
+  <ol class="sc-goals">
+    {% for g in s.goals_json %}<li>{{ g }}</li>{% endfor %}
+  </ol>
+  <h2>Useful words and phrases</h2>
+  <ul class="sc-vocab">
+    {% for v in s.vocab_json %}
+      <li><span class="sc-vocab-ru" lang="ru">{{ v.ru }}</span><span class="sc-vocab-en">{{ v.en }}</span></li>
+    {% endfor %}
+  </ul>
+  <hr class="rule-gold">
+  {% include "scenarios/_level_start.html" %}
+</div>
+{% endblock %}

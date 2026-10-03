@@ -185,10 +185,13 @@ def _friendly_errors():
 
 
 Runner = Callable[[list[str], str, dict], subprocess.CompletedProcess]
+# Yields the CLI's stdout line by line as it is produced (live streaming for role-play).
+LineStreamer = Callable[[list[str], str, dict], Iterator[str]]
 
 
 class ClaudeClient:
-    """`client` injects a fake Anthropic SDK client (API backend); `runner` a fake `claude` process."""
+    """`client` injects a fake Anthropic SDK client (API backend); `runner` a fake `claude` process;
+    `streamer` a fake live line stream (without one, an injected runner also serves streaming)."""
 
     def __init__(
         self,
@@ -197,6 +200,7 @@ class ClaudeClient:
         *,
         backend: Backend | None = None,
         runner: Runner | None = None,
+        streamer: LineStreamer | None = None,
     ):
         self.session = session
         self.backend = backend or (Backend.api if client else Backend.subscription if runner else current_backend())
@@ -213,7 +217,9 @@ class ClaudeClient:
                 if cli is None:
                     raise ClaudeUnavailable(ai_status(Backend.subscription)[1])
                 runner = _cli_runner(cli)
+                streamer = streamer or _cli_streamer(cli)
             self.runner = runner
+            self.streamer = streamer
 
     def ask_structured(
         self,
@@ -320,15 +326,14 @@ class ClaudeClient:
             raise ClaudeError("Claude Code's answer didn't match the expected format. Try again.") from e
 
     def _cli_stream(self, task: Task, system: str, messages: list[dict] | str) -> Iterator[str]:
-        """Parse `--output-format stream-json` text deltas.
-
-        The runner returns once the process exits, so chunks arrive together;
-        live streaming for role-play (Phase 3) needs a Popen-based runner.
-        """
+        """Parse `--output-format stream-json` text deltas, live when a streamer is available."""
         args = self._cli_args(task, system) + ["--output-format", "stream-json", "--verbose", "--include-partial-messages"]
-        proc = self.runner(args, _as_prompt(messages), _cli_env())
+        if self.streamer is not None:
+            lines: Iterator[str] = self.streamer(args, _as_prompt(messages), _cli_env())
+        else:
+            lines = iter((self.runner(args, _as_prompt(messages), _cli_env()).stdout or "").splitlines())
         final: dict = {}
-        for line in (proc.stdout or "").splitlines():
+        for line in lines:
             try:
                 event = json.loads(line)
             except json.JSONDecodeError:
@@ -392,6 +397,29 @@ def _cli_env() -> dict:
     would silently bill the API instead of your subscription.
     """
     return {k: v for k, v in os.environ.items() if k not in ("ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN")}
+
+
+def _cli_streamer(cli: str) -> LineStreamer:
+    def stream(args: list[str], prompt: str, env: dict) -> Iterator[str]:
+        try:
+            proc = subprocess.Popen(
+                [cli, *args], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+                text=True, encoding="utf-8", env=env, cwd=tempfile.gettempdir(),
+            )
+        except OSError as e:
+            raise ClaudeUnavailable(f"Couldn't start Claude Code: {e}") from e
+        try:
+            proc.stdin.write(prompt)
+            proc.stdin.close()
+            yield from proc.stdout  # errors arrive as an is_error result event, not on stderr
+            proc.wait(timeout=CLI_TIMEOUT_SECONDS)
+        except subprocess.TimeoutExpired as e:
+            raise ClaudeError("Claude Code took too long to answer. Try again.") from e
+        finally:
+            if proc.poll() is None:
+                proc.kill()
+
+    return stream
 
 
 def _as_prompt(messages: list[dict] | str) -> str:

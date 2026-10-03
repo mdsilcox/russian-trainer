@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Scenarios · Russian Trainer{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', path='scenarios.css') }}">{% endblock %}
+{% block content %}
+<header class="sc-head">
+  <p class="sc-eyebrow">Role-play practice</p>
+  <h1>Scenarios <span class="sc-ru" lang="ru">Диало́ги</span></h1>
+  <p class="muted">Pick a situation from the trip, choose how fast your partner talks, and have a conversation.</p>
+</header>
+{% if flash %}<p class="notice" role="status">{{ flash }}</p>{% endif %}
+{% for group, items in groups %}
+  <section class="sc-group" aria-labelledby="g-{{ loop.index }}">
+    <h2 id="g-{{ loop.index }}" class="sc-group-title">{{ group }}</h2>
+    <hr class="rule-gold">
+    <div class="sc-grid">
+      {% for s in items %}
+        <article class="card sc-card">
+          <p class="sc-role">{{ s.partner_role }}</p>
+          <h3><a href="/scenarios/{{ s.slug }}">{{ s.title }}</a></h3>
+          <p class="sc-setting">{{ s.setting }}</p>
+          <p class="sc-meta">{{ s.goals_json | length }} goals · suggested level {{ s.level }}</p>
+          {% include "scenarios/_level_start.html" %}
+        </article>
+      {% endfor %}
+    </div>
+  </section>
+{% endfor %}
+{% endblock %}

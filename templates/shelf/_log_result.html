@@ -1,0 +1,2 @@
+{% if error %}<p class="error sh-msg" role="alert">{{ error }}</p>{% else %}<p class="ok sh-msg" role="status">{{ ok }}</p>{% endif %}
+{% with oob = true %}{% include "shelf/_total.html" %}{% endwith %}

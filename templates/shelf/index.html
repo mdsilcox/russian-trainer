@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% import "_ornaments.html" as orn %}
+{% block title %}Shelf · Russian Trainer{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', path='cards.css') }}"><link rel="stylesheet" href="{{ url_for('static', path='shelf.css') }}"><script src="{{ url_for('static', path='shelf.js') }}" defer></script>{% endblock %}
+{% block content %}
+<header class="page-head">
+  <h1>Shelf</h1>
+  <p class="subtitle" lang="ru">Полка</p>
+  {{ orn.divider(150) }}
+  <p class="sh-lead">Study builds the tools; easy input builds the ear. Pick something at the right level, enjoy it, and log the minutes.</p>
+</header>
+
+<section class="card sh-top" data-rise style="--r: 0" aria-labelledby="sh-input-h">
+  <h2 id="sh-input-h">Input this week</h2>
+  {% include "shelf/_total.html" %}
+  <div class="sh-free">
+    <h3>Log something else</h3>
+    {% with target = "log-free" %}{% include "shelf/_log_form.html" %}{% endwith %}
+  </div>
+</section>
+
+{% for level, group in levels %}
+<section class="sh-level" aria-labelledby="lvl-{{ loop.index }}">
+  <header class="sh-level-head">
+    <h2 id="lvl-{{ loop.index }}">{{ level.name }}</h2>
+    <span class="sh-cefr">{{ level.cefr }}</span>
+  </header>
+  <p class="muted sh-blurb">{{ level.blurb }}</p>
+  <ul class="sh-items">
+    {% for item in group %}
+    <li class="card sh-item" id="{{ item.slug }}" data-rise style="--r: {{ loop.index }}">
+      <div class="sh-item-head">
+        <h3 class="sh-title-ru" {% if item.title_is_russian %}lang="ru"{% endif %}>{{ item.title }}</h3>
+        <p class="sh-title-en">{{ item.title_en }}</p>
+      </div>
+      <p class="sh-tags">
+        <span class="badge">{{ item.kind }}</span>
+        <span class="badge">about {{ item.minutes_hint }} min</span>
+        {% if item.adult %}<span class="badge warn" title="Mature content, not family viewing">18+</span>{% endif %}
+      </p>
+      <p class="sh-why">{{ item.why }}</p>
+      {% if item.link %}<p class="sh-link"><a href="{{ item.link }}" target="_blank" rel="noopener">Open in a new tab ↗</a></p>{% endif %}
+      {% with target = "log-" ~ item.slug %}{% include "shelf/_log_form.html" %}{% endwith %}
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endfor %}
+
+<section class="card sh-mine" id="mine" data-rise aria-labelledby="mine-h">
+  <h2 id="mine-h">Mine a sentence</h2>
+  <p class="muted">Heard or read a line you want to keep? Paste it here. Claude adds stress marks and a meaning, you check the card, and it joins your reviews.</p>
+  {% if ai_enabled() %}
+  <form class="stack" hx-post="/shelf/mine/enrich" hx-target="#mine-result" hx-swap="innerHTML"
+        hx-indicator="#mine-loading" hx-disabled-elt="find button">
+    <label class="field"><span>Russian line</span>
+      <textarea name="line" rows="2" lang="ru" required placeholder="Скажите, пожалуйста, как доехать до Красной площади?"></textarea></label>
+    <label class="field"><span>Word to learn <em class="sh-opt">optional</em></span>
+      <input name="word" lang="ru" autocomplete="off" placeholder="доехать">
+      <small class="muted">Leave empty to save the whole line as a phrase card. A word from the line gets the line as its example.</small></label>
+    <div class="row">
+      <label class="field"><span>Came from</span>
+        <select name="source">
+          <option value="">Somewhere else (type below)</option>
+          {% for item in shelf %}<option value="{{ item.slug }}">{{ item.title_en }}</option>{% endfor %}
+        </select></label>
+      <label class="field"><span>Other source</span>
+        <input name="source_text" maxlength="120" autocomplete="off" placeholder="A café menu, a friend"></label>
+    </div>
+    <div class="actions">
+      <button type="submit" class="primary">Enrich</button>
+      <span id="mine-loading" class="htmx-indicator sh-loading" role="status">Asking Claude. This takes 5 to 10 seconds…</span>
+    </div>
+  </form>
+  {% else %}
+  <p class="muted">{{ ai_off_reason() }}</p>
+  {% endif %}
+  <div id="mine-result" class="sh-mine-result"></div>
+</section>
+{% endblock %}

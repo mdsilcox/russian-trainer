@@ -6,9 +6,10 @@ from sqlmodel import Session
 
 from app.config import ROOT, get_config
 from app.db import get_engine, migrate
-from app.routes import backup, cards, dashboard, drills, grammar, medals, review, starter, today, workshop
+from app.routes import backup, cards, dashboard, drills, grammar, medals, review, scenarios, shelf, starter, today, workshop
 from app.services.backup import run_startup_backup
 from app.services.claude import load_backend
+from app.services.scenarios import seed as seed_scenarios
 
 
 @asynccontextmanager
@@ -16,6 +17,7 @@ async def lifespan(_app: FastAPI):
     run_startup_backup()  # before migrating, so the backup holds the pre-migration state
     migrate()
     with Session(get_engine()) as session:
+        seed_scenarios(session)
         load_backend(session)
     yield
 
@@ -42,6 +44,8 @@ app.include_router(today.router)
 app.include_router(grammar.router)
 app.include_router(medals.router)
 app.include_router(drills.router)
+app.include_router(scenarios.router)
+app.include_router(shelf.router)
 
 
 def run() -> None:

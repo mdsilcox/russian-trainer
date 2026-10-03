@@ -1,0 +1,8 @@
+{# The "Input this week" figure; also sent out of band after each log. #}
+<div id="input-total" class="sh-total" {% if oob %}hx-swap-oob="true"{% endif %} aria-live="polite">
+  <div class="sh-total-main">
+    <span class="sh-total-num">{{ totals.week }}</span>
+    <span class="sh-total-unit">min this week</span>
+  </div>
+  <p class="sh-total-sub">{{ totals.month }} min in the last 30 days</p>
+</div>

@@ -1,0 +1,16 @@
+{# Quick log form. Expects: target (id of the result element) and, for a shelf item, item. #}
+<form class="sh-log" hx-post="/shelf/log" hx-target="#{{ target }}" hx-swap="innerHTML" hx-disabled-elt="find button">
+  {% if item %}<input type="hidden" name="slug" value="{{ item.slug }}"><input type="hidden" name="title" value="{{ item.title }}">{% endif %}
+  <label class="sh-mini"><span>Minutes</span>
+    <input type="number" name="minutes" min="1" max="600" inputmode="numeric" required value="{{ item.minutes_hint if item else '' }}" placeholder="20"></label>
+  <label class="sh-mini"><span>Kind</span>
+    <select name="kind">
+      {% for k in kinds %}<option value="{{ k }}" {% if item and item.log_kind == k %}selected{% endif %}>{{ kind_labels[k] }}</option>{% endfor %}
+    </select></label>
+  {% if not item %}
+  <label class="sh-mini sh-title"><span>What was it?</span>
+    <input type="text" name="title" maxlength="120" autocomplete="off" placeholder="A podcast, a street sign, a menu"></label>
+  {% endif %}
+  <button type="submit">Log time</button>
+</form>
+<div id="{{ target }}" class="sh-result"></div>

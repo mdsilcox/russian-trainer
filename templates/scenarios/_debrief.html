@@ -1,0 +1,78 @@
+{# The debrief panel (HTMX swaps it over the loading placeholder). Needs conv, s, goals_done,
+   goals_missed, fix_groups, and either `debrief` or `error`. #}
+<section class="card ch-debrief" id="debrief">
+  {% if error %}
+    <h2>Debrief</h2>
+    <p class="error" role="alert">{{ error }}</p>
+    <div class="actions"><button type="button" hx-post="/scenarios/c/{{ conv.id }}/debrief" hx-target="#debrief" hx-swap="outerHTML">Try again</button></div>
+  {% else %}
+    <p class="sc-eyebrow">Conversation ended</p>
+    <h2>Debrief</h2>
+    <p class="ch-summary">{{ debrief.summary }}</p>
+
+    <h3>Goals</h3>
+    <ul class="ch-goal-list">
+      {% for g in goals_done %}<li class="done"><span class="ch-tick" aria-hidden="true"></span>{{ g }}<span class="ch-sr"> (done)</span></li>{% endfor %}
+      {% for g in goals_missed %}<li><span class="ch-tick" aria-hidden="true"></span>{{ g }}<span class="ch-sr"> (not done)</span></li>{% endfor %}
+    </ul>
+
+    <h3>Corrections from this chat</h3>
+    {% if fix_groups %}
+      {% for grp in fix_groups %}
+        <div class="ch-fixgroup">
+          <p class="ch-fixhead"><b>{{ grp.subcategory or grp.category }}</b> <a href="{{ grammar_link(grp.category, grp.subcategory) }}">Grammar reference</a></p>
+          <ul>
+            {% for issue in grp.issues %}
+              <li><s lang="ru">{{ issue.wrong }}</s> &rarr; <b lang="ru">{{ issue.right }}</b><br><span class="muted">{{ issue.explanation }}</span></li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p class="muted">No corrections to review. Nicely done.</p>
+    {% endif %}
+    <p class="ch-drills-note">Grammar slips from this chat will show up in your drills. <a href="/drills">Go to drills</a></p>
+
+    {% if debrief.phrases %}
+      <h3>Phrases worth learning</h3>
+      <form hx-post="/scenarios/c/{{ conv.id }}/debrief/cards" hx-target="#cards-result" hx-swap="innerHTML">
+        <ul class="ch-phrases">
+          {% for p in debrief.phrases %}
+            <li>
+              <label class="ch-phrase">
+                <input type="checkbox" name="i" value="{{ loop.index0 }}" checked>
+                <span class="ch-phrase-body">
+                  <span class="ch-phrase-ru" lang="ru">{{ p.ru }}</span>
+                  <span class="ch-phrase-en">{{ p.en }}</span>
+                  <span class="ch-phrase-ex"><span lang="ru">{{ p.example_ru }}</span> <span class="muted">{{ p.example_en }}</span></span>
+                  <span class="ch-phrase-why muted">{{ p.why }}</span>
+                </span>
+              </label>
+            </li>
+          {% endfor %}
+        </ul>
+        <div class="actions">
+          <button type="submit" class="primary">Add to my cards</button>
+          <span id="cards-result" aria-live="polite"></span>
+        </div>
+      </form>
+    {% endif %}
+
+    <h3>Next time</h3>
+    <p>{{ debrief.next_level_tip }}</p>
+
+    <div class="ch-replay">
+      <form method="post" action="/scenarios/{{ s.slug }}/start">
+        <input type="hidden" name="level" value="{{ conv.level }}">
+        <button type="submit" class="primary">Again at this level</button>
+      </form>
+      {% if conv.level < 3 %}
+        <form method="post" action="/scenarios/{{ s.slug }}/start">
+          <input type="hidden" name="level" value="{{ conv.level + 1 }}">
+          <button type="submit">Try level {{ conv.level + 1 }}</button>
+        </form>
+      {% endif %}
+      <a class="button" href="/scenarios">All scenarios</a>
+    </div>
+  {% endif %}
+</section>

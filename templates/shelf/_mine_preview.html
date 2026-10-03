@@ -1,0 +1,16 @@
+{# Result area for sentence mining: error, duplicate notice, saved confirmation, or the editable preview. #}
+{% if done %}
+  <p class="ok sh-msg" role="status">Card added: <span lang="ru">{{ done.ru_stressed or done.ru }}</span> ({{ done.en }}). It will appear in your reviews. <a href="/cards/{{ done.id }}">Edit it</a></p>
+{% elif duplicate %}
+  <p class="notice" role="status"><span lang="ru">{{ duplicate.ru_stressed or duplicate.ru }}</span> ({{ duplicate.en }}) is already in your deck, so nothing was added. <a href="/cards/{{ duplicate.id }}">Open the card</a></p>
+{% elif error and not v %}
+  <p class="error sh-msg" role="alert">{{ error }}</p>
+{% elif v %}
+  <form class="sh-preview stack" hx-post="/shelf/mine/save" hx-target="#mine-result" hx-swap="innerHTML" hx-disabled-elt="find button.primary">
+    <h3>Check the card</h3>
+    <p class="muted">Edit anything that looks off, then save. Suggested fields are outlined.</p>
+    {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+    {% include "cards/_fields.html" %}
+    <div class="actions"><button type="submit" class="primary">Add card</button></div>
+  </form>
+{% endif %}

@@ -1,0 +1,11 @@
+{# Inner content of a learner bubble: the line with dotted underlines on corrected spans, then notes.
+   Needs m, issues, segments, unplaced, better, reviewed; `ended` is optional. #}
+<p class="ch-text" lang="ru">{% for seg in segments %}{% if seg.issue is none %}{{ seg.text }}{% else %}<button type="button" class="ch-wrong" aria-expanded="false" aria-controls="n-{{ m.id }}-{{ seg.issue }}" data-note="n-{{ m.id }}-{{ seg.issue }}">{{ seg.text }}</button>{% endif %}{% endfor %}</p>
+{% for issue in issues %}
+  <div class="ch-note" id="n-{{ m.id }}-{{ loop.index0 }}"{% if loop.index0 not in unplaced %} hidden{% endif %}>
+    <p><s lang="ru">{{ issue.wrong }}</s> &rarr; <b lang="ru">{{ issue.right }}</b></p>
+    <p class="ch-why">{{ issue.explanation }}</p>
+  </div>
+{% endfor %}
+{% if better %}<p class="ch-better">More natural: <span lang="ru">{{ better }}</span></p>{% endif %}
+{% if not reviewed and not ended %}<button type="button" class="ch-check" data-review="/scenarios/c/{{ m.conversation_id }}/review/{{ m.id }}">Check this line</button>{% endif %}

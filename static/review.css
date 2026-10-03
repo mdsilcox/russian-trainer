@@ -176,3 +176,12 @@
 /* Card kind pill (form in context, stress shift, phrase) */
 .rv-kind { margin: 0; }
 .rv-kind span { display: inline-block; padding: 3px 12px; border: 1px solid var(--gold-line); border-radius: 999px; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--gold-light); }
+
+/* Speak control on the card, and the audio settings in the footer */
+.rv-example-line { display: inline-flex; align-items: center; justify-content: center; gap: 12px; }
+.rv-example-line .speak { width: 32px; height: 32px; }
+.rv-card .speak-row { margin-top: 4px; }
+.rv-audio { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 20px; }
+@media (max-width: 560px) {
+  .rv-audio { width: 100%; justify-content: space-between; }
+}

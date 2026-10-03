@@ -290,3 +290,8 @@ def test_form_repeating_the_stress_shift_is_dropped(client, session, monkeypatch
 def test_stress_overlap_ignores_punctuation():
     forms = [{"ru": "Дай мне ру́ку."}, {"ru": "в руке́"}, {"ru": "«Ру́ку!»"}]
     assert svc.drop_stress_overlap(forms, {"shifted": "ру́ку"}) == [{"ru": "в руке́"}]
+
+
+def test_latin_accent_with_its_own_combining_mark_is_not_doubled():
+    assert svc.fix_latin_accents("Краснá́я") == "Красна́я"
+    assert svc.fix_latin_accents("купé") == "купе́"

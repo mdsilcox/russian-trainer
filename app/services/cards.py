@@ -46,8 +46,10 @@ _LATIN_IN_CYRILLIC = re.compile(rf"(?<=[а-яёА-ЯЁ])[{_LATIN_CHARS}]|[{_LATI
 
 
 def fix_latin_accents(text: str) -> str:
-    """купé (Latin é) → купе́ (Cyrillic е + U+0301), only when touching Cyrillic letters."""
-    return _LATIN_IN_CYRILLIC.sub(lambda m: _LATIN_ACCENTED[m.group()] + STRESS, text)
+    """купé (Latin é) → купе́ (Cyrillic е + U+0301), only when touching Cyrillic letters.
+    A combining mark that already followed the Latin letter is not doubled: Краснá́я → Красна́я."""
+    fixed = _LATIN_IN_CYRILLIC.sub(lambda m: _LATIN_ACCENTED[m.group()] + STRESS, text)
+    return re.sub(f"{STRESS}{{2,}}", STRESS, fixed)
 
 
 def drop_marks_beside_yo(text: str) -> str:
@@ -215,11 +217,20 @@ Rules:
 Punctuation: never use em dashes (—) in English text; use a comma, colon, full stop or parentheses instead. Inside Russian sentences, keep the dash only where Russian grammar requires it (e.g. Москва́ — столи́ца)."""
 
 
-def enrich(client: ClaudeClient, ru: str, en: str = "") -> CardEnrichment:
+def enrich(client: ClaudeClient, ru: str, en: str = "", context: str = "") -> CardEnrichment:
+    """`context`: a sentence the learner met the word in (sentence mining); it becomes the example."""
     prompt = f"Russian: {ru.strip()}"
     if en.strip():
         prompt += f"\nLearner's English gloss: {en.strip()}"
-    return client.ask_structured(Task.enrichment, ENRICH_SYSTEM, prompt, CardEnrichment, max_tokens=2000)
+    if context.strip():
+        prompt += (f"\nThe learner met this word in the sentence: «{context.strip()}». Use exactly that sentence, "
+                   "with stress marks added, as example_ru (fix nothing else in it), translate it naturally as example_en, "
+                   "and give the meaning that fits it first in en.")
+    result = client.ask_structured(Task.enrichment, ENRICH_SYSTEM, prompt, CardEnrichment, max_tokens=2000)
+    # Claude sometimes writes stress with a Latin accented letter (опáздывать); fix it before any preview shows it.
+    return result.model_copy(update={
+        name: fix_latin_accents(value) for name, value in result.model_dump().items() if isinstance(value, str)
+    })
 
 
 # --- Suggested extra cards ------------------------------------------------------

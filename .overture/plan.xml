@@ -251,51 +251,51 @@ Category enum: case, aspect, motion_verb, participle, agreement, word_choice, wo
       <complexity>medium</complexity>
       <expected_output>- Leech handling, cloze card type</expected_output>
     </node>
-    <node id="p3_split" type="task" status="pending" agent="orchestrator">
+    <node id="p3_split" type="task" status="completed" agent="orchestrator">
       <title>[Orchestrator] Phase 3: assign lanes</title>
       <description>Write each agent's brief (scope, file ownership, conventions, acceptance bar) and launch the Sonnet lanes in parallel. Lanes: A = scenarios, chat UI, debrief; B = media shelf; C = listening. The orchestrator keeps the role-play engine (prompts and correction pipeline), since prompt design needs judgement.</description>
       <complexity>low</complexity>
       <expected_output>Three agent briefs; lanes running in parallel; ownership map recorded in docs/decisions.md</expected_output>
     </node>
-    <node id="p3_engine" type="task" status="pending" agent="orchestrator">
+    <node id="p3_engine" type="task" status="completed" agent="orchestrator">
       <title>[Orchestrator] P3.2a: Role-play engine</title>
       <description>Service layer for conversations, no UI: the partner prompt (Claude plays the partner in Russian only, stays in character, short realistic replies, level-aware: slow and clear up to natural speed with slang) and a SEPARATE correction call per learner turn (structured issues routed through the mistake router), so the partner never breaks character to correct. Hint generation (a suggested next phrase). Streaming via ClaudeClient.stream_text. Conversation/Message persistence and a clean API the chat UI builds on.</description>
       <complexity>high</complexity>
       <expected_output>app/services/roleplay.py with partner, corrections and hint functions; tests with a fake Claude; a live quality check on the subscription</expected_output>
       <risks>Partner drifting into English or correcting the learner. Mitigation: separate calls, explicit rules, live spot checks.</risks>
     </node>
-    <node id="p3_scenarios_seed" type="task" status="pending" agent="sonnet-a">
+    <node id="p3_scenarios_seed" type="task" status="completed" agent="sonnet-a">
       <title>[Sonnet A] P3.1: Scenario library</title>
       <description>Seed scenarios for a family trip to Moscow: taxi/Yandex Go, restaurant, hotel check-in, asking directions, metro and train tickets, pharmacy, market, small talk with a stranger, visiting family, and problems (lost item, wrong order). Each has a partner persona, the learner's goals checklist, target vocab with stress marks, and a level (slow/clear, everyday, natural speed with slang). Scenarios list page grouped by situation. Acceptance: the orchestrator runs the tests, reads the diff and clicks through the UI, scores correctness, spec fit, code quality and UX 1-5, and returns must-fix issues to the agent. Accepted only with no must-fix left and every score at least 4. Until then the step stays active (failed while returned).</description>
       <complexity>low</complexity>
       <expected_output>Scenario seed data + migration/seed step, /scenarios list page, tests</expected_output>
     </node>
-    <node id="p3_chat" type="task" status="pending" agent="sonnet-a">
+    <node id="p3_chat" type="task" status="completed" agent="sonnet-a">
       <title>[Sonnet A] P3.2b: Role-play chat UI</title>
       <description>Conversation page on top of the orchestrator's engine: streamed partner replies, the learner's turns with a subtle underline where the correction call found issues (expand to see the fix, never interrupting), goals checklist that ticks off, hint button, end conversation. Works at phone width. Acceptance: the orchestrator runs the tests, reads the diff and clicks through the UI, scores correctness, spec fit, code quality and UX 1-5, and returns must-fix issues to the agent. Accepted only with no must-fix left and every score at least 4. Until then the step stays active (failed while returned).</description>
       <complexity>high</complexity>
       <expected_output>/scenarios/{slug} chat page, HTMX/streaming wiring, tests via a fake engine</expected_output>
     </node>
-    <node id="p3_debrief" type="task" status="pending" agent="sonnet-a">
+    <node id="p3_debrief" type="task" status="completed" agent="sonnet-a">
       <title>[Sonnet A] P3.3: Debrief + listening in chat</title>
       <description>End of conversation: goals achieved, top corrections, 3-5 useful phrases the learner lacked routed to cards, grammar errors to the drill queue, replay at a harder level. Also wires Lane C's speak button into the chat (partner lines spoken, listen-first toggle). Acceptance: the orchestrator runs the tests, reads the diff and clicks through the UI, scores correctness, spec fit, code quality and UX 1-5, and returns must-fix issues to the agent. Accepted only with no must-fix left and every score at least 4. Until then the step stays active (failed while returned).</description>
       <complexity>medium</complexity>
       <expected_output>Debrief view; debrief_json stored; mistake-router integration; chat audio wired in</expected_output>
     </node>
-    <node id="p3_media" type="task" status="pending" agent="sonnet-b">
+    <node id="p3_media" type="task" status="completed" agent="sonnet-b">
       <title>[Sonnet B] P3.5: Media shelf «Полка», input log, sentence mining</title>
       <description>Curated, level-ordered ladder from docs/research.md (graded readers, Mosfilm classics, Кухня, Easy Russian, Russian with Max, Slow Russian, Ракета; 18+ items flagged) with links and why-it-helps. Log minutes of reading and listening (input hours on the dashboard beside study hours). 'Mine a sentence' quick-add: paste a line, Claude enriches it, card with the show or book as its source. Acceptance: the orchestrator runs the tests, reads the diff and clicks through the UI, scores correctness, spec fit, code quality and UX 1-5, and returns must-fix issues to the agent. Accepted only with no must-fix left and every score at least 4. Until then the step stays active (failed while returned).</description>
       <complexity>medium</complexity>
       <expected_output>/shelf page, input log table + dashboard tile, sentence-mining flow, tests</expected_output>
     </node>
-    <node id="p3_audio" type="task" status="pending" agent="sonnet-c">
+    <node id="p3_audio" type="task" status="completed" agent="sonnet-c">
       <title>[Sonnet C] P3.4: Listening: reusable speak button</title>
       <description>A reusable speak control (browser speech synthesis, Russian voice, adjustable speed, remembered per device) with a 'listen first, then reveal text' mode, used on review cards now and in the chat by Lane A. Detects a missing Russian voice and explains how to add the Windows speech pack. Cloud TTS stays a later option behind the same interface. Acceptance: the orchestrator runs the tests, reads the diff and clicks through the UI, scores correctness, spec fit, code quality and UX 1-5, and returns must-fix issues to the agent. Accepted only with no must-fix left and every score at least 4. Until then the step stays active (failed while returned).</description>
       <complexity>medium</complexity>
       <expected_output>static speak component + small server hook if needed, review-card integration, tests</expected_output>
       <risks>Windows may lack a Russian voice. Mitigation: detection and a clear setup note.</risks>
     </node>
-    <node id="p3_review" type="task" status="pending" agent="orchestrator">
+    <node id="p3_review" type="task" status="completed" agent="orchestrator">
       <title>[Orchestrator] Phase 3 review gate</title>
       <description>Completes only when EVERY Phase 3 lane step (P3.1, P3.2a, P3.2b, P3.3, P3.4, P3.5) has been reviewed and accepted. Any step still active or failed blocks this gate. Then: full test suite, one end-to-end walkthrough (pick a scenario, chat with listening on, debrief, mined sentence appears in cards), commit, update the saved plan.</description>
       <complexity>medium</complexity>
