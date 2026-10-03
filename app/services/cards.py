@@ -195,10 +195,10 @@ class CardEnrichment(BaseModel):
     gender: str | None = Field(description="m, f or n for nouns; null otherwise")
     aspect: str | None = Field(description="impf or pf for verbs; null otherwise")
     aspect_partner: str | None = Field(description="The aspectual partner verb with stress mark, for verbs; null otherwise")
-    example_ru: str = Field(description="A natural, everyday sentence using the word, stress-marked, useful for a traveller in Moscow")
+    example_ru: str = Field(description="A natural, everyday sentence using the word, stress-marked, useful for a traveler in Moscow")
     example_en: str = Field(description="English translation of the example")
     notes: str | None = Field(description="One short note only if genuinely useful: irregular forms, government (e.g. + dat.), stress shifts, or a common collocation")
-    forms: list[FormSuggestion] = Field(default_factory=list, description="0 to 3 of the forms a traveller will meet most, in a short context; empty when it adds nothing")
+    forms: list[FormSuggestion] = Field(default_factory=list, description="0 to 3 of the forms a traveler will meet most, in a short context; empty when it adds nothing")
     stress_shift: StressShift | None = Field(default=None, description="Only for genuinely mobile stress in a form a learner will use; otherwise null")
 
 
@@ -211,7 +211,7 @@ Rules:
 - For verbs give the aspect and its partner (e.g. говори́ть → сказа́ть). Verbs of motion: note the unidirectional/multidirectional pair instead when that's more useful.
 - The example sentence must be natural modern Russian at roughly B1 level, ideally something a family visiting Moscow would say or hear.
 - Explanations and glosses in English.
-- forms: suggest 0 to 3 extra cards for the forms of this word a traveller will actually meet most often, each in a short natural context (a preposition plus the form, or a verb plus its object), e.g. «в Москве́» (in Moscow, prepositional after в) and «из Москвы́» (from Moscow, genitive after из). Put the headword's own form first only if it is a useful chunk. Do not repeat the form used for stress_shift. Give the English meaning of the whole phrase and a short note naming the form and why it is used. Mark stress in every word of two or more syllables. Return an empty list for words where this adds nothing: adverbs, particles, set phrases and indeclinable words.
+- forms: suggest 0 to 3 extra cards for the forms of this word a traveler will actually meet most often, each in a short natural context (a preposition plus the form, or a verb plus its object), e.g. «в Москве́» (in Moscow, prepositional after в) and «из Москвы́» (from Moscow, genitive after из). Put the headword's own form first only if it is a useful chunk. Do not repeat the form used for stress_shift. Give the English meaning of the whole phrase and a short note naming the form and why it is used. Mark stress in every word of two or more syllables. Return an empty list for words where this adds nothing: adverbs, particles, set phrases and indeclinable words.
 - stress_shift: only when the word has genuinely mobile stress in a form the learner will really use, fill in base (dictionary form), shifted (the form where stress moves), en (gloss naming the form, e.g. "hand (accusative)") and note (one short sentence). Example: base «рука́», shifted «ру́ку». Use null for words with fixed stress or where the shift only occurs in rare forms.
 
 Punctuation: never use em dashes (—) in English text; use a comma, colon, full stop or parentheses instead. Inside Russian sentences, keep the dash only where Russian grammar requires it (e.g. Москва́ — столи́ца)."""

@@ -27,7 +27,7 @@ class FakeClient:
 
 
 def taxi(db) -> Scenario:
-    s = Scenario(slug="taxi", title="Taxi to the theatre", setting="You get into a taxi at your hotel.",
+    s = Scenario(slug="taxi", title="Taxi to the theater", setting="You get into a taxi at your hotel.",
                  partner_role="taxi driver", persona="A chatty driver in his fifties.",
                  opening_ru="Здра́вствуйте! Куда́ е́дем?", goals_json=["Give the address", "Ask the price", "Pay"])
     db.add(s)

@@ -69,7 +69,7 @@
         {% if v.topics %}
         <h3>Grammar topics</h3>
         <ul class="pl-chips">{% for t in v.topics %}<li><a href="{{ t.url }}">{{ t.label }}</a></li>{% endfor %}</ul>
-        {% if v.state == "current" %}<p class="muted pl-boost">Drills favour these topics this month.</p>{% endif %}
+        {% if v.state == "current" %}<p class="muted pl-boost">Drills favor these topics this month.</p>{% endif %}
         {% endif %}
 
         {% include "plan/_review.html" %}

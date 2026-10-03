@@ -76,7 +76,7 @@ SHELF: tuple[ShelfItem, ...] = (
     ShelfItem("masha-medved", "Ма́ша и Медве́дь", "Masha and the Bear", "series", "Start here",
               "Short episodes with clear, everyday speech. Good for the sound of simple spoken Russian.", 10),
     ShelfItem("smeshariki", "Смеша́рики", "Smeshariki (Kikoriki)", "series", "Start here",
-              "Clear everyday speech in short cartoon episodes; easy to replay a favourite until you catch every line.", 10),
+              "Clear everyday speech in short cartoon episodes; easy to replay a favorite until you catch every line.", 10),
     ShelfItem("richards-beginners", "Short Stories in Russian for Beginners", "Olly Richards, with audio", "graded reader", "Start here",
               "Short stories with audio and glossaries. Likely easy for you, which is the point: fast, confident reading.", 20,
               link="https://www.amazon.com/Stories-Beginners-Yourself-Beginners-multiple-Languages/dp/1473683491"),

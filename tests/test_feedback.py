@@ -22,7 +22,7 @@ def sample_feedback() -> fb.Feedback:
         ],
         rephrasings=[],
         vocab=[fb.VocabItem(ru="купе́", en="sleeper compartment", example_ru="Мы е́хали в купе́.",
-                            example_en="We travelled in a compartment.", why="Russian trains")],
+                            example_en="We traveled in a compartment.", why="Russian trains")],
         translation_notes=[],
     )
 

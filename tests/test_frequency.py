@@ -55,7 +55,7 @@ def test_known_words_are_excluded_in_prompt_and_after(client, session, monkeypat
                                   fitem("еще", "still")])
     client.post("/import/frequency/generate")
     prompt = prompt_of(fake)
-    assert "дом" in prompt and "еще" in prompt and "из москвы" not in prompt  # normalised, words only
+    assert "дом" in prompt and "еще" in prompt and "из москвы" not in prompt  # normalized, words only
     pending = starter.load_pending(freq.PENDING)
     assert [i["ru"] for i in pending["items"]] == ["город"]
     assert pending["skipped"] == 3

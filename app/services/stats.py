@@ -361,7 +361,7 @@ class Heatmap:
 
 
 def practice_heatmap(session: DbSession, now: datetime | None = None, weeks: int = HEATMAP_WEEKS) -> Heatmap:
-    """Minutes practised per day (app sessions plus logged input) for the last `weeks` weeks."""
+    """Minutes practiced per day (app sessions plus logged input) for the last `weeks` weeks."""
     today = local_date(now)
     first = _week_start(today) - timedelta(weeks=weeks - 1)
     study: dict[date, float] = {}

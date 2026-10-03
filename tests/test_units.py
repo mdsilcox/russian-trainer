@@ -56,9 +56,9 @@ def test_demo_content_parses_for_every_set(seeded):
 def test_steps_unlock_in_order(seeded):
     u = u1(seeded)
     status = lambda: {s.title: s.status for s in units.state(seeded, u, NOW).steps}  # noqa: E731
-    assert status()["Practise 1"] == "locked" and status()["Quiz"] == "locked"
+    assert status()["Practice 1"] == "locked" and status()["Quiz"] == "locked"
     units.finish_step(seeded, u, "learn", 1.0, now=NOW)
-    assert status()["Practise 1"] == "available" and status()["Listen"] == "available" and status()["Practise 2"] == "locked"
+    assert status()["Practice 1"] == "available" and status()["Listen"] == "available" and status()["Practice 2"] == "locked"
     units.finish_step(seeded, u, "practice", 0.8, 0, NOW)
     assert status()["Write"] == "available" and status()["Speak"] == "available" and status()["Quiz"] == "locked"
     units.finish_step(seeded, u, "practice", 0.8, 1, NOW)
@@ -71,7 +71,7 @@ def test_fast_track_offer_and_accept(seeded):
     assert units.state(seeded, u, NOW).fast_track_offer
     units.fast_track(seeded, u, NOW)
     st = {s.title: s.status for s in units.state(seeded, u, NOW).steps}
-    assert st["Quiz"] == "available" and st["Practise 1"] == "skipped" and st["Learn"] == "skipped"
+    assert st["Quiz"] == "available" and st["Practice 1"] == "skipped" and st["Learn"] == "skipped"
     other = seeded.get(Unit, "u02-where-to")
     units.finish_step(seeded, other, "pretest", 0.5, now=NOW)
     with pytest.raises(ValueError):
@@ -88,7 +88,7 @@ def test_quiz_outcomes_remediation_retry_and_pass(seeded):
     units.finish_step(seeded, u, "remediation", 0.8, 1, NOW)
     assert units.finish_step(seeded, u, "quiz", 0.7, 1, NOW).outcome == "retry_practice"
     titles = {s.title: s.status for s in units.state(seeded, u, NOW).steps}
-    assert titles["Practise: one more set"] == "available" and titles["Quiz"] == "locked"
+    assert titles["Practice: one more set"] == "available" and titles["Quiz"] == "locked"
     units.finish_step(seeded, u, "practice", 0.9, 2, NOW)
     result = units.finish_step(seeded, u, "quiz", 0.85, 2, NOW)
     assert result.outcome == "passed" and units.progress(seeded, u).status == "passed"
@@ -139,7 +139,7 @@ def gen_set():
         GenItem(type="build", meaning_en="To the station.", tiles=["На", "вокза́л."], answer="На вокза́л.", explanation="na"),
         GenItem(type="build", meaning_en="Mismatch.", tiles=["На", "ры́нок."], answer="В парк.", explanation="bad"),  # invalid
         GenItem(type="match", pairs=[Pair(left="a", right="b"), Pair(left="c", right="d"), Pair(left="e", right="f")], explanation="m"),
-        GenItem(type="translate", en="I'm going to the theatre.", answer="Я иду́ в теа́тр.", explanation="acc"),
+        GenItem(type="translate", en="I'm going to the theater.", answer="Я иду́ в теа́тр.", explanation="acc"),
         GenItem(type="transform", source_ru="Я в музе́е.", task="Say you're going there.", answer="Я иду́ в музе́й.", explanation="acc"),
         GenItem(type="dictation", audio_ru="Мы е́дем на вокза́л.", translation_en="We're going to the station.", explanation="na"),
     ])

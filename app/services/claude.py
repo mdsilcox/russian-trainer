@@ -189,6 +189,10 @@ Runner = Callable[[list[str], str, dict], subprocess.CompletedProcess]
 LineStreamer = Callable[[list[str], str, dict], Iterator[str]]
 
 
+# Every request: English the learner reads uses American spelling.
+SPELLING = "\n\nWrite all English in American spelling (color, practice as a verb, theater, traveler)."
+
+
 class ClaudeClient:
     """`client` injects a fake Anthropic SDK client (API backend); `runner` a fake `claude` process;
     `streamer` a fake live line stream (without one, an injected runner also serves streaming)."""
@@ -230,6 +234,7 @@ class ClaudeClient:
         max_tokens: int = 16000,
     ) -> T:
         """One request whose answer is validated into `output_model`."""
+        system += SPELLING
         if self.backend == Backend.subscription:
             return self._cli_structured(task, system, messages, output_model)
         if isinstance(messages, str):
@@ -252,6 +257,7 @@ class ClaudeClient:
         max_tokens: int = 4000,
     ) -> Iterator[str]:
         """Yield text chunks as they arrive (for the role-play chat)."""
+        system += SPELLING
         if self.backend == Backend.subscription:
             yield from self._cli_stream(task, system, messages)
             return

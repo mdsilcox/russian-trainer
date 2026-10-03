@@ -52,7 +52,7 @@ class DrillItem(BaseModel):
     answer: str = Field(description=f"Exactly the word(s) that fill {BLANK}, with stress marks")
     accepted: list[str] = Field(description="Other fully correct fillers (true alternatives only; spelling without stress marks or with е for ё is accepted automatically, so don't list those)")
     rule: str = Field(description="One short English line naming the rule, e.g. 'в + accusative for where you are going'")
-    topic_index: int = Field(default=0, description="For mixed sets: which topic (0-based, in the order given) this item practises")
+    topic_index: int = Field(default=0, description="For mixed sets: which topic (0-based, in the order given) this item practices")
 
 
 class GeneratedSet(BaseModel):
@@ -229,7 +229,7 @@ def generate_mixed(session: Session, client: ClaudeClient, topics: list[TopicSco
 
 
 def _interleave(items: list[dict]) -> list[dict]:
-    """Reorder so no two neighbours share a topic where that's possible."""
+    """Reorder so no two neighbors share a topic where that's possible."""
     out: list[dict] = []
     pool = items[:]
     while pool:

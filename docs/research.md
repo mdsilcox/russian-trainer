@@ -25,7 +25,7 @@ Verification notes: *The Big Silver Book of Russian Verbs* (Jack Franke, McGraw-
 
 ## 2. Russian-specific advice
 
-### Cases: learn by function, prioritise high-frequency forms
+### Cases: learn by function, prioritize high-frequency forms
 - Corpus work (UiT's SMARTool project, Laura Janda's group) shows that for most words 1–3 forms account for nearly all uses, and a learning simulation found training on high-frequency forms worked best. SMARTool is free (~3,000 A1–B2 words with their top forms in context). [SMARTool](https://site.uit.no/clear/2019/11/07/smartool/); [BYU RLJ article](https://scholarsarchive.byu.edu/cgi/viewcontent.cgi?article=1316&context=rlj). **Implication:** cards should show common forms in context (*в Москве́*, *из Москвы́*) rather than full paradigms.
 - Case errors are the most common grammar error in Russian learner corpora (~14% of all errors, second only to spelling); genitive↔nominative confusion is typical. [Rozovskaya & Roth 2019](https://direct.mit.edu/tacl/article/doi/10.1162/tacl_a_00251/43532/Grammar-Error-Correction-in-Morphologically-Rich)
 - The genitive is widely called the "busiest" case (possession, *нет* + noun, quantity, 5+ numerals, many prepositions). Per-case corpus percentages couldn't be verified; treat this ranking as expert consensus.
@@ -64,7 +64,7 @@ Nominative after numbers and negation; missing animate accusative; в vs. на (
 
 ### Graded readers and books
 - **A2–B1:** Olly Richards, *Short Stories in Russian for Beginners* (with audio) ([Amazon](https://www.amazon.com/Stories-Beginners-Yourself-Beginners-multiple-Languages/dp/1473683491)). *Библиоте́ка Златоу́ста* adapted readers (five levels keyed to ТРКИ word lists; adapted Chekhov) and *Чита́ем без пробле́м* (A2) ([LiveLib](https://www.livelib.ru/pubseries/705241-biblioteka-zlatousta)).
-- **B1–B2:** Olly Richards, *Short Stories in Russian for Intermediate Learners* ([Teach Yourself](https://us.teachyourself.com/products/short-stories-in-russian-for-intermediate-learners)). Но́сов, *Ми́шкина ка́ша* and other stories (free audio at [mishka-knizhka.ru](https://mishka-knizhka.ru/audio-rasskazy-dlya-detej/audio-rasskazy-nosova/mishkina-kasha-audio/)). Драгу́нский, *Дени́скины расска́зы* (short, funny, everyday Moscow; free texts online). These are native children's prose, not graded; the level is a judgement.
+- **B1–B2:** Olly Richards, *Short Stories in Russian for Intermediate Learners* ([Teach Yourself](https://us.teachyourself.com/products/short-stories-in-russian-for-intermediate-learners)). Но́сов, *Ми́шкина ка́ша* and other stories (free audio at [mishka-knizhka.ru](https://mishka-knizhka.ru/audio-rasskazy-dlya-detej/audio-rasskazy-nosova/mishkina-kasha-audio/)). Драгу́нский, *Дени́скины расска́зы* (short, funny, everyday Moscow; free texts online). These are native children's prose, not graded; the level is a judgment.
 - **B2–C1:** Original Chekhov stories (*То́лстый и то́нкий*, *Хамелео́н*, *Смерть чино́вника*), then modern fiction.
 
 ### TV and film, easiest first

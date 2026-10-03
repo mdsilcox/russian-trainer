@@ -235,7 +235,7 @@ def test_dashboard_renders_all_four_charts(client, session):
         "Mistakes per category per week, last 12 weeks",
         "Retention by card source, last 30 days",
         "Reviews due per day, next 30 days",
-        "Minutes practised per day, last 26 weeks",
+        "Minutes practiced per day, last 26 weeks",
     ):
         assert f"<title>{title}</title>" in html
     assert html.count('<svg class="chart') == 4

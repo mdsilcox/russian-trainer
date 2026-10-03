@@ -146,12 +146,12 @@ def plan_drills(db: DbSession, now: datetime | None = None) -> DrillBlock | None
 @dataclass(frozen=True)
 class SpeakingBlock:
     minutes: int
-    scenario: Scenario | None  # the scenario least recently practised, None when none are seeded
+    scenario: Scenario | None  # the scenario least recently practiced, None when none are seeded
     href: str  # the suggested scenario, else the scenario list
 
 
 def suggest_scenario(db: DbSession) -> Scenario | None:
-    """Never-practised scenarios first, then the one practised longest ago; ties go by `Scenario.sort`."""
+    """Never-practiced scenarios first, then the one practiced longest ago; ties go by `Scenario.sort`."""
     scenarios = db.exec(select(Scenario).order_by(col(Scenario.sort), col(Scenario.id))).all()
     if not scenarios:
         return None

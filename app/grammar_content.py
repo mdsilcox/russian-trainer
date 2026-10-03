@@ -263,7 +263,7 @@ CASES = [
             ("о'коло", "near, about", "О'коло вокза'ла есть апте'ка.", "There is a pharmacy near the station."),
             ("напро'тив", "opposite", "Магази'н напро'тив гости'ницы.", "The shop is opposite the hotel."),
             ("ми'мо", "past", "Иди'те ми'мо апте'ки.", "Walk past the pharmacy."),
-            ("по'сле", "after", "По'сле у'жина мы идём в теа'тр.", "After dinner we go to the theatre."),
+            ("по'сле", "after", "По'сле у'жина мы идём в теа'тр.", "After dinner we go to the theater."),
             ("вокру'г", "around", "Вокру'г Кремля' мно'го тури'стов.", "There are many tourists around the Kremlin."),
         ],
         "examples": [
@@ -293,7 +293,7 @@ CASES = [
                  ],
              },
              "table2": {
-                 "id": "genitive-plural-irregular", "caption": "Irregular genitive plurals worth memorising",
+                 "id": "genitive-plural-irregular", "caption": "Irregular genitive plurals worth memorizing",
                  "head": ["Nominative", "Genitive plural", "Travel use"],
                  "rows": [
                      ["[[челове'к]] (person)", "[[люде'й]] after [[мно'го]], [[ма'ло]]; [[челове'к]] after numbers", "[[мно'го люде'й]] · [[пять челове'к]]"],
@@ -309,17 +309,17 @@ CASES = [
     },
     {
         "id": "dative", "name": "Dative", "ru": "Да'тельный", "q": "кому'? чему'?",
-        "gist": "The receiver and the one who feels or needs; also «towards» a person and «along».",
+        "gist": "The receiver and the one who feels or needs; also «toward» a person and «along».",
         "functions": [
             "**Receiver (to / for)**: [[Позвони'те мне.]] / [[Я дал ключ дру'гу.]]",
             "**Needs, likes, feelings**: [[Мне ну'жно...]], [[Мне нра'вится...]], [[Мне хо'лодно.]], [[Мне ну'жен врач.]]",
             "**Age**: [[Мне три'дцать пять лет.]] (numbers follow the 1 / 2-4 / 5+ rule).",
-            "**Towards a person or place** with [[к]]: [[к врачу']], [[к метро']].",
+            "**Toward a person or place** with [[к]]: [[к врачу']], [[к метро']].",
             "**Along / by / on schedule** with [[по]]: [[по у'лице]], [[по телефо'ну]], [[по расписа'нию]].",
             "Mind the structure: [[Мне ну'жна ка'рта]]: the thing needed is the nominative subject, and agrees with the adjective [[ну'жен / нужна' / ну'жно / нужны']].",
         ],
         "preps": [
-            ("к", "to, towards (a person or place), up to", "Мы идём к друзья'м.", "We are going to our friends'."),
+            ("к", "to, toward (a person or place), up to", "Мы идём к друзья'м.", "We are going to our friends'."),
             ("по", "along, around; by (phone); according to", "Мы идём по у'лице.", "We are walking along the street."),
             ("благодаря'", "thanks to", "Благодаря' вам мы нашли' гости'ницу.", "Thanks to you we found the hotel."),
         ],
@@ -390,7 +390,7 @@ CASES = [
         ],
         "preps": [
             ("с", "with", "Ко'фе с молоко'м, пожа'луйста.", "Coffee with milk, please."),
-            ("пе'ред", "in front of; before", "Встре'тимся пе'ред теа'тром.", "Let's meet in front of the theatre."),
+            ("пе'ред", "in front of; before", "Встре'тимся пе'ред теа'тром.", "Let's meet in front of the theater."),
             ("за", "behind, beyond (where?)", "Магази'н за угло'м.", "The shop is round the corner."),
             ("под", "under (where?)", "Су'мка под столо'м.", "The bag is under the table."),
             ("над", "above", "Над вхо'дом есть часы'.", "There is a clock above the entrance."),
@@ -430,7 +430,7 @@ CASES = [
             {"id": "prepositional-locative", "title": "The locative -у' forms", "ru": "Второ'й предло'жный",
              "intro": [
                  "About thirty common masculine nouns have a second prepositional ending, **stressed -у'/-ю'**, used **only after в or на for location**. With [[о]] you use the ordinary -е: [[в саду']] but [[о са'де]].",
-                 "In speech some of them (for example [[аэропорт]]) are sometimes heard with -е, but the -у' form is the safe default for a traveller.",
+                 "In speech some of them (for example [[аэропорт]]) are sometimes heard with -е, but the -у' form is the safe default for a traveler.",
              ],
              "table": {
                  "id": "prepositional-locative-table", "caption": "Common locative forms",
@@ -505,13 +505,13 @@ PREPOSITIONS = [
     ("prep-okolo", "о'коло", "Gen.", "near; about", "о'коло вокза'ла", "near the station"),
     ("prep-posle", "по'сле", "Gen.", "after", "по'сле у'жина", "after dinner"),
     ("prep-mimo", "ми'мо", "Gen.", "past", "ми'мо апте'ки", "past the pharmacy"),
-    ("prep-k", "к", "Dat.", "to, towards (a person/place)", "к врачу'", "to the doctor"),
+    ("prep-k", "к", "Dat.", "to, toward (a person/place)", "к врачу'", "to the doctor"),
     ("prep-po", "по", "Dat.", "along; by; according to", "по у'лице", "along the street"),
     ("prep-za-acc", "за", "Acc.", "for, in exchange; behind (куда'?)", "спаси'бо за по'мощь", "thanks for the help"),
     ("prep-za-instr", "за", "Instr.", "behind (где?)", "за угло'м", "round the corner"),
     ("prep-cherez", "че'рез", "Acc.", "through; in (a time)", "че'рез час", "in an hour"),
     ("prep-pod", "под", "Acc. · Instr.", "under (куда'? · где?)", "под стол · под столо'м", "under the table"),
-    ("prep-pered", "пе'ред", "Instr.", "in front of; before", "пе'ред теа'тром", "in front of the theatre"),
+    ("prep-pered", "пе'ред", "Instr.", "in front of; before", "пе'ред теа'тром", "in front of the theater"),
     ("prep-nad", "над", "Instr.", "above", "над вхо'дом", "above the entrance"),
     ("prep-mezhdu", "ме'жду", "Instr.", "between", "ме'жду ба'нком и магази'ном", "between the bank and the shop"),
     ("prep-o", "о / об / обо", "Prep.", "about", "о Москве'", "about Moscow"),
@@ -787,7 +787,7 @@ ASPECT_FORMATION = {
 STRESS_PATTERNS = [
     {"id": "stress-yo", "title": "ё is always stressed; unstressed vowels shrink", "body": [
         "**ё** is always stressed, so it never gets an accent mark. Everyday texts print it as plain е, so a е that you hear as ё is one more thing to remember: [[мёд]], [[всё]], [[идёшь]], [[её]].",
-        "In unstressed syllables **о sounds like а** and **е like и**: [[Москва']] is pronounced «maskvá». Wrong stress makes a word hard to recognise, which is why every example here carries the mark.",
+        "In unstressed syllables **о sounds like а** and **е like и**: [[Москва']] is pronounced «maskvá». Wrong stress makes a word hard to recognize, which is why every example here carries the mark.",
     ]},
     {"id": "stress-fixed", "title": "Fixed stress (most words)", "body": [
         "Most nouns keep stress on the same syllable in every form: [[кни'га, кни'ги, кни'гу, кни'гой, о кни'ге]]; [[биле'т, биле'та, биле'ты]]; [[Москва', Москвы', в Москве', в Москву']]."]},

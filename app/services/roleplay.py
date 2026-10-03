@@ -78,7 +78,7 @@ Punctuation: no dashes of any kind in the suggested line or the English; use com
 
 DEBRIEF_SYSTEM = """You write a short, encouraging debrief after a Russian role-play by an English-speaking intermediate (B1) learner preparing for a trip to Moscow. Explanations in English.
 
-- summary: two or three sentences: what went well, and the one pattern most worth practising.
+- summary: two or three sentences: what went well, and the one pattern most worth practicing.
 - phrases: three to five useful words or phrases the learner lacked, avoided, or would have needed to sound natural in THIS situation (things a native speaker said, or that would have helped them reach a goal). Each stress-marked (U+0301 on every word of 2+ syllables, never ё), with its English meaning, a short example sentence from this kind of situation (stress-marked) and its translation, and why it is worth learning.
 - next_level_tip: one sentence on what to try when replaying this scenario at a harder level.
 

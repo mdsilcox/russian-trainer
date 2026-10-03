@@ -1,4 +1,4 @@
-{# Server-side SVG charts for the dashboard. One scale per chart; colours come from CSS classes in dashboard.css. #}
+{# Server-side SVG charts for the dashboard. One scale per chart; colors come from CSS classes in dashboard.css. #}
 
 {% macro short_date(d) %}{{ d.day }} {{ d.strftime('%b') }}{% endmacro %}
 
@@ -123,7 +123,7 @@
   {% endif %}
 {% endmacro %}
 
-{# Minutes practised: weeks as columns, Monday to Sunday as rows. #}
+{# Minutes practiced: weeks as columns, Monday to Sunday as rows. #}
 {% macro practice_heatmap(hm) %}
   {% if not hm.total_minutes %}
     <p class="muted chart-empty">Your practice days appear here once you've finished a session or logged some reading, listening or watching.</p>
@@ -132,8 +132,8 @@
     {% set width = left + hm.weeks | length * pitch %}
     <div class="chart-scroll">
       <svg class="chart chart-heat" viewBox="0 0 {{ width }} {{ top + 7 * pitch }}" style="min-width: {{ width }}px" role="img"
-           aria-label="Heatmap of minutes practised per day over the last {{ hm.weeks|length }} weeks: {{ hm.total_minutes | round | int }} minutes on {{ hm.active_days }} {{ "day" if hm.active_days == 1 else "days" }}. Busiest day {{ hm.busiest | round | int }} minutes.">
-        <title>Minutes practised per day, last {{ hm.weeks|length }} weeks</title>
+           aria-label="Heatmap of minutes practiced per day over the last {{ hm.weeks|length }} weeks: {{ hm.total_minutes | round | int }} minutes on {{ hm.active_days }} {{ "day" if hm.active_days == 1 else "days" }}. Busiest day {{ hm.busiest | round | int }} minutes.">
+        <title>Minutes practiced per day, last {{ hm.weeks|length }} weeks</title>
         {% for col, label in hm.month_labels %}
           <text class="ch-text" x="{{ left + col * pitch }}" y="10">{{ label }}</text>
         {% endfor %}
@@ -155,6 +155,6 @@
       {% for lv in range(5) %}<svg width="12" height="12" viewBox="0 0 12 12"><rect class="heat lv{{ lv }}" width="12" height="12"/></svg>{% endfor %}
       <span>More</span>
     </div>
-    <p class="muted chart-note">Study sessions plus reading, listening and watching. Busiest day: {{ hm.busiest | round | int }} min. {{ hm.active_days }} days practised.</p>
+    <p class="muted chart-note">Study sessions plus reading, listening and watching. Busiest day: {{ hm.busiest | round | int }} min. {{ hm.active_days }} days practiced.</p>
   {% endif %}
 {% endmacro %}

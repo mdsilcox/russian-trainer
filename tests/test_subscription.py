@@ -44,7 +44,7 @@ def test_structured_call_args_prompt_and_env(session, monkeypatch):
     assert prompt == "вокзал"
     assert args[args.index("--model") + 1] == claude.SONNET  # subscription: Sonnet for everything
     assert args[args.index("--effort") + 1] == "low"
-    assert args[args.index("--system-prompt") + 1] == "Be a tutor."
+    assert args[args.index("--system-prompt") + 1] == "Be a tutor." + claude.SPELLING
     assert args[args.index("--tools") + 1] == ""
     assert json.loads(args[args.index("--json-schema") + 1])["required"] == ["ru_stressed", "en"]
     assert "--no-session-persistence" in args

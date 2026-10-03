@@ -128,7 +128,7 @@ PLANS = {
 }
 MIN_ITEMS = {"pretest": 4, "practice": 5, "listening": 4, "quiz": 8, "remediation": 5, "revisit": 5}
 
-ITEMS_SYSTEM = f"""You write exercises for {LEARNER}. Every item practises the unit's grammar topic with the unit's vocabulary theme.
+ITEMS_SYSTEM = f"""You write exercises for {LEARNER}. Every item practices the unit's grammar topic with the unit's vocabulary theme.
 
 Item types and the fields each uses:
 - choice: question_ru (with ___ when there is a gap), question_en, options (3-4 Russian options; distractors are the errors learners really make, such as the wrong case ending), answer_index.

@@ -152,13 +152,13 @@
         this.stop();
         return new Promise((resolve) => {
           let done = false;
-          let cancelled = false;
+          let canceled = false;
           const settle = (ok) => { if (!done) { done = true; resolve(ok); } };
-          finish = (ok) => { cancelled = true; settle(ok); };
+          finish = (ok) => { canceled = true; settle(ok); };
           const failed = () => {
-            if (done || cancelled) return;
+            if (done || canceled) return;
             if (!warned) { warned = true; console.warn("Natural voice unavailable, using the browser voice instead."); }
-            finish = (ok) => { cancelled = true; settle(ok); };
+            finish = (ok) => { canceled = true; settle(ok); };
             if (fallback.available()) fallback.speak(text, o).then(settle); else settle(false);
           };
           const q = new URLSearchParams({ text, voice: o.voice || defaultVoice || "", rate: String(o.rate) });
@@ -166,7 +166,7 @@
           audio.onerror = failed;
           audio.src = "/tts?" + q.toString();
           const p = audio.play();
-          if (p && p.catch) p.catch(() => { if (!cancelled) failed(); });
+          if (p && p.catch) p.catch(() => { if (!canceled) failed(); });
         });
       },
     };

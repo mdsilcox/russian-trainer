@@ -61,7 +61,7 @@ NAV_GROUPS = [
         ("/drills", "Drills", "Targeted grammar drills built from your own mistakes."),
         ("/grammar", "Grammar", "The reference: cases, numbers, motion, aspect, stress, pitfalls."),
     ]},
-    {"key": "practise", "label": "Practise", "ru": "Пра́ктика", "blurb": "Use what you know: remember it, write it, say it, hear it.", "items": [
+    {"key": "practice", "label": "Practice", "ru": "Пра́ктика", "blurb": "Use what you know: remember it, write it, say it, hear it.", "items": [
         ("/review", "Review", "Your flashcards, due today."),
         ("/workshop", "Writing", "Write or translate stories and correct them yourself first."),
         ("/scenarios", "Speaking", "Role-play conversations from the trip, at three speeds."),

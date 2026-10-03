@@ -18,7 +18,7 @@ A couple of people have shown interest in using the app. Opening it up means it 
 | **Content quality** | Claude-generated, two-pass review | the same, plus a native-speaker review loop for shared units (the tutor could anchor this) |
 | **AI cost** | free through the owner's Claude subscription | the subscription route only works for its owner, so others need API billing or their own key; generated content (units, items, audio) shared and cached across learners keeps the cost per person low |
 | **Hosting** | a local machine, then the always-on machine | fine for a few friends on a home network with sign-in; a public product needs proper hosting, privacy and backups per user |
-| **Customisation** | settings for rhythm, session split, voice | the same per profile, plus explanation language and feedback strictness |
+| **Customization** | settings for rhythm, session split, voice | the same per profile, plus explanation language and feedback strictness |
 
 ## Staged path
 

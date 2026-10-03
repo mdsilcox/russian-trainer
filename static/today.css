@@ -183,6 +183,8 @@
 .t-tiles { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; flex: 0 1 340px; }
 .t-tiles .tile { max-width: none; }
 @media (max-width: 760px) { .t-tiles { flex-basis: 100%; } }
+/* Wide screens: the tiles sit in a row under the title, so the title isn't pushed down by a tall column. */
+@media (min-width: 900px) { .t-tiles { flex-basis: 100%; grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 
 /* Word of the day: phrases wrap between words and scale down instead of running off the panel. */
 .word-ink { max-width: 100%; }

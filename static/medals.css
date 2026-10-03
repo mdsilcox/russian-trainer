@@ -49,7 +49,7 @@
 .ptxt { font-size: 12.5px; letter-spacing: 0.04em; color: var(--cream-muted, #CFC3A6); text-align: center; }
 .medals-note { margin: 22px 0 0; text-align: center; font: italic 500 1.15rem/1.3 var(--serif); color: var(--cream-muted, #CFC3A6); }
 
-/* Ceremony: detail panel (centred, dim backdrop) and toast (bottom right) */
+/* Ceremony: detail panel (centered, dim backdrop) and toast (bottom right) */
 .mback { position: fixed; inset: 0; z-index: 50; background: rgba(11, 11, 12, 0.82); display: flex; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
 .mback.toastpos { inset: auto 20px 20px auto; background: none; padding: 0; z-index: 40; display: block; }
 .mstage {

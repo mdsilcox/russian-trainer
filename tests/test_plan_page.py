@@ -33,7 +33,7 @@ def test_page_renders_timeline_current_month_goals_and_topics(planned):
     assert "Cases in everyday speech" in html and "this month" in html
     assert "pl-bar" not in html  # activity-goal bars are gone; units replace them
     assert 'href="/grammar/cases#prepositional"' in html
-    assert "Drills favour these topics this month" in html
+    assert "Drills favor these topics this month" in html
     assert "days to go" in html and "\u2014" not in html
     assert '<a href="/plan"' in planned.get("/").text
 

@@ -12,7 +12,7 @@ The monthly goals ("120 cards, 8 drill sets") measure activity, not learning. Th
 Curriculum ── levels A1 · A2 · B1 · B2 · C1   (tags, for the multi-user future)
   └─ Month block (the 12-month plan, unchanged as the big picture)
        └─ Unit: one topic, about a week          e.g. "Where to: в/на + accusative"
-            └─ Steps: learn → practise → produce → check → revisit
+            └─ Steps: learn → practice → produce → check → revisit
 ```
 
 - A **unit** has one topic (usually one weakness topic, the grammar-section key the app already uses, such as `/grammar/cases#location-direction`), a vocabulary theme (10-15 words that need the topic, e.g. places in the city), a can-do statement ("I can say where I'm going by metro, taxi or on foot"), a level and prerequisites.
@@ -23,7 +23,7 @@ Curriculum ── levels A1 · A2 · B1 · B2 · C1   (tags, for the multi-user 
 | Step | What the learner does | Built from |
 |---|---|---|
 | **Learn** | A short lesson: the rule in plain English, 4-6 examples with audio, a "notice it" moment (spot the pattern in a short text), and the unit's words added as cards | grammar reference content + a generated, reviewed lesson |
-| **Practise (controlled)** | Multiple choice, fill-in-the-blank, matching, transformation ("rewrite with куда"), listening: hear a sentence and choose its meaning, dictation: hear and type | the drill generator, extended with new item types |
+| **Practice (controlled)** | Multiple choice, fill-in-the-blank, matching, transformation ("rewrite with куда"), listening: hear a sentence and choose its meaning, dictation: hear and type | the drill generator, extended with new item types |
 | **Produce (free)** | Build sentences from tiles, a short story using the unit's words and pattern (with self-correct-first feedback), a mini role-play designed so the goals need the topic | workshop, scenarios |
 | **Check** | A 10-12 item mastery quiz mixing formats; pass at 80% | exercise player |
 | **Revisit** | Short mixed review sets for the topic at growing intervals after passing: about 3, 7, 21 and 60 days | new topic scheduler |
@@ -91,7 +91,7 @@ Every table is keyed so adding a `profile_id` later is one migration.
 
 ## Screens
 
-- **/learn**: the current unit as a step checklist with progress, the lesson view, the exercise player (generalising the drill player), the quiz; and a unit map by month showing mastery.
+- **/learn**: the current unit as a step checklist with progress, the lesson view, the exercise player (generalizing the drill player), the quiz; and a unit map by month showing mastery.
 - **Today**: the lead block becomes today's unit step ("Unit 2, day 3: listening and dictation"); revisits due appear as a small block.
 - **/plan**: each month lists its units with status and mastery instead of only activity goals (activity goals stay as secondary context).
 

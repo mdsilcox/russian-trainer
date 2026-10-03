@@ -24,7 +24,7 @@ class MedalDef:
     en: str
     how: str
     story: str
-    field: str  # centre colour of the medallion
+    field: str  # center color of the medallion
     dot: str
     target: int = 1
     unit: str = ""  # progress unit, e.g. "days"

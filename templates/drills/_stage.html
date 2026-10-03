@@ -73,7 +73,7 @@
     {{ orn.sprig(56) }}
     <h2>Set finished</h2>
     <p class="dr-score"><b>{{ prog.correct }}</b> of {{ prog.total }} correct</p>
-    {% if labels %}<p class="muted">Practised: {{ labels | join(", ") }}</p>{% endif %}
+    {% if labels %}<p class="muted">Practiced: {{ labels | join(", ") }}</p>{% endif %}
     <div class="actions dr-center">
       <a class="button" href="/">Back to Today</a>
       <form hx-post="/drills/generate" hx-target="#drill" hx-swap="innerHTML" hx-indicator="#dr-wait" hx-disabled-elt="find button">

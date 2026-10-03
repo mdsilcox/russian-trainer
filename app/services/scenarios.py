@@ -237,9 +237,9 @@ SCENARIOS: list[dict] = [
         "lost-bag", "Problems", "Lost property", "lost property clerk",
         "You left a black backpack with a phone and a passport in a taxi. You go to the lost property office to report it.",
         "Irina, in her forties, is calm and bureaucratic. She asks many precise questions in a row "
-        "(what, where, when, what colour), writes everything down, and speaks at a steady, fairly quick pace.",
+        "(what, where, when, what color), writes everything down, and speaks at a steady, fairly quick pace.",
         "Здра'вствуйте. Что у вас случи'лось?",
-        ["Say what you lost", "Describe it: colour, size, what is inside", "Say where and when it happened",
+        ["Say what you lost", "Describe it: color, size, what is inside", "Say where and when it happened",
          "Give a phone number or your hotel", "Ask what happens next"],
         [("Мы забы'ли рюкза'к в такси'", "We left a backpack in a taxi"), ("У меня' укра'ли телефо'н", "My phone was stolen"),
          ("Рюкза'к чёрный, сре'днего разме'ра", "The backpack is black, medium-sized"), ("Внутри' был па'спорт", "There was a passport inside"),
@@ -250,7 +250,7 @@ SCENARIOS: list[dict] = [
     _s(
         "wrong-order", "Problems", "The wrong dish", "waiter",
         "At a restaurant the soup is cold, a dish arrives that you did not order, and there is a mistake on the bill.",
-        "Artyom, in his twenties, is flustered and a bit defensive. He apologises quickly, speaks fast, "
+        "Artyom, in his twenties, is flustered and a bit defensive. He apologizes quickly, speaks fast, "
         "may blame the kitchen, and will fetch the manager if you ask firmly but politely.",
         "Всё в поря'дке? Вам что-нибу'дь не нра'вится?",
         ["Say the dish is not what you ordered", "Say the food is cold and ask to have it warmed", "Ask for the right dish",

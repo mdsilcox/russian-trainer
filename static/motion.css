@@ -23,7 +23,7 @@
 
   .orn-berry, .orn-dot { transform-box: fill-box; transform-origin: center; }
 
-  /* Vines draw like a brushstroke, then berries ripen one by one, centres last. */
+  /* Vines draw like a brushstroke, then berries ripen one by one, centers last. */
   .arrive .orn-draw { animation: vine-draw 800ms cubic-bezier(.45, .05, .25, 1) 120ms backwards; }
   .arrive .orn-berry { animation: berry-pop 460ms cubic-bezier(.2, .7, .2, 1) calc(820ms + var(--d, 0) * 90ms) backwards; }
   .arrive .orn-dot { animation: dot-in 300ms ease-out calc(1300ms + var(--d, 0) * 90ms) backwards; }
@@ -126,7 +126,7 @@
   button, .button { transition: background-color 220ms ease, color 220ms ease, border-color 220ms ease; }
   .card { transition: border-color 300ms ease, box-shadow 300ms ease; }
 
-  /* Rotate about the centre: the corners are mirrored with inline transforms, so moving
+  /* Rotate about the center: the corners are mirrored with inline transforms, so moving
      transform-origin would also move the mirror and throw them outside their panel. */
   .orn-corner { transition: rotate 400ms cubic-bezier(.3, .7, .3, 1); }
   :hover > .orn-corner-tl, :hover > .orn-corner-br, :focus-within > .orn-corner-tl, :focus-within > .orn-corner-br { rotate: -6deg; }

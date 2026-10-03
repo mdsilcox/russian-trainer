@@ -19,7 +19,7 @@ Skill = Literal["grammar", "vocab", "listening", "production"]
 
 class ItemBase(BaseModel):
     id: str = Field(description="Stable within its content set, e.g. 'q3'")
-    topic: str = Field(default="", description="Weakness topic (grammar section URL) the item practises")
+    topic: str = Field(default="", description="Weakness topic (grammar section URL) the item practices")
     skill: Skill = "grammar"
     instruction: str = Field(default="", description="One short English line telling the learner what to do")
     explanation: str = Field(default="", description="One or two English sentences shown after answering: the rule behind the answer")

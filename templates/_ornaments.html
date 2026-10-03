@@ -1,7 +1,7 @@
-{# Khokhloma ornaments: gold-stroke leaves and cinnabar berries with gold centres.
+{# Khokhloma ornaments: gold-stroke leaves and cinnabar berries with gold centers.
    Import with: {% import "_ornaments.html" as orn %} then {{ orn.divider() }}. All are decorative (aria-hidden).
    Motion hooks (static/motion.css): strokes are .orn-draw with pathLength="1" so they can draw
-   themselves; berries are .orn-berry and their centres .orn-dot, staggered by --d. #}
+   themselves; berries are .orn-berry and their centers .orn-dot, staggered by --d. #}
 
 {% macro brand_mark(size=34) -%}
 <svg class="orn" width="{{ size }}" height="{{ size }}" viewBox="0 0 34 34" fill="none" aria-hidden="true"><circle class="orn-berry" style="--d: 0" cx="17" cy="19" r="8" fill="#B3261E" stroke="#C9A227" stroke-width="1"/><circle class="orn-dot" style="--d: 0" cx="17" cy="19" r="2.2" fill="#E2C46A"/><path class="orn-draw" pathLength="1" d="M17 11 C17 6 20 3 25 3 C25 8 22 11 17 11Z" stroke="#C9A227" stroke-width="1" fill="none"/><path class="orn-draw" pathLength="1" d="M17 11 C16 7 13 5 9 5" stroke="#C9A227" stroke-width="1" stroke-linecap="round"/></svg>

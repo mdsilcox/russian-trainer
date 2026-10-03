@@ -490,12 +490,12 @@ def test_suggest_scenario_never_practised_first_then_oldest(session):
     scenarios.seed(session)
     ordered = session.exec(select(Scenario).order_by(Scenario.sort)).all()
     assert today.suggest_scenario(session).slug == ordered[0].slug
-    # first two practised: the third, never practised, wins
+    # first two practiced: the third, never practiced, wins
     session.add(Conversation(scenario_id=ordered[0].id, started_at=NOW - timedelta(days=1)))
     session.add(Conversation(scenario_id=ordered[1].id, started_at=NOW - timedelta(days=5)))
     session.commit()
     assert today.suggest_scenario(session).slug == ordered[2].slug
-    # everything practised: the one practised longest ago wins (ordered[1], 5 days)
+    # everything practiced: the one practiced longest ago wins (ordered[1], 5 days)
     for sc in ordered[2:]:
         session.add(Conversation(scenario_id=sc.id, started_at=NOW - timedelta(days=2)))
     session.commit()

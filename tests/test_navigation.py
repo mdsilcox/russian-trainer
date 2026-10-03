@@ -11,9 +11,9 @@ def test_every_section_appears_once_and_groups_are_small():
     assert {"/learn", "/review", "/plan", "/settings", "/shelf", "/scenarios", "/workshop", "/drills", "/grammar", "/dashboard", "/cards", "/import"} <= set(ALL_LINKS)
 
 
-@pytest.mark.parametrize("path, key", [("/", "today"), ("/learn/u01/lesson", "learn"), ("/scenarios/c/4", "practise"),
+@pytest.mark.parametrize("path, key", [("/", "today"), ("/learn/u01/lesson", "learn"), ("/scenarios/c/4", "practice"),
                                        ("/plan", "progress"), ("/import/starter/review", "library"), ("/contents", "contents"),
-                                       ("/review", "practise"), ("/nowhere", "")])
+                                       ("/review", "practice"), ("/nowhere", "")])
 def test_nav_active_group(path, key):
     assert nav_active(path) == key
 

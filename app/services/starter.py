@@ -44,7 +44,7 @@ TOPICS = [
     Topic("shopping", "Shopping", 14, "shops, markets, souvenirs, sizes, trying on, 'I'll take it', bags, opening hours, returns"),
     Topic("emergency", "Emergencies, health & pharmacy", 15, "help, police, doctor, pharmacy, 'I feel sick', pain, allergies, lost passport/phone, children's medicine"),
     Topic("smalltalk", "Small talk & family", 15, "where we are from, my wife/husband/son/daughter, ages, how long in Moscow, weather, likes/dislikes, 'I speak a little Russian'"),
-    Topic("sightseeing", "Sightseeing, tickets & plans", 14, "tickets for several people, museums, theatre, parks, tours, 'what time does it open', photos, plans for the day"),
+    Topic("sightseeing", "Sightseeing, tickets & plans", 14, "tickets for several people, museums, theater, parks, tours, 'what time does it open', photos, plans for the day"),
 ]
 TOPICS_BY_SLUG = {t.slug: t for t in TOPICS}
 
@@ -57,7 +57,7 @@ class StarterItem(BaseModel):
     gender: str | None = Field(description="m, f or n for nouns; null otherwise")
     aspect: str | None = Field(description="impf or pf for verbs; null otherwise")
     aspect_partner: str | None = Field(description="Aspect partner with stress mark, for verbs; null otherwise")
-    example_ru: str = Field(description="Natural B1-level sentence a traveller would say or hear, stress-marked")
+    example_ru: str = Field(description="Natural B1-level sentence a traveler would say or hear, stress-marked")
     example_en: str = Field(description="English translation of the example")
     notes: str | None = Field(description="One short note only if genuinely useful; otherwise null")
 
@@ -66,7 +66,7 @@ class TopicBatch(BaseModel):
     items: list[StarterItem]
 
 
-SYSTEM = """You build flashcards for an English-speaking intermediate learner of Russian who is travelling to Moscow with their family.
+SYSTEM = """You build flashcards for an English-speaking intermediate learner of Russian who is traveling to Moscow with their family.
 Produce useful, high-frequency vocabulary and set phrases for the requested topic.
 
 Rules:
@@ -74,7 +74,7 @@ Rules:
 - Use polite register (вы) in phrases unless it is clearly for a child.
 - Stress marks: U+0301 COMBINING ACUTE ACCENT directly after the stressed vowel, on every word of two or more syllables. Never mark ё or one-syllable words.
 - For verbs give the aspect and partner; give gender for nouns.
-- Example sentences: natural modern Russian, stress-marked, ideally involving a family of travellers.
+- Example sentences: natural modern Russian, stress-marked, ideally involving a family of travelers.
 - Explanations in English.
 
 Punctuation: never use em dashes (—) in English text; use a comma, colon, full stop or parentheses instead. Inside Russian sentences, keep the dash only where Russian grammar requires it (e.g. Москва́ — столи́ца)."""

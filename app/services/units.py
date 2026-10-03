@@ -34,7 +34,7 @@ PRACTICE_SETS = 2  # controlled-practice sets before the quiz unlocks
 STEPS = [
     ("pretest", "Pre-test", "Six quick items: ace them and you can skip ahead"),
     ("learn", "Learn", "The rule, examples with audio, and the unit's words"),
-    ("practice", "Practise", "Multiple choice, fill-ins, matching, transformations"),
+    ("practice", "Practice", "Multiple choice, fill-ins, matching, transformations"),
     ("listening", "Listen", "Hear it and choose the meaning, then dictation"),
     ("story", "Write", "A short story using the unit's words and pattern"),
     ("roleplay", "Speak", "A role-play where the goals need this topic"),

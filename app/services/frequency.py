@@ -83,7 +83,7 @@ def remember_known(session: Session, keys: list[str]) -> None:
 
 
 def known_words(session: Session) -> list[str]:
-    """Normalised `ru` of word cards plus words the learner declined (newest last), capped for the prompt."""
+    """Normalized `ru` of word cards plus words the learner declined (newest last), capped for the prompt."""
     rows = session.exec(select(Card.ru).where(Card.kind == "word").order_by(Card.id)).all()
     deck = [card_service.normalize(ru) for ru in rows if ru]
     keys = list(dict.fromkeys(deck + remembered_known(session)))
