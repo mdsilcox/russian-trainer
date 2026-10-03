@@ -42,3 +42,33 @@ Caveats: the solo figures are an estimate from Phase 2's pace, not a controlled 
 - **Quality:** comes from the review loop with live checks, not from parallelism. Agents' own tests passed every time while real bugs remained; browser and live-model checks found them.
 - **Coordination costs:** do schema changes up front (lanes must never share migrations), expect small shared-file edits (`app/main.py` got two lanes' lines without trouble), and one cross-lane test broke on migration order. Briefs and reviews were roughly a third of the orchestrator's tokens.
 - **Where it pays less:** small or tightly coupled work (one step, shared files, prompt design). There the orchestrator should just build it.
+
+## Phase 4 (orchestrated, agents onboarded through CLAUDE.md)
+
+Go at 13:38:41Z, gate closed at 13:49:05Z: **10.4 min wall time**, 1,983 lines added, 416 tests passing. Tracked live on the Orchestra board.
+
+| Step | Owner | Rounds | Agent wall time | Agent tokens | Scores at acceptance | Defects caught |
+|---|---|---|---|---|---|---|
+| Schema, briefs | Orchestrator | n/a | n/a | n/a | n/a | n/a |
+| P4.2a Plan engine | Orchestrator | n/a | n/a | n/a | tested | none |
+| P4.1 Dashboard v2 | Sonnet A | 1 | 5.9 min | 107k | 4 / 5 / 4 / 5 | day/days plural |
+| P4.2b Plan page | Sonnet B | 2 | 2.7 + 1.3 min | 91k | 5 / 5 / 4 / 5 (round 1: correctness 3) | averaged pace hint hid lagging goals (must-fix); words broken mid-word; station links didn't open their month |
+| P4.2c Today rhythm | Sonnet C | 1 | 3.0 min | 101k | 5 / 5 / 4 / 4 | none |
+
+Orchestrator tokens: about 60k (plan, schema, engine, three briefs, reviews, board updates), down from 121k in Phase 3.
+
+### Did the context file help?
+- **Fresh agents' first step:** 97k tokens on average (107k, 84k, 101k) against 111k in Phase 3 (107k, 130k, 97k): about 13% lower, short of the 30-50% hoped for. Lane A also spent part of its budget on an unprompted browser check it learned about from CLAUDE.md, so the like-for-like saving is somewhat larger.
+- **Quality side effect:** CLAUDE.md documents the throwaway test copy, and one agent used it to verify its own UI for the first time. Every hand-back still needs the orchestrator's live check (it found the pace bug, which tests passed).
+- **Next lever:** most of a fresh agent's cost is reading the specific files it edits, which a context file can't remove. Reusing agents across steps (60% cheaper per follow-on step in Phase 3) and pasting exact interfaces into briefs remain the bigger savings. Pre-launch Haiku research for briefs is the next experiment.
+
+### Phase 3 vs Phase 4
+| | Phase 3 | Phase 4 |
+|---|---|---|
+| Lane steps | 6 (3 agent lanes, one with 3 chained steps) | 4 (3 parallel agent lanes) |
+| Wall time | 20.6 min | 10.4 min |
+| Lines per minute | 161 | 191 |
+| Agent tokens | 413k | 299k |
+| Orchestrator tokens | 121k | about 60k |
+| Defects caught before commit | 7 | 4 |
+| Rounds returned | 2 of 7 | 1 of 4 |
