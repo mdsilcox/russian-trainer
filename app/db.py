@@ -167,6 +167,15 @@ def _add_phase4_schema(engine: Engine) -> None:
                 conn.execute(text(f"ALTER TABLE plan_months ADD COLUMN {name} {ddl}"))
 
 
+
+def _add_scenario_voice(engine: Engine) -> None:
+    """Cloud voices: each scenario partner can have its own voice."""
+    with engine.begin() as conn:
+        existing = {row[1] for row in conn.execute(text("PRAGMA table_info(scenarios)"))}
+        if existing and "voice" not in existing:
+            conn.execute(text("ALTER TABLE scenarios ADD COLUMN voice VARCHAR NOT NULL DEFAULT ''"))
+
+
 MIGRATIONS: list[Callable[[Engine], None]] = [
     _initial_schema,
     _seed_settings,
@@ -180,6 +189,7 @@ MIGRATIONS: list[Callable[[Engine], None]] = [
     _add_card_kind,
     _add_phase3_schema,
     _add_phase4_schema,
+    _add_scenario_voice,
 ]
 
 

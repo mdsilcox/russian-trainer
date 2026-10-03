@@ -178,6 +178,7 @@ class Scenario(SQLModel, table=True):
     opening_ru: str = ""  # the partner's first line, so a conversation starts without a Claude call
     vocab_json: list = Field(default_factory=list, sa_column=Column(JSON))  # list[{"ru": stressed, "en": str}]
     sort: int = 0
+    voice: str = ""  # cloud TTS voice for the partner, e.g. "ru-RU-DmitryNeural"; "" means the default voice
 
 
 class Conversation(SQLModel, table=True):
