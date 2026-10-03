@@ -85,6 +85,8 @@
       <div class="front">
         {# Size the Russian word so its longest word fits on one line (never break inside a word). #}
         {% set fit_chars = [card.ru.split() | map("length") | max, 7] | max %}
+        {% set kind_label = {"form": "Form in context", "stress": "Stress shift", "chunk": "Phrase"}.get(card.kind) %}
+        {% if kind_label %}<p class="rv-kind"><span>{{ kind_label }}</span></p>{% endif %}
         {% if cs.state == 0 %}<p class="rv-new"><span class="badge">new</span></p>{% endif %}
         {% if production %}
           {% if card.pos %}<p class="rv-pos">{{ card.pos }}{% if card.aspect %}, {{ card.aspect }}{% endif %}</p>{% endif %}

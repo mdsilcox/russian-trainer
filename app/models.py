@@ -68,6 +68,7 @@ class Card(SQLModel, table=True):
     source_ref_id: int | None = None
     created_at: datetime = Field(default_factory=utcnow)
     suspended: bool = False
+    kind: str = "word"  # "word", "form" (high-frequency form in context), "stress" (stress shift) or "chunk" (phrase)
 
 
 class CardState(SQLModel, table=True):

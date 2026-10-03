@@ -46,5 +46,42 @@
     {{ field("tags", "Tags", hint="Space-separated, e.g. travel food") }}
   </section>
 
+  {% if suggestions %}
+  <section class="fsec suggestions">
+    <h3>Also add as cards</h3>
+    <p class="muted sug-help">Forms you are likely to hear and say. Ticked ones are created when you add the card; anything already in your deck is skipped.</p>
+    {% for f in suggestions.forms %}
+      <label class="sug">
+        <input type="checkbox" name="extra" value="form:{{ loop.index0 }}" {% if f.checked %}checked{% endif %}>
+        <span class="sug-body">
+          <span class="sug-tag">Form in context</span>
+          <span class="sug-ru" lang="ru">{{ f.ru }}</span>
+          <span class="sug-en">{{ f.en }}</span>
+          {% if f.note %}<small class="muted">{{ f.note }}</small>{% endif %}
+        </span>
+        <input type="hidden" name="form_ru_{{ loop.index0 }}" value="{{ f.ru }}">
+        <input type="hidden" name="form_en_{{ loop.index0 }}" value="{{ f.en }}">
+        <input type="hidden" name="form_note_{{ loop.index0 }}" value="{{ f.note }}">
+      </label>
+    {% endfor %}
+    {% if suggestions.stress %}
+      {% set st = suggestions.stress %}
+      <label class="sug">
+        <input type="checkbox" name="extra" value="stress" {% if st.checked %}checked{% endif %}>
+        <span class="sug-body">
+          <span class="sug-tag">Stress shift</span>
+          <span class="sug-ru" lang="ru">{{ st.base }} → {{ st.shifted }}</span>
+          <span class="sug-en">{{ st.en }}</span>
+          {% if st.note %}<small class="muted">{{ st.note }}</small>{% endif %}
+        </span>
+        <input type="hidden" name="stress_base" value="{{ st.base }}">
+        <input type="hidden" name="stress_shifted" value="{{ st.shifted }}">
+        <input type="hidden" name="stress_en" value="{{ st.en }}">
+        <input type="hidden" name="stress_note" value="{{ st.note }}">
+      </label>
+    {% endif %}
+  </section>
+  {% endif %}
+
   {% if enrich_error %}<p class="error">{{ enrich_error }}</p>{% endif %}
 </div>

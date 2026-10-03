@@ -32,3 +32,12 @@
   .ledger .ruword a { font-size: 1.5rem; }
   .subtitle { font-size: 22px; }
 }
+
+/* Suggested extra cards after enrichment */
+.suggestions { gap: 12px; }
+.sug-help { margin: 0; }
+.sug { display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; background: var(--raised); border: 1px solid var(--gold-faint); cursor: pointer; }
+.sug:has(input[type=checkbox]:checked) { border-color: var(--gold); }
+.sug-body { display: grid; gap: 2px; min-width: 0; overflow-wrap: anywhere; }
+.sug-tag { font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--gold-light); }
+.sug-ru { font-family: var(--serif); font-size: 1.35rem; font-weight: 600; color: var(--cream); }

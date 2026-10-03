@@ -25,6 +25,10 @@
     <option value="">All sources</option>
     {% for s in sources %}<option value="{{ s }}" {% if s == source %}selected{% endif %}>{{ s }}</option>{% endfor %}
   </select>
+  <select name="kind">
+    <option value="">All kinds</option>
+    {% for k in kinds %}<option value="{{ k }}" {% if k == kind %}selected{% endif %}>{{ kind_labels.get(k, "Word") }}</option>{% endfor %}
+  </select>
   <label class="checkbox"><input type="checkbox" name="leeches" value="true" {% if leeches %}checked{% endif %}> Leeches only</label>
   <button type="submit">Filter</button>
 </form>
@@ -43,7 +47,8 @@
       <td class="tags">{% for t in (card.tags or "").split() %}<span class="chip">{{ t }}</span>{% endfor %}</td>
       <td class="src">{{ card.source_module.value }}</td>
       <td>{% if lapses >= leech_lapses %}<span class="badge warn" title="{{ lapses }} lapses">leech</span>{% endif %}
-          {% if card.suspended %}<span class="badge">suspended</span>{% endif %}</td>
+          {% if card.suspended %}<span class="badge">suspended</span>{% endif %}
+          {% if card.kind != "word" %}<span class="badge">{{ kind_labels.get(card.kind, card.kind) }}</span>{% endif %}</td>
     </tr>
   {% endfor %}
   </tbody>

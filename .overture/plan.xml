@@ -227,7 +227,7 @@ Category enum: case, aspect, motion_verb, participle, agreement, word_choice, wo
       <complexity>medium</complexity>
       <expected_output>- Drill page; drill_answers populated; drills slot into the Today page</expected_output>
     </node>
-    <node id="p2_cards" type="task" status="pending">
+    <node id="p2_cards" type="task" status="completed">
       <title>P2.4: Card upgrades: forms in context, stress pairs, frequency deck</title>
       <description>Research: 1–3 forms cover most uses of a word (SMARTool), chunks aid fluency, stress is mobile. Add card types: (a) high-frequency forms in context (в Москве́ / из Москвы́) instead of bare headwords; (b) stress-shift pairs for mobile-stress nouns/verbs (рука́ → ру́ку); (c) chunk cards for travel phrases. Plus a frequency deck builder (top ~3–5k lemmas, introduced gradually) generated with stress marks and reviewed before adding.</description>
       <complexity>medium</complexity>

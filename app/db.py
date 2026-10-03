@@ -125,6 +125,17 @@ def _add_mistake_topic(engine: Engine) -> None:
             conn.execute(text("ALTER TABLE mistakes ADD COLUMN topic VARCHAR"))
 
 
+def _add_card_kind(engine: Engine) -> None:
+    """Card kinds (word/form/stress/chunk); existing multi-word cards become chunks once."""
+    with engine.begin() as conn:
+        columns = {row[1] for row in conn.execute(text("PRAGMA table_info(cards)"))}
+        if not columns:
+            return
+        if "kind" not in columns:
+            conn.execute(text("ALTER TABLE cards ADD COLUMN kind VARCHAR NOT NULL DEFAULT 'word'"))
+            conn.execute(text("UPDATE cards SET kind = 'chunk' WHERE instr(trim(ru), ' ') > 0"))
+
+
 MIGRATIONS: list[Callable[[Engine], None]] = [
     _initial_schema,
     _seed_settings,
@@ -135,6 +146,7 @@ MIGRATIONS: list[Callable[[Engine], None]] = [
     _add_mistake_last_drilled,
     _add_drill_set_topic,
     _add_mistake_topic,
+    _add_card_kind,
 ]
 
 

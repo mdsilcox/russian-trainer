@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% import "_ornaments.html" as orn %}
+{% block title %}Review frequency words · Russian Trainer{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', path='import.css') }}">{% endblock %}
+{% block content %}
+<p class="back"><a href="/import">← Import</a></p>
+<div class="page-head"><h1>Review frequency words</h1><div class="subtitle" lang="ru">Частотные слова</div>{{ orn.divider(150) }}</div>
+
+{% if not rows %}
+  <div class="empty">{{ orn.sprig(72) }}<p>Nothing is waiting for review. <a href="/import#frequency">Generate a batch</a>.</p></div>
+{% else %}
+<p class="muted">Words from about #{{ start }} to #{{ end }} of the frequency list.{% if skipped %} {{ skipped }} suggestion{{ "" if skipped == 1 else "s" }} already in your deck {{ "was" if skipped == 1 else "were" }} left out.{% endif %} Ticked forms become their own cards. Unticked words are remembered as already known and won't come back.</p>
+<form method="post" action="/import/frequency/add">
+  <section class="review-group card">
+    <table class="review-table">
+      {% for r in rows %}
+        {% set dupe = r.duplicate or r.repeat %}
+        <tr class="{{ 'dupe' if dupe }}">
+          <td><input type="checkbox" name="sel" value="{{ r.key }}" aria-label="Add {{ r.item.ru }}" {{ "" if dupe else "checked" }}></td>
+          <td>
+            <strong lang="ru">{{ r.item.ru_stressed or r.item.ru }}</strong>
+            {% if r.duplicate %}<span class="badge">already in deck</span>{% elif r.repeat %}<span class="badge">repeated</span>{% endif %}
+            <div class="muted">{{ r.item.pos or "" }}{% if r.item.gender %} · {{ r.item.gender }}{% endif %}{% if r.item.aspect %} · {{ r.item.aspect }}{% endif %}{% if r.item.aspect_partner %} → <span lang="ru">{{ r.item.aspect_partner }}</span>{% endif %}</div>
+          </td>
+          <td>{{ r.item.en }}
+            {% if r.item.notes %}<div class="muted">{{ r.item.notes }}</div>{% endif %}
+            {% for f in r.item.forms or [] %}
+              <label class="form-pick">
+                <input type="checkbox" name="form" value="{{ r.key }}:{{ loop.index0 }}" aria-label="Also add {{ f.ru }}" {{ "" if dupe else "checked" }}>
+                <span><span lang="ru">{{ f.ru }}</span> <span class="muted">{{ f.en }}{% if f.note %} · {{ f.note }}{% endif %}</span></span>
+              </label>
+            {% endfor %}
+          </td>
+          <td class="ex"><span lang="ru">{{ r.item.example_ru or "" }}</span><div class="muted">{{ r.item.example_en or "" }}</div></td>
+        </tr>
+      {% endfor %}
+    </table>
+  </section>
+  <div class="sticky-actions">
+    <button type="submit" class="primary">Add selected</button>
+    <button type="submit" formaction="/import/frequency/discard" formnovalidate>Discard batch</button>
+  </div>
+</form>
+{% endif %}
+{% endblock %}

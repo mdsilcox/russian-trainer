@@ -10,7 +10,7 @@
   {{ orn.divider(150) }}
 </div>
 
-{% if request.query_params.get("added") %}<p class="notice">Card added. Add another?</p>{% endif %}
+{% if request.query_params.get("added") %}<p class="notice">Card added{% if request.query_params.get("extras") %} with {{ request.query_params.get("extras") }} extra card{{ "" if request.query_params.get("extras") == "1" else "s" }}{% endif %}. Add another?</p>{% endif %}
 {% if error %}<p class="error">{{ error }}</p>{% endif %}
 
 <form method="post" action="{{ '/cards/%d' % card.id if card else '/cards/new' }}" class="card stack card-form">
@@ -30,6 +30,7 @@
       <button type="button"
               hx-post="/cards/enrich/suggest"
               hx-include="closest form"
+              {% if card %}hx-vals='{"editing": "1"}'{% endif %}
               hx-target="#card-fields"
               hx-swap="outerHTML"
               hx-indicator="this">

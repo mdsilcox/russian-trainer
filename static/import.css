@@ -40,3 +40,7 @@
 .topic-list li { display: flex; }
 .topic-list .tile { flex: 1; min-height: 74px; }
 .tile-name { text-wrap: balance; line-height: 1.2; }
+
+/* Frequency review: form checkboxes under each word */
+.form-pick { display: flex; align-items: flex-start; gap: 8px; margin-top: 8px; font-size: 0.95em; overflow-wrap: anywhere; }
+.form-pick input { margin-top: 4px; }

@@ -172,3 +172,7 @@
   /* Session end: berries shimmer once, one after another, after the sprig has bloomed. */
   .rv-branch.is-shimmer .v-berry { animation: v-shimmer 700ms ease-in-out calc(1500ms + var(--i, 0) * 170ms) both; }
 }
+
+/* Card kind pill (form in context, stress shift, phrase) */
+.rv-kind { margin: 0; }
+.rv-kind span { display: inline-block; padding: 3px 12px; border: 1px solid var(--gold-line); border-radius: 999px; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--gold-light); }

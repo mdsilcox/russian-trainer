@@ -32,6 +32,27 @@
   </form>
 </section>
 
+<section class="card stack panel" id="frequency">
+  <h2>Frequency deck: the most common Russian words you don't have yet</h2>
+  <p class="muted">Each batch is {{ freq_size }} of the most frequent Russian words, skipping the ones you already have and the function words you know. Every word comes with up to two of its most common forms in context. Batches continue where the last one left off (next: words from about #{{ freq_start }}). One Claude call, usually 20 to 40 seconds. You review everything before it joins your deck.</p>
+  {% if freq_error %}<p class="error">{{ freq_error }}</p>{% endif %}
+  {% if freq_pending %}
+    <p class="notice">{{ freq_pending }} generated words are waiting for review. <a href="/import/frequency/review">Review them</a></p>
+  {% else %}
+    <form method="post" action="/import/frequency/generate" class="stack" id="freq-form">
+      <div class="actions">
+        {% if ai_enabled() %}
+          <button type="submit" class="primary" id="freq-btn">Generate the next {{ freq_size }}</button>
+          <span class="muted" id="freq-status" role="status" aria-live="polite"></span>
+        {% else %}
+          <button type="submit" class="primary" disabled>Generate the next {{ freq_size }}</button>
+          <span class="muted">{{ ai_off_reason() }}</span>
+        {% endif %}
+      </div>
+    </form>
+  {% endif %}
+</section>
+
 <section class="card stack panel">
   <h2>Paste a list</h2>
   <p class="muted">One entry per line: <span lang="ru">слово</span> or <span lang="ru">слово - english</span> (a dash, tab or ; also works as the separator). Duplicates are removed.</p>
@@ -52,6 +73,17 @@
   </form>
 </section>
 
+<script>
+  (function () {
+    var form = document.getElementById('freq-form');
+    if (!form) return;
+    form.addEventListener('submit', function () {
+      var btn = document.getElementById('freq-btn'), out = document.getElementById('freq-status');
+      if (btn) { btn.disabled = true; btn.textContent = 'Generating…'; }
+      if (out) out.textContent = 'Asking Claude for the next words. This takes 20 to 40 seconds, please keep this page open.';
+    });
+  })();
+</script>
 <script>
   (function () {
     var boxes = document.querySelectorAll('input[name=topic]'), out = document.getElementById('gen-count');

@@ -6,6 +6,7 @@ from sqlmodel import Session
 
 from app.db import get_session
 from app.models import Module
+from app.services import frequency as freq
 from app.services import starter as svc
 from app.services.claude import ClaudeClient, ClaudeError
 from app.web import templates
@@ -21,7 +22,7 @@ def _redirect(url: str, **query) -> RedirectResponse:
 
 
 @router.get("", response_class=HTMLResponse)
-def index(request: Request, added: int = 0, error: str = ""):
+def index(request: Request, added: int = 0, error: str = "", freq_error: str = "", session: Session = Depends(get_session)):
     starter = svc.load_pending().get("topics", {})
     return templates.TemplateResponse(
         request,
@@ -34,6 +35,10 @@ def index(request: Request, added: int = 0, error: str = ""):
             "added": added,
             "error": error,
             "cap": svc.ENRICH_CAP,
+            "freq_start": freq.next_rank(session),
+            "freq_size": freq.BATCH_SIZE,
+            "freq_pending": len(svc.load_pending(freq.PENDING).get("items", [])),
+            "freq_error": freq_error,
         },
     )
 
@@ -99,6 +104,50 @@ async def starter_add(request: Request, session: Session = Depends(get_session))
 @router.post("/starter/discard")
 def starter_discard():
     svc.clear_pending()
+    return _redirect("/import")
+
+
+# --- Frequency deck ------------------------------------------------------------
+
+@router.post("/frequency/generate")
+def frequency_generate(session: Session = Depends(get_session)):
+    if svc.load_pending(freq.PENDING).get("items"):
+        return _redirect("/import/frequency/review")  # finish the staged batch first
+    try:
+        freq.generate_batch(session, ClaudeClient(session))
+    except ClaudeError as e:
+        return _redirect("/import", freq_error=str(e))
+    return _redirect("/import/frequency/review")
+
+
+@router.get("/frequency/review", response_class=HTMLResponse)
+def frequency_review(request: Request, session: Session = Depends(get_session)):
+    pending = svc.load_pending(freq.PENDING)
+    rows = svc.review_rows(session, pending.get("items", []), "i", set())
+    return templates.TemplateResponse(
+        request,
+        "import/frequency_review.html",
+        {
+            "rows": rows,
+            "start": pending.get("start"),
+            "end": pending.get("end"),
+            "skipped": pending.get("skipped", 0),
+        },
+    )
+
+
+@router.post("/frequency/add")
+async def frequency_add(request: Request, session: Session = Depends(get_session)):
+    form = await request.form()
+    pending = svc.load_pending(freq.PENDING)
+    added = freq.add_batch(session, pending, [str(k) for k in form.getlist("sel")], {str(k) for k in form.getlist("form")})
+    svc.clear_pending(freq.PENDING)
+    return _redirect("/import", added=added)
+
+
+@router.post("/frequency/discard")
+def frequency_discard(session: Session = Depends(get_session)):
+    freq.discard_batch(session)
     return _redirect("/import")
 
 
