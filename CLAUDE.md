@@ -42,5 +42,5 @@ Personal, single-user, local web app taking an English-speaking B1 learner to co
 - Inject `now` into services; use `stats.local_date(now)` for days.
 
 ## Process
-- Plan: `.overture/plan.xml` (kept in sync with Overture; see the global instructions). Decisions: `docs/decisions.md`. Research: `docs/research.md`. Orchestration numbers: `docs/orchestration-metrics.md`.
+- Orchestrated phases are tracked on the Orchestra board (https://claude.ai/artifact/Eqis6DgyZMefwhzFM1KNta; project id `russian-trainer`, doc prefix `rt~`). The full plan: `.overture/plan.xml` (kept in sync with Overture; see the global instructions). Decisions: `docs/decisions.md`. Research: `docs/research.md`. Orchestration numbers: `docs/orchestration-metrics.md`.
 - Commit messages end with `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`. Update this file at each phase gate when architecture or conventions change.
