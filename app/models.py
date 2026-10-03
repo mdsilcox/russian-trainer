@@ -234,8 +234,11 @@ class PlanMonth(SQLModel, table=True):
     month_idx: int = Field(primary_key=True)
     start_date: Date
     focus: str
-    goals_json: list = Field(default_factory=list, sa_column=Column(JSON))
-    status: str = "planned"
+    goals_json: list = Field(default_factory=list, sa_column=Column(JSON))  # list[str]: measurable goals for the month
+    status: str = "planned"  # planned, current, done
+    title: str = ""  # short name for the month's block, e.g. "Cases in speech"
+    topics_json: list = Field(default_factory=list, sa_column=Column(JSON))  # weakness topics (grammar section URLs) boosted this month
+    review_json: dict | None = Field(default=None, sa_column=Column(JSON))  # end-of-month check-in: {rating, notes, goals_met: [idx], at}
 
 
 class MedalAward(SQLModel, table=True):

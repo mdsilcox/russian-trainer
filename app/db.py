@@ -155,6 +155,18 @@ def _add_phase3_schema(engine: Engine) -> None:
                     conn.execute(text(f'ALTER TABLE {table} ADD COLUMN "{name}" {ddl}'))
 
 
+
+def _add_phase4_schema(engine: Engine) -> None:
+    """Phase 4: the 12-month plan gets a title, boosted topics and a monthly check-in."""
+    with engine.begin() as conn:
+        existing = {row[1] for row in conn.execute(text("PRAGMA table_info(plan_months)"))}
+        if not existing:
+            return
+        for name, ddl in [("title", "VARCHAR NOT NULL DEFAULT ''"), ("topics_json", "JSON"), ("review_json", "JSON")]:
+            if name not in existing:
+                conn.execute(text(f"ALTER TABLE plan_months ADD COLUMN {name} {ddl}"))
+
+
 MIGRATIONS: list[Callable[[Engine], None]] = [
     _initial_schema,
     _seed_settings,
@@ -167,6 +179,7 @@ MIGRATIONS: list[Callable[[Engine], None]] = [
     _add_mistake_topic,
     _add_card_kind,
     _add_phase3_schema,
+    _add_phase4_schema,
 ]
 
 
