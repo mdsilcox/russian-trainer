@@ -262,3 +262,75 @@ class InputLog(SQLModel, table=True):
     title: str = ""  # free text or a shelf item's title
     shelf_slug: str | None = None
     created_at: datetime = Field(default_factory=utcnow)
+
+
+class Unit(SQLModel, table=True):
+    """One guided-learning topic, about a week (docs/guided-learning.md)."""
+
+    __tablename__ = "units"
+    id: str = Field(primary_key=True)  # stable slug, e.g. "u01-where-you-are"
+    level: str = "B1"  # A1, A2, B1, B2, C1
+    month_idx: int = Field(index=True)  # plan month it belongs to
+    order: int = 0  # within the month
+    title: str
+    topics_json: list = Field(default_factory=list, sa_column=Column(JSON))  # weakness topics (grammar section URLs)
+    vocab_theme: str = ""
+    can_do: str = ""
+    prereqs_json: list = Field(default_factory=list, sa_column=Column(JSON))  # unit ids
+    scenario_slug: str = ""  # role-play used for the unit's speaking step
+    roleplay_goal: str = ""  # extra goal that needs the unit's topic
+
+
+class UnitContent(SQLModel, table=True):
+    """Generated, reviewed content cached per unit and kind (lesson, pretest, practice, listening, quiz, remediation, story)."""
+
+    __tablename__ = "unit_content"
+    __table_args__ = (UniqueConstraint("unit_id", "kind", "variant"),)
+    id: int | None = Field(default=None, primary_key=True)
+    unit_id: str = Field(foreign_key="units.id", index=True)
+    kind: str
+    variant: int = 0  # practice sets 0, 1, 2...; remediation rounds; revisit sets
+    body_json: dict = Field(sa_column=Column(JSON))
+    created_at: datetime = Field(default_factory=utcnow)
+
+
+class UnitProgress(SQLModel, table=True):
+    """Where the learner is in a unit."""
+
+    __tablename__ = "unit_progress"
+    unit_id: str = Field(foreign_key="units.id", primary_key=True)
+    status: str = "not_started"  # not_started, active, remediation, passed, secure, fast_tracked
+    started_at: datetime | None = None
+    steps_json: dict = Field(default_factory=dict, sa_column=Column(JSON))  # step key -> {"done_at": iso, "score": 0-1}
+    pretest_score: float | None = None
+    quiz_score: float | None = None  # best quiz score
+    quiz_attempts: int = 0
+    passed_at: datetime | None = None
+    mastery: float = 0.0
+
+
+class ExerciseAttempt(SQLModel, table=True):
+    __tablename__ = "exercise_attempts"
+    id: int | None = Field(default=None, primary_key=True)
+    unit_id: str = Field(index=True)
+    kind: str  # which content set the item came from
+    variant: int = 0
+    item_id: str
+    item_type: str
+    topic: str = ""
+    skill: str = ""
+    answer: str = ""
+    correct: bool
+    attempt: int = 1
+    created_at: datetime = Field(default_factory=utcnow, index=True)
+
+
+class TopicReview(SQLModel, table=True):
+    """Topic-level spaced revisits after a unit is passed."""
+
+    __tablename__ = "topic_reviews"
+    unit_id: str = Field(foreign_key="units.id", primary_key=True)
+    step: int = 0  # index into the revisit ladder
+    due: Date
+    last_result: float | None = None
+    flagged: bool = False

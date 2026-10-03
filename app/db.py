@@ -176,6 +176,13 @@ def _add_scenario_voice(engine: Engine) -> None:
             conn.execute(text("ALTER TABLE scenarios ADD COLUMN voice VARCHAR NOT NULL DEFAULT ''"))
 
 
+
+def _add_units(engine: Engine) -> None:
+    """Phase 5: guided-learning units, their cached content, progress, attempts and revisits."""
+    for model in (models.Unit, models.UnitContent, models.UnitProgress, models.ExerciseAttempt, models.TopicReview):
+        model.__table__.create(engine, checkfirst=True)
+
+
 MIGRATIONS: list[Callable[[Engine], None]] = [
     _initial_schema,
     _seed_settings,
@@ -190,6 +197,7 @@ MIGRATIONS: list[Callable[[Engine], None]] = [
     _add_phase3_schema,
     _add_phase4_schema,
     _add_scenario_voice,
+    _add_units,
 ]
 
 
