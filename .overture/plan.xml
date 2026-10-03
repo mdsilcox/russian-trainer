@@ -221,7 +221,7 @@ Category enum: case, aspect, motion_verb, participle, agreement, word_choice, wo
       <expected_output>- generate_drill() schema; drill_sets populated</expected_output>
       <risks>- Wrong answer keys. Mitigation: second validation pass by the model + "report bad item" button that removes it.</risks>
     </node>
-    <node id="p2_drill_ui" type="task" status="pending">
+    <node id="p2_drill_ui" type="task" status="completed">
       <title>P2.3: Drill player: self-correct, then reveal</title>
       <description>One item at a time; on a wrong answer, first a hint (category + reference link) and a second try (self-correction), then the answer and rule. Normalises ё/е and stress marks. Wrong answers log mistakes through the router. Drills slot into the Today plan (Mon grammar, Wed interleaved).</description>
       <complexity>medium</complexity>

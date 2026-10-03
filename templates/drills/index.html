@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Drills · Russian Trainer{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', path='drills.css') }}">
+<script src="{{ url_for('static', path='drills.js') }}" defer></script>{% endblock %}
+{% block content %}
+<header class="dr-head">
+  <p class="dr-eyebrow">Grammar practice</p>
+  <h1>Drills <span class="dr-ru" lang="ru">Упражне́ния</span></h1>
+</header>
+<div id="drill" class="dr" aria-live="polite">
+  {% include "drills/_stage.html" %}
+</div>
+{% endblock %}

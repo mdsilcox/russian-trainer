@@ -344,3 +344,58 @@ def test_ink_stress_keeps_vowels_in_script_and_hyphenated_words_whole():
     assert '<span class="ink-w">по-р<span class="ink-acc">у</span>сски</span>' in html
     assert "&lt;b&gt;" in html
     assert is_phrase("Я тут") and not is_phrase("спаси́бо")
+
+
+# --- block II: writing or drills ---------------------------------------------------
+
+
+def _drill_day(weekday):
+    """A noon moment on the given weekday (0 = Monday) near NOW, in local time."""
+    day = NOW.astimezone()
+    return day + timedelta(days=(weekday - day.weekday()) % 7)
+
+
+def _add_weak_topic(db):
+    from app.models import Category, Mistake, Module
+
+    db.add(Mistake(module=Module.story, category=Category.case, subcategory="genitive plural", wrong="a", right="b"))
+    db.commit()
+
+
+def test_block_two_is_writing_only_with_nothing_to_drill(session, monkeypatch):
+    monkeypatch.setattr(today.drills, "plan_next", lambda db, now=None: ("none", []))
+    plan = today.build_plan(session, _drill_day(0))
+    assert plan.drills is None and not plan.drills_first
+
+
+def test_drills_lead_on_mon_wed_fri_and_writing_on_other_days(session):
+    _add_weak_topic(session)
+    for wd in (0, 2, 4):
+        plan = today.build_plan(session, _drill_day(wd))
+        assert plan.drills is not None and plan.drills_first
+        assert plan.drills.kind == "focused" and plan.drills.href == "/drills" and plan.drills.open is None
+        assert plan.drills.minutes == plan.writing.minutes
+    for wd in (1, 3, 5, 6):
+        plan = today.build_plan(session, _drill_day(wd))
+        assert plan.drills is not None and not plan.drills_first
+
+
+def test_open_set_counts_even_without_a_plan(session):
+    from app.models import Category, DrillSet
+
+    session.add(DrillSet(category=Category.case, items_json=[{"topic_label": "Genitive plural"}], kind="mixed"))
+    session.commit()
+    plan = today.build_plan(session, _drill_day(1))
+    assert plan.drills.open is not None and plan.drills.kind == "mixed" and plan.drills.labels == ["Genitive plural"]
+
+
+def test_page_block_two_orders_by_weekday(client, session, monkeypatch):
+    _add_weak_topic(session)
+    monkeypatch.setattr(today, "_now", lambda now: _drill_day(0).astimezone(timezone.utc))
+    page = client.get("/").text
+    assert "Writing or drills" in page and "Start drills" in page and "write a new story" in page
+    assert page.index("Start drills") < page.index("write a new story")
+    monkeypatch.setattr(today, "_now", lambda now: _drill_day(1).astimezone(timezone.utc))
+    page = client.get("/").text
+    assert "New story" in page and "do grammar drills" in page
+    assert page.index("New story") < page.index("do grammar drills")

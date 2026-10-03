@@ -3,7 +3,7 @@
 {% set leaf_xs = [40, 80, 120, 160, 200, 240, 280] %}
 {% set flower_xs = [40, 120, 200, 280] %}
 {% set berry_xs = [80, 160, 240] %}
-<svg class="gv st{{ stage }}" width="{{ width }}" height="{{ (width * 46 / 320) | round | int }}" viewBox="0 0 320 46" fill="none" role="img" aria-label="The year's growth: stage {{ stage + 1 }} of 5" style="flex-shrink: 0">
+<svg class="gv st{{ stage }}" width="{{ width }}" height="{{ (width * 46 / 320) | round | int }}" viewBox="0 0 320 46" fill="none" role="img" aria-label="The year's growth: stage {{ stage + 1 }} of 5" style="flex: 0 1 auto; min-width: 64px">
   <path class="gv-stem" pathLength="1" d="M0 14 C13 8 27 8 40 14 C53 20 67 20 80 14 C93 8 107 8 120 14 C133 20 147 20 160 14 C173 8 187 8 200 14 C213 20 227 20 240 14 C253 8 267 8 280 14 C293 20 307 20 320 14"/>
   {% if stage >= 1 %}
   {% for x in leaf_xs %}

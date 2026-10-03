@@ -1,0 +1,85 @@
+{% import "_ornaments.html" as orn %}
+{% if view == "plan" %}
+  <section class="card dr-panel">
+    {% if error %}<p class="error dr-error" role="alert">{{ error }}</p>{% endif %}
+    {% if kind == "none" %}
+      <h2>Nothing to drill yet</h2>
+      <p class="muted">Drills are built from your own mistakes. Write a story or two in the Workshop, get feedback, and come back.</p>
+      <p class="dr-links"><a href="/workshop">Go to the Workshop</a></p>
+    {% else %}
+      <h2>Up next</h2>
+      <p class="dr-plan"><b>{{ "Focused" if kind == "focused" else "Mixed" }}:</b> {{ labels | join(", ") }}</p>
+      <p class="muted">{% if kind == "focused" %}A short rule card, then a block of questions on one pattern.{% else %}Several of your weak patterns, interleaved.{% endif %}</p>
+      <form hx-post="/drills/generate" hx-target="#drill" hx-swap="innerHTML" hx-indicator="#dr-wait" hx-disabled-elt="find button" class="dr-generate">
+        <button class="primary" type="submit">{{ "Try again" if error else "Generate drills" }}</button>
+        <span id="dr-wait" class="htmx-indicator dr-wait" role="status"><span class="dr-spinner" aria-hidden="true"></span>Writing your drills… about 30 seconds</span>
+      </form>
+    {% endif %}
+  </section>
+
+{% elif view == "card" %}
+  <section class="card dr-panel dr-rule">
+    <p class="dr-eyebrow">Rule card</p>
+    <h2>{{ intro.title }}</h2>
+    <div class="rule-gold"></div>
+    <p class="dr-rule-text">{{ intro.rule }}</p>
+    <ul class="dr-examples">
+      {% for ex in intro.examples %}<li><span class="dr-ex-ru" lang="ru">{{ ex.ru }}</span><span class="dr-ex-en">{{ ex.en }}</span></li>{% endfor %}
+    </ul>
+    {% if set.topic %}<p class="dr-ref"><a href="{{ set.topic }}">Full reference</a></p>{% endif %}
+    <p class="dr-links"><button class="primary" type="button" hx-get="/drills/item" hx-target="#drill" hx-swap="innerHTML" autofocus>Start</button>
+    <span class="muted">{{ prog.total }} questions</span></p>
+  </section>
+
+{% elif view == "item" %}
+  <section class="card dr-panel">
+    <div class="dr-meta"><span>Question {{ idx + 1 }} of {{ prog.total }}</span>
+      <span class="dr-dots" aria-hidden="true">{% for i in range(prog.total) %}<i class="{{ 'on' if i < prog.answered else ('cur' if i == idx else '') }}"></i>{% endfor %}</span></div>
+    <form hx-post="/drills/answer" hx-target="#drill" hx-swap="innerHTML" autocomplete="off">
+      <input type="hidden" name="set_id" value="{{ set.id }}">
+      <input type="hidden" name="idx" value="{{ idx }}">
+      <input type="hidden" name="attempt" value="{{ attempt }}">
+      <p class="dr-prompt" lang="ru">{{ before }}<input class="dr-blank{% if hint %} wrong{% endif %}" type="text" name="answer" value="{{ value }}" lang="ru" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" autofocus aria-label="Your answer" size="10" data-select>{{ after }}</p>
+      {% if item.cue %}<p class="dr-cue" lang="ru">[{{ item.cue }}]</p>{% endif %}
+      <p class="dr-en">{{ item.translation_en }}</p>
+      {% if empty %}<p class="dr-hint" role="alert">Type an answer first.</p>{% endif %}
+      {% if hint and not empty %}
+        <div class="dr-hint" role="alert">
+          <b>Not quite.</b> Think about: <a href="{{ item.topic }}" target="_blank" rel="noopener">{{ item.topic_label }}</a>. Have one more go.
+        </div>
+      {% endif %}
+      <div class="actions"><button class="primary" type="submit">{{ "Try again" if attempt == 2 else "Check" }}</button><span class="muted dr-key">Enter</span></div>
+    </form>
+  </section>
+
+{% elif view == "result" %}
+  <section class="card dr-panel dr-result {{ 'right' if r.correct else 'miss' }}">
+    <div class="dr-meta"><span>Question {{ idx + 1 }} of {{ prog.total }}</span>
+      <span class="dr-dots" aria-hidden="true">{% for i in range(prog.total) %}<i class="{{ 'on' if i < prog.answered else '' }}"></i>{% endfor %}</span></div>
+    <p class="dr-verdict">{% if r.credited %}Correct{% elif r.correct %}Correct on the second try{% else %}Not this time{% endif %}</p>
+    <p class="dr-prompt dr-full" lang="ru">{{ r.sentence }}</p>
+    <p class="dr-en">{{ item.translation_en }}</p>
+    {% if not r.correct and given %}<p class="dr-yours">You wrote: <span lang="ru">{{ given }}</span></p>{% endif %}
+    {% if r.rule %}<p class="dr-rule-line"><b>{{ r.topic_label }}.</b> {{ r.rule }}</p>{% endif %}
+    {% if r.topic %}<p class="dr-ref"><a href="{{ r.topic }}" target="_blank" rel="noopener">Reference</a></p>{% endif %}
+    <div class="actions">
+      <button class="primary" type="button" hx-get="{{ '/drills/done?set_id=' ~ set.id if prog.done else '/drills/item' }}" hx-target="#drill" hx-swap="innerHTML" autofocus>{{ "Finish" if prog.done else "Next" }}</button>
+      <span class="muted dr-key">Enter</span>
+    </div>
+  </section>
+
+{% elif view == "done" %}
+  <section class="card dr-panel dr-done">
+    {{ orn.sprig(56) }}
+    <h2>Set finished</h2>
+    <p class="dr-score"><b>{{ prog.correct }}</b> of {{ prog.total }} correct</p>
+    {% if labels %}<p class="muted">Practised: {{ labels | join(", ") }}</p>{% endif %}
+    <div class="actions dr-center">
+      <a class="button" href="/">Back to Today</a>
+      <form hx-post="/drills/generate" hx-target="#drill" hx-swap="innerHTML" hx-indicator="#dr-wait" hx-disabled-elt="find button">
+        <button class="primary" type="submit">Generate another set</button>
+      </form>
+    </div>
+    <span id="dr-wait" class="htmx-indicator dr-wait" role="status"><span class="dr-spinner" aria-hidden="true"></span>Writing your drills… about 30 seconds</span>
+  </section>
+{% endif %}

@@ -154,16 +154,29 @@
       <div><a class="block-link" href="/review">Start reviews →</a></div>
     {% endif %}
   </li>
+  {% set d = plan.drills %}
   <li class="plan-card" data-rise style="--r: 1">
     <div class="plan-top"><span class="numeral">II</span><span class="mins">{{ w.minutes }} min</span></div>
-    <h2>Writing</h2>
+    <h2>{{ "Writing or drills" if d else "Writing" }}</h2>
     <div class="hairline"></div>
-    {% if w.story %}
-      <p class="plan-body">Revise your attempt at <em class="story-title">‘{{ w.story.title }}’</em> using the feedback.</p>
-      <div><a class="block-link" href="{{ w.href }}">Continue story →</a></div>
+    {% macro writing_main() %}
+      {% if w.story %}
+        <p class="plan-body">Revise your attempt at <em class="story-title">‘{{ w.story.title }}’</em> using the feedback.</p>
+        <div><a class="block-link" href="{{ w.href }}">Continue story →</a></div>
+      {% else %}
+        <p class="plan-body">Write a new short story.</p>
+        <div><a class="block-link" href="{{ w.href }}">New story →</a></div>
+      {% endif %}
+    {% endmacro %}
+    {% if d and plan.drills_first %}
+      <p class="plan-body">{% if d.open %}Finish your drill set{% else %}Grammar drills{% endif %}, {{ "focused on" if d.kind == "focused" else "mixing" }} {{ d.labels | join(", ") }}.</p>
+      <div><a class="block-link" href="{{ d.href }}">{{ "Continue drills" if d.open else "Start drills" }} →</a></div>
+      <p class="plan-alt muted">Or <a href="{{ w.href }}">{{ "continue a story" if w.story else "write a new story" }}</a> instead.</p>
+    {% elif d %}
+      {{ writing_main() }}
+      <p class="plan-alt muted">Or <a href="{{ d.href }}">{{ "continue your drills" if d.open else "do grammar drills" }}</a>: {{ d.labels | join(", ") }}.</p>
     {% else %}
-      <p class="plan-body">Write a new short story.</p>
-      <div><a class="block-link" href="{{ w.href }}">New story →</a></div>
+      {{ writing_main() }}
     {% endif %}
   </li>
   <li class="plan-card soon" aria-disabled="true" data-rise style="--r: 2">

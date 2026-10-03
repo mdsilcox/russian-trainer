@@ -66,6 +66,7 @@
 .plan-body .big { font-family: var(--serif); font-weight: 700; font-size: 34px; color: var(--gold-light); }
 .story-title { font-family: var(--serif); font-size: 22px; color: var(--gold-light); }
 .block-link { display: inline-block; font-size: 14px; font-weight: 600; letter-spacing: 0.04em; text-decoration: none; border-bottom: 1px solid var(--gold); padding-bottom: 2px; }
+.plan-alt { margin: 10px 0 0; font-size: 14px; }
 
 .plan-card.soon { background: #121113; border: 1px dashed rgba(201, 162, 39, 0.5); outline-color: rgba(201, 162, 39, 0.14); }
 .plan-card.soon .numeral, .plan-card.soon .mins, .plan-card.soon h2, .plan-card.soon .plan-body { color: #B5A98B; }

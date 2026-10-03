@@ -1,0 +1,66 @@
+/* Grammar drills: a lacquer page with gilded hairlines */
+main:has(.dr) { max-width: 760px; }
+.dr-head { margin-bottom: 10px; }
+.dr-head h1 { margin-bottom: 8px; }
+.dr-ru { font-family: var(--serif); font-style: italic; font-weight: 500; font-size: 0.5em; color: var(--gold-light); margin-left: 10px; letter-spacing: 0; }
+.dr-eyebrow { font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold-light); margin: 6px 0 0; }
+.dr-panel { padding: 28px 32px; }
+.dr-panel h2 { margin-bottom: 10px; }
+.dr-error { margin: 0 0 14px; }
+.dr-plan { font-family: var(--serif); font-size: 1.5rem; margin: 6px 0; }
+.dr-generate { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-top: 18px; }
+.dr-links { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin: 18px 0 0; }
+.dr-wait { display: inline-flex; align-items: center; gap: 10px; color: var(--gold-light); font-size: 14px; }
+.dr-spinner { width: 14px; height: 14px; border: 2px solid var(--gold-faint); border-top-color: var(--gold-light); border-radius: 50%; display: inline-block; }
+.dr-done > .htmx-indicator { display: flex; justify-content: center; margin-top: 14px; }
+
+/* rule card */
+.dr-rule-text { font-size: 1.05rem; margin: 16px 0; }
+.dr-examples { list-style: none; padding: 0; margin: 0 0 14px; display: grid; gap: 12px; }
+.dr-examples li { border-left: 2px solid var(--gold); padding: 4px 0 4px 16px; display: grid; gap: 2px; }
+.dr-ex-ru { font-family: var(--serif); font-size: 1.5rem; line-height: 1.25; }
+.dr-ex-en { color: var(--muted); font-size: 14px; }
+.dr-ref { margin: 8px 0 0; font-size: 14px; }
+
+/* item */
+.dr-meta { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-light); margin-bottom: 18px; }
+.dr-dots { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+.dr-dots i { width: 9px; height: 9px; border: 1px solid var(--gold); transform: rotate(45deg); display: inline-block; }
+.dr-dots i.on { background: var(--gold); }
+.dr-dots i.cur { background: rgba(201, 162, 39, 0.35); }
+.dr-prompt { font-family: var(--serif); font-size: clamp(1.5rem, 5vw, 2.1rem); line-height: 1.7; margin: 0 0 6px; overflow-wrap: anywhere; }
+.dr-blank { display: inline-block; width: auto; min-width: 6ch; max-width: 100%; font: 500 0.8em/1.3 var(--sans); padding: 2px 8px; margin: 0 4px; text-align: center; background: var(--sunken); border: 0; border-bottom: 1px solid var(--gold); }
+.dr-blank.wrong { border-bottom-color: var(--cinnabar); background: var(--accent-soft); }
+.dr-cue { color: var(--gold-light); font-size: 1.05rem; margin: 0 0 6px; }
+.dr-en { color: var(--muted); font-style: italic; margin: 0 0 14px; }
+.dr-hint { border-left: 3px solid var(--cinnabar); background: var(--accent-soft); padding: 10px 14px; margin: 12px 0; }
+.dr-key { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; border: 1px solid var(--gold-faint); padding: 1px 8px; }
+
+/* result */
+.dr-result.right { border-color: var(--gold-light); }
+.dr-result.miss { border-color: var(--cinnabar); outline-color: rgba(179, 38, 30, 0.45); }
+.dr-verdict { font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 600; margin: 0 0 8px; }
+.right .dr-verdict { color: var(--gold-light); }
+.miss .dr-verdict { color: var(--cinnabar-text); }
+.dr-full { margin-bottom: 4px; }
+.right .dr-full { color: var(--gold-light); }
+.dr-yours { color: var(--cinnabar-text); margin: 0 0 8px; }
+.dr-rule-line { border-top: 1px solid var(--gold-faint); padding-top: 12px; margin: 12px 0 0; }
+
+/* finish */
+.dr-done { text-align: center; }
+.dr-score { font-family: var(--serif); font-size: 1.8rem; margin: 4px 0; }
+.dr-score b { color: var(--gold-light); font-size: 2.6rem; }
+.dr-center { justify-content: center; }
+
+@media (max-width: 480px) {
+  .dr-panel { padding: 20px 16px; }
+  .dr-head h1 { font-size: 40px; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes dr-spin { to { transform: rotate(360deg); } }
+  @keyframes dr-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .dr-spinner { animation: dr-spin 900ms linear infinite; }
+  .dr-panel { animation: dr-in 260ms ease-out; }
+}

@@ -11,8 +11,8 @@ from datetime import date, datetime, timedelta, timezone, tzinfo
 from sqlalchemy import func
 from sqlmodel import Session as DbSession, col, select
 
-from app.models import Card, CardState, ReviewLog, Session, Setting, Story, TranslationAttempt
-from app.services import srs, stats
+from app.models import Card, CardState, DrillSet, ReviewLog, Session, Setting, Story, TranslationAttempt
+from app.services import drills, srs, stats
 
 HISTORY_DAYS = 14
 OUTLIER_SECONDS = 120.0
@@ -120,14 +120,44 @@ def plan_writing(db: DbSession) -> WritingBlock:
 
 
 @dataclass(frozen=True)
+class DrillBlock:
+    minutes: int
+    kind: str  # "focused" | "mixed" (of the open set if there is one, else of the planned one)
+    labels: list[str]  # topic names
+    open: DrillSet | None  # an unfinished set to carry on with
+    href: str
+
+
+DRILL_DAYS = (0, 2, 4)  # Monday, Wednesday, Friday: drills lead, writing is the alternative
+
+
+def plan_drills(db: DbSession, now: datetime | None = None) -> DrillBlock | None:
+    """The drill option for block II, or None when there is nothing to drill and no set is open."""
+    current = drills.open_set(db)
+    if current is not None:
+        labels = list(dict.fromkeys(i.get("topic_label", "") for i in current.items_json if i.get("topic_label")))
+        kind = current.kind
+    else:
+        kind, topics = drills.plan_next(db, now)
+        if kind == "none":
+            return None
+        labels = [t.label for t in topics]
+    return DrillBlock(session_split(db)["drill_or_story"], kind, labels, current, "/drills")
+
+
+@dataclass(frozen=True)
 class Plan:
     reviews: ReviewBlock
     writing: WritingBlock
     speaking_minutes: int
+    drills: DrillBlock | None = None
+    drills_first: bool = False  # Mon/Wed/Fri with something to drill
 
 
 def build_plan(db: DbSession, now: datetime | None = None) -> Plan:
-    return Plan(plan_reviews(db, now), plan_writing(db), session_split(db)["scenario"])
+    block = plan_drills(db, now)
+    first = block is not None and stats.local_date(_now(now)).weekday() in DRILL_DAYS
+    return Plan(plan_reviews(db, now), plan_writing(db), session_split(db)["scenario"], block, first)
 
 
 # --- Session tracking ----------------------------------------------------------
