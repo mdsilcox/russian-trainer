@@ -72,3 +72,16 @@ Orchestrator tokens: about 60k (plan, schema, engine, three briefs, reviews, boa
 | Orchestrator tokens | 121k | about 60k |
 | Defects caught before commit | 7 | 4 |
 | Rounds returned | 2 of 7 | 1 of 4 |
+
+## Phase 5 (orchestrated, agents reused from Phase 4)
+
+Contracts committed at 17:05Z, gate closed at 17:22:57Z (22.7 min from the phase's start at 17:00Z): 3,136 lines, 512 tests passing.
+
+| Step | Owner | Rounds | Agent tokens for this step | Defects caught |
+|---|---|---|---|---|
+| Contracts, engine, generation, prefetch | Orchestrator | n/a | n/a | fast-track bypassed remediation (engine, found live) |
+| P5.2 Exercise player | Sonnet A (reused) | 2 | 78k | one-try match wording; listening result hid the Russian; Russian uppercased |
+| P5.3 Learn pages | Sonnet B (reused) | 2 | 61k | status pill hid remediation (must-fix); skipped steps offered "Mark as done" |
+| P5.4 Listening + Today | Sonnet C (reused) | 1 | 21k | none |
+
+**Reusing agents is the biggest lever measured so far.** The three follow-on steps cost 160k agent tokens in total, against about 300k for three fresh agents (Phase 4's first steps averaged 97k). The smallest step (Today and two templates) cost 21k, roughly a fifth of a fresh agent. The context file helped by about 13%; reuse helped by roughly half on bigger steps and up to 80% on small ones.
