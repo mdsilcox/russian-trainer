@@ -258,13 +258,38 @@ def test_weak_spots_only_recent(session):
     assert [(s.label, s.count) for s in spots] == [("Cases", 2)]
 
 
-def test_word_of_the_day_latest_active(session):
-    assert today.word_of_the_day(session) is None
-    session.add(Card(ru="старый", en="old", created_at=NOW - timedelta(days=2)))
-    session.add(Card(ru="новый", en="new", created_at=NOW - timedelta(days=1)))
-    session.add(Card(ru="скрыт", en="hidden", created_at=NOW, suspended=True))
+def test_word_of_the_day_changes_daily_and_skips_suspended(session):
+    day = local_date(NOW)
+    assert today.word_of_the_day(session, day) is None
+    for i in range(5):
+        session.add(Card(ru=f"слово{i}", en=f"word {i}"))
+    session.add(Card(ru="скрыт", en="hidden", suspended=True))
     session.commit()
-    assert today.word_of_the_day(session).ru == "новый"
+    start = day - timedelta(days=day.toordinal() % 5)  # cycles align to the calendar
+    picks = [today.word_of_the_day(session, start + timedelta(days=d)).ru for d in range(30)]
+    assert "скрыт" not in picks
+    assert all(a != b for a, b in zip(picks, picks[1:]))  # never the same two days running
+    assert sorted(picks.count(f"слово{i}") for i in range(5)) == [6] * 5  # each card in turn, evenly
+    assert today.word_of_the_day(session, start).ru == picks[0]  # steady within the day
+
+
+def test_word_of_the_day_prefers_cards_still_learning(session):
+    day = local_date(NOW)
+    learning = []
+    for i in range(10):
+        card = Card(ru=f"учу{i}", en=f"learning {i}")
+        session.add(card)
+        session.flush()
+        session.add(CardState(card_id=card.id, state=2, stability=3.0))
+        learning.append(card.ru)
+    for i in range(10):
+        card = Card(ru=f"знаю{i}", en=f"known {i}")
+        session.add(card)
+        session.flush()
+        session.add(CardState(card_id=card.id, state=2, stability=90.0))
+    session.commit()
+    picks = {today.word_of_the_day(session, day + timedelta(days=d)).ru for d in range(20)}
+    assert picks <= set(learning)
 
 
 # --- flair: Moscow clock and growth ------------------------------------------------

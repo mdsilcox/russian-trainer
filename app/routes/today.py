@@ -25,7 +25,7 @@ def today_page(request: Request, msg: str = "", session: Session = Depends(get_s
         "date_label": today.date_label(now),
         "trip": today.trip_progress(session, now),
         "weak_spots": today.weak_spots(session, now),
-        "word": today.word_of_the_day(session),
+        "word": today.word_of_the_day(session, stats.local_date(now)),
         "clock": today.moscow_clock(now),
         "growth": today.growth_stage(stats.days_until_trip(session, now)),
         "too_short": msg == "too_short",

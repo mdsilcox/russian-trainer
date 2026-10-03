@@ -4,13 +4,14 @@ Pure reads/writes over the database; `now` is injectable for tests. Reviews
 made in /review are attributed to a session by time window, not by hooks.
 """
 
+import random
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta, timezone, tzinfo
 
 from sqlalchemy import func
 from sqlmodel import Session as DbSession, col, select
 
-from app.models import Card, ReviewLog, Session, Setting, Story, TranslationAttempt
+from app.models import Card, CardState, ReviewLog, Session, Setting, Story, TranslationAttempt
 from app.services import srs, stats
 
 HISTORY_DAYS = 14
@@ -251,11 +252,49 @@ def weak_spots(db: DbSession, now: datetime | None = None, limit: int = 3) -> li
     return [WeakSpot(m.label, m.recent) for m in stats.top_mistakes(db, now, limit) if m.recent > 0]
 
 
-def word_of_the_day(db: DbSession) -> Card | None:
-    """The most recently added active card, or None with an empty deck."""
-    return db.exec(
-        select(Card).where(Card.suspended == False).order_by(col(Card.created_at).desc(), col(Card.id).desc())  # noqa: E712
-    ).first()
+WORD_POOL_MIN = 7  # below this many still-learning cards, rotate through the whole deck
+WORD_SETTLED_DAYS = 21  # stability past which a card counts as known
+
+
+def _word_pool(db: DbSession) -> list[int]:
+    """Card ids to rotate through: ones still being learned (reviewed, but shaky or lapsed),
+    or every active card when too few qualify."""
+    rows = db.exec(
+        select(Card.id, CardState.state, CardState.stability, CardState.lapses)
+        .join(CardState, CardState.card_id == Card.id, isouter=True)
+        .where(Card.suspended == False)  # noqa: E712
+    ).all()
+    everything = sorted({r[0] for r in rows})
+    learning = sorted({
+        card_id for card_id, state, stability, lapses in rows
+        if state and ((stability or 0) < WORD_SETTLED_DAYS or (lapses or 0) > 0)
+    })
+    return learning if len(learning) >= WORD_POOL_MIN else everything
+
+
+def _shuffled(pool: list[int], cycle: int) -> list[int]:
+    order = pool[:]
+    random.Random(cycle * 7919 + len(pool)).shuffle(order)
+    return order
+
+
+def _pick(pool: list[int], day: date) -> int:
+    """A fresh shuffle of the pool per cycle, walked one card per day, so every card comes up
+    before any repeats, and a new cycle never opens with the card the last one ended on."""
+    n = len(pool)
+    if n <= 2:
+        return pool[day.toordinal() % n]
+    cycle, idx = divmod(day.toordinal(), n)
+    order = _shuffled(pool, cycle)
+    if order[0] == _shuffled(pool, cycle - 1)[-1]:  # the swap only touches the first two, so [-1] is final
+        order[0], order[1] = order[1], order[0]
+    return order[idx]
+
+
+def word_of_the_day(db: DbSession, day: date) -> Card | None:
+    """One card per calendar day, steady all day; None with an empty deck."""
+    pool = _word_pool(db)
+    return db.get(Card, _pick(pool, day)) if pool else None
 
 
 # --- Flair: Moscow clock and the year's growth -----------------------------------
