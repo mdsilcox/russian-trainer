@@ -1,0 +1,7 @@
+<div class="pl-review" id="review-{{ v.m.month_idx }}"{% if oob %} hx-swap-oob="true"{% endif %}>
+  {% if v.review %}
+  <h3>Check-in</h3>
+  <p class="pl-review-line"><b>{{ v.review.rating }}/5</b> {{ rating_labels[v.review.rating] }}{% if v.review.goals_met is defined %} · {{ v.review.goals_met | length }} of {{ v.plain_goals | length }} goals met{% endif %}</p>
+  {% if v.review.notes %}<p class="muted">{{ v.review.notes }}</p>{% endif %}
+  {% endif %}
+</div>

@@ -7,6 +7,10 @@
 .t-title { display: flex; flex-direction: column; gap: 10px; min-width: 260px; }
 .t-date { margin: 0; font-size: 13px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold-light); font-weight: 500; }
 .t-title h1 { margin: 0; padding-bottom: 0.2em; font-size: clamp(64px, 9vw, 112px); line-height: 0.9; letter-spacing: -0.01em; }
+.t-focus { margin: 0; font-size: 15px; color: var(--cream); display: flex; flex-wrap: wrap; gap: 2px 14px; }
+.t-month { color: var(--cream-muted); }
+.plan-card.lead { border-color: var(--gold-light); outline-color: rgba(226, 196, 106, 0.5); box-shadow: 0 0 0 1px rgba(226, 196, 106, 0.2), 0 0 24px rgba(201, 162, 39, 0.12); }
+.lead-tag { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--lacquer); background: var(--gold); padding: 3px 8px; font-weight: 600; }
 .t-sub { display: flex; align-items: center; gap: 16px; }
 .t-ru { font-family: var(--serif); font-style: italic; font-weight: 500; font-size: 36px; line-height: 1; color: var(--gold-light); }
 .t-sub .ornament { margin: 0; }

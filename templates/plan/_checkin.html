@@ -1,0 +1,24 @@
+<div id="checkin">
+{% if due %}
+  <section class="card pl-panel pl-checkin">
+    <h2>How did {{ due.title }} go?</h2>
+    <p class="muted">A quick check-in on {{ due.start_date.strftime("%B") }}. Be honest: it shapes what you change next.</p>
+    <form hx-post="/plan/checkin" hx-target="#checkin" hx-swap="outerHTML" hx-disabled-elt="find button">
+      <input type="hidden" name="month_idx" value="{{ due.month_idx }}">
+      <fieldset class="pl-rating-set">
+        <legend>Rating</legend>
+        {% for n, label in rating_labels.items() %}
+        <label><input type="radio" name="rating" value="{{ n }}" {% if form_rating == n %}checked{% endif %}><span><b>{{ n }}</b> {{ label }}</span></label>
+        {% endfor %}
+      </fieldset>
+      <label class="pl-notes">Notes
+        <textarea name="notes" rows="3" maxlength="2000" placeholder="What worked, what to change">{{ form_notes }}</textarea>
+      </label>
+      {% if checkin_error %}<p class="error" role="alert">{{ checkin_error }}</p>{% endif %}
+      <p><button class="primary" type="submit">Save check-in</button></p>
+    </form>
+  </section>
+{% elif checkin_error %}
+  <p class="error" role="alert">{{ checkin_error }}</p>
+{% endif %}
+</div>

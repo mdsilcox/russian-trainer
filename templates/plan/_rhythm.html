@@ -1,0 +1,22 @@
+<section id="rhythm" class="card pl-panel pl-rhythm">
+  <h2>Weekly rhythm</h2>
+  <p class="muted">Today leads with each day's kind of session set for each weekday. Change the week to suit your life.</p>
+  <form hx-post="/plan/rhythm" hx-target="#rhythm" hx-swap="outerHTML">
+    <ul class="pl-days">
+      {% for day in weekdays %}
+      {% set di = loop.index0 %}<li>
+        <label for="day-{{ di }}">{{ day }}</label>
+        <select id="day-{{ di }}" name="kind">
+          {% for key, k in kinds.items() %}<option value="{{ key }}" {% if rhythm[di] == key %}selected{% endif %}>{{ k.title }}</option>{% endfor %}
+        </select>
+      </li>
+      {% endfor %}
+    </ul>
+    {% if rhythm_error %}<p class="error" role="alert">{{ rhythm_error }}</p>{% endif %}
+    {% if rhythm_saved %}<p class="pl-saved" role="status">Saved.</p>{% endif %}
+    <p class="pl-actions">
+      <button class="primary" type="submit">Save rhythm</button>
+      <button type="button" hx-post="/plan/rhythm/reset" hx-target="#rhythm" hx-swap="outerHTML">Reset to the default week</button>
+    </p>
+  </form>
+</section>

@@ -17,6 +17,7 @@
 <header class="t-head">
   <div class="t-title">
     <p class="t-date">{{ date_label }}</p>
+    {% if plan.day_title %}<p class="t-focus">{{ plan.day_weekday }}: {{ plan.day_title }}{% if plan.month_title %}<span class="t-month">This month: <a href="/plan">{{ plan.month_title }}</a></span>{% endif %}</p>{% endif %}
     <h1>Today</h1>
     <div class="t-sub"><span class="t-ru" lang="ru">Сегодня</span>{{ growth_vine(growth, 300) }}</div>
   </div>
@@ -72,6 +73,9 @@
 
 {% if not ai_enabled() %}
 <p class="notice">{{ ai_off_reason() }} <a href="/settings">Settings</a></p>
+{% endif %}
+{% if plan.review_title %}
+<p class="notice">Time to check in on <a href="/plan">{{ plan.review_title }}</a></p>
 {% endif %}
 {% if too_short %}
 <p class="notice">Less than a minute has passed. Keep going, then finish the session.</p>
@@ -155,36 +159,58 @@
     {% endif %}
   </li>
   {% set d = plan.drills %}
-  <li class="plan-card" data-rise style="--r: 1">
-    <div class="plan-top"><span class="numeral">II</span><span class="mins">{{ w.minutes }} min</span></div>
-    <h2>{{ "Writing or drills" if d else "Writing" }}</h2>
-    <div class="hairline"></div>
-    {% macro writing_main() %}
-      {% if w.story %}
-        <p class="plan-body">Revise your attempt at <em class="story-title">‘{{ w.story.title }}’</em> using the feedback.</p>
-        <div><a class="block-link" href="{{ w.href }}">Continue story →</a></div>
-      {% else %}
-        <p class="plan-body">Write a new short story.</p>
-        <div><a class="block-link" href="{{ w.href }}">New story →</a></div>
-      {% endif %}
-    {% endmacro %}
-    {% if d and plan.drills_first %}
-      <p class="plan-body">{% if d.open %}Finish your drill set{% else %}Grammar drills{% endif %}, {{ "focused on" if d.kind == "focused" else "mixing" }} {{ d.labels | join(", ") }}.</p>
-      <div><a class="block-link" href="{{ d.href }}">{{ "Continue drills" if d.open else "Start drills" }} →</a></div>
-      <p class="plan-alt muted">Or <a href="{{ w.href }}">{{ "continue a story" if w.story else "write a new story" }}</a> instead.</p>
-    {% elif d %}
-      {{ writing_main() }}
-      <p class="plan-alt muted">Or <a href="{{ d.href }}">{{ "continue your drills" if d.open else "do grammar drills" }}</a>: {{ d.labels | join(", ") }}.</p>
+  {% set sp = plan.speaking %}
+  {% macro lead_tag() %}<span class="lead-tag">Today's lead</span>{% endmacro %}
+  {% macro writing_main() %}
+    {% if w.story %}
+      <p class="plan-body">{% if plan.day_kind == "translation" %}Translate a short story and check the stress. {% endif %}Revise your attempt at <em class="story-title">‘{{ w.story.title }}’</em> using the feedback.</p>
+      <div><a class="block-link" href="{{ w.href }}">Continue story →</a></div>
     {% else %}
+      <p class="plan-body">{% if plan.day_kind == "translation" %}Translate a short story and check the stress.{% else %}Write a new short story.{% endif %}</p>
+      <div><a class="block-link" href="{{ w.href }}">New story →</a></div>
+    {% endif %}
+  {% endmacro %}
+  {% macro writing_alt() %}<a href="{{ w.href }}">{{ "continue a story" if w.story else "write a new story" }}</a>{% endmacro %}
+  {% macro drills_alt() %}<a href="{{ d.href }}">{{ "continue your drills" if d.open else "do grammar drills" }}</a>: {{ d.labels | join(", ") }}{% endmacro %}
+  <li class="plan-card{% if plan.lead %} lead{% endif %}" data-rise style="--r: 1">
+    <div class="plan-top"><span class="numeral">II</span>{% if plan.lead %}{{ lead_tag() }}{% endif %}<span class="mins">{{ w.minutes }} min</span></div>
+    {% if plan.mode == "drills" %}
+      <h2>{{ "Mixed drills" if plan.day_kind == "interleaved" else "Drills" }}</h2>
+      <div class="hairline"></div>
+      <p class="plan-body">{% if plan.day_kind == "interleaved" %}A mixed set is best today. {% endif %}{% if d.open %}Finish your drill set{% else %}Grammar drills{% endif %}, {{ "focused on" if d.kind == "focused" else "mixing" }} {{ d.labels | join(", ") }}.</p>
+      <div><a class="block-link" href="{{ d.href }}">{{ "Continue drills" if d.open else "Start drills" }} →</a></div>
+      <p class="plan-alt muted">Or {{ writing_alt() }} instead.</p>
+    {% elif plan.mode == "input" %}
+      <h2>Reading and listening</h2>
+      <div class="hairline"></div>
+      <p class="plan-body"><span class="big" data-count="{{ plan.input_minutes }}">{{ plan.input_minutes }}</span> min logged this week. Pick something from the shelf and log the minutes.</p>
+      <div><a class="block-link" href="/shelf">Open the shelf →</a></div>
+      <p class="plan-alt muted">Or {{ writing_alt() }}{% if d %}, or {{ drills_alt() }}{% endif %}.</p>
+    {% elif plan.mode == "light" %}
+      <h2>Light day</h2>
+      <div class="hairline"></div>
+      <p class="plan-body">Light day: just reviews and something easy to watch.</p>
+      <div><a class="block-link" href="/shelf">Find something on the shelf →</a></div>
+      <p class="plan-alt muted">Or, if you feel like more: {{ writing_alt() }}{% if d %}, or {{ drills_alt() }}{% endif %}.</p>
+    {% else %}
+      <h2>{{ "Translation" if plan.day_kind == "translation" else "Writing" }}</h2>
+      <div class="hairline"></div>
       {{ writing_main() }}
+      {% if d %}<p class="plan-alt muted">Or {{ drills_alt() }}.</p>{% endif %}
     {% endif %}
   </li>
-  <li class="plan-card soon" aria-disabled="true" data-rise style="--r: 2">
-    <div class="plan-top"><span class="numeral">III</span><span class="mins">{{ plan.speaking_minutes }} min</span></div>
+  <li class="plan-card{% if plan.speaking_lead %} lead{% endif %}" data-rise style="--r: 2">
+    <div class="plan-top"><span class="numeral">III</span>{% if plan.speaking_lead %}{{ lead_tag() }}{% endif %}<span class="mins">{{ plan.speaking_minutes }} min</span></div>
     <h2>Speaking</h2>
     <div class="hairline"></div>
-    <p class="plan-body">Role-play scenarios.</p>
-    <div><span class="soon-tag">coming soon</span></div>
+    {% if sp and sp.scenario %}
+      <p class="plan-body">{% if plan.speaking_lead %}Role-play is today's lead. {% endif %}Try <em class="story-title">{{ sp.scenario.title }}</em>, suggested level {{ sp.scenario.level }}.</p>
+      <div><a class="block-link" href="{{ sp.href }}">Start role-play →</a></div>
+      <p class="plan-alt muted">Or see <a href="/scenarios">all scenarios</a>.</p>
+    {% else %}
+      <p class="plan-body">{% if plan.speaking_lead %}Role-play is today's lead. {% endif %}Practise a conversation with a role-play partner.</p>
+      <div><a class="block-link" href="/scenarios">All scenarios →</a></div>
+    {% endif %}
   </li>
 </ol>
 

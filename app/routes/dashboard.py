@@ -33,5 +33,9 @@ def dashboard(request: Request, session: Session = Depends(get_session)):
         "deck": stats.deck_counts(session),
         "input_week": shelf.this_week(session, now),
         "input_month": shelf.input_minutes(session, 30, now),
+        "mistake_trend": stats.mistake_trend(session, now),
+        "source_retention": stats.retention_by_source(session, now),
+        "forecast_30": stats.forecast_days(session, now),
+        "heatmap": stats.practice_heatmap(session, now),
     }
     return templates.TemplateResponse(request, "dashboard.html", context)

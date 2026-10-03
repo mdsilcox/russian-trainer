@@ -233,13 +233,13 @@ Category enum: case, aspect, motion_verb, participle, agreement, word_choice, wo
       <complexity>medium</complexity>
       <expected_output>New card templates in review, enrichment that proposes forms-in-context and stress pairs, frequency deck import flow</expected_output>
     </node>
-    <node id="p4_trends" type="task" status="pending">
+    <node id="p4_trends" type="task" status="completed">
       <title>P4.1: Weak-area trends and review forecast</title>
       <description>Charts: mistakes per category per week (are aspect errors trending down?), retention by card source, 30-day review load forecast from FSRS due dates, minutes practised per day heatmap.</description>
       <complexity>medium</complexity>
       <expected_output>- Dashboard v2 with charts</expected_output>
     </node>
-    <node id="p4_plan" type="task" status="pending">
+    <node id="p4_plan" type="task" status="completed">
       <title>P4.2: 12-month plan + weekly rhythm</title>
       <description>Back-plan from the trip using the research arc: Oct–Dec cases foundations → Jan–Mar motion + aspect → Apr–Jun fluency + stress → Jul–Sep trip rehearsal (maintenance SRS in the last 2 weeks). The Today page follows a weekly rhythm (Mon grammar, Tue writing, Wed interleaved drills + shadowing, Thu role-play, Fri translation + stress, Sat extensive input, Sun light review) weighted by this month's focus and weakness scores.</description>
       <complexity>medium</complexity>

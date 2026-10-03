@@ -183,9 +183,14 @@ def test_day_summary_only_counts_today(session):
 def test_page_idle_active_and_done(client, engine):
     from sqlmodel import Session
 
+    from app.services import plan as plan_svc
+
+    with Session(engine) as db:
+        plan_svc.set_rhythm(db, ["writing"] * 7)
+
     page = client.get("/")
     assert page.status_code == 200
-    assert "Start session" in page.text and "coming soon" in page.text and "Write a new short story" in page.text
+    assert "Start session" in page.text and "Speaking" in page.text and "Write a new short story" in page.text
 
     r = client.post("/today/start", follow_redirects=False)
     assert r.status_code == 303 and r.headers["location"] == "/"
@@ -362,40 +367,179 @@ def _add_weak_topic(db):
     db.commit()
 
 
+def _rhythm_for(session, kind):
+    """Make every weekday a `kind` day, so tests don't depend on the weekday."""
+    from app.services import plan as plan_svc
+
+    plan_svc.set_rhythm(session, [kind] * 7)
+
+
+LEAD = "Today's lead"
+
+
 def test_block_two_is_writing_only_with_nothing_to_drill(session, monkeypatch):
     monkeypatch.setattr(today.drills, "plan_next", lambda db, now=None: ("none", []))
+    _rhythm_for(session, "grammar")
     plan = today.build_plan(session, _drill_day(0))
-    assert plan.drills is None and not plan.drills_first
+    assert plan.drills is None and not plan.drills_first and plan.mode == "writing"
 
 
-def test_drills_lead_on_mon_wed_fri_and_writing_on_other_days(session):
+def test_grammar_and_interleaved_days_lead_with_drills(session):
     _add_weak_topic(session)
-    for wd in (0, 2, 4):
-        plan = today.build_plan(session, _drill_day(wd))
-        assert plan.drills is not None and plan.drills_first
+    for kind in ("grammar", "interleaved"):
+        _rhythm_for(session, kind)
+        plan = today.build_plan(session, _drill_day(1))
+        assert plan.mode == "drills" and plan.drills_first and plan.lead and not plan.speaking_lead
         assert plan.drills.kind == "focused" and plan.drills.href == "/drills" and plan.drills.open is None
         assert plan.drills.minutes == plan.writing.minutes
-    for wd in (1, 3, 5, 6):
-        plan = today.build_plan(session, _drill_day(wd))
-        assert plan.drills is not None and not plan.drills_first
+
+
+def test_rhythm_not_weekday_decides_the_lead(session):
+    from app.services import plan as plan_svc
+
+    _add_weak_topic(session)
+    plan_svc.set_rhythm(session, ["grammar", "writing"] * 3 + ["light"])
+    assert today.build_plan(session, _drill_day(0)).mode == "drills"
+    assert today.build_plan(session, _drill_day(1)).mode == "writing"
+    assert today.build_plan(session, _drill_day(6)).mode == "light"
 
 
 def test_open_set_counts_even_without_a_plan(session):
     from app.models import Category, DrillSet
 
+    _rhythm_for(session, "grammar")
     session.add(DrillSet(category=Category.case, items_json=[{"topic_label": "Genitive plural"}], kind="mixed"))
     session.commit()
     plan = today.build_plan(session, _drill_day(1))
     assert plan.drills.open is not None and plan.drills.kind == "mixed" and plan.drills.labels == ["Genitive plural"]
 
 
-def test_page_block_two_orders_by_weekday(client, session, monkeypatch):
+def _page_on(client, session, monkeypatch, kind, weekday=1):
+    _rhythm_for(session, kind)
+    monkeypatch.setattr(today, "_now", lambda now: _drill_day(weekday).astimezone(timezone.utc))
+    return client.get("/").text
+
+
+def test_page_grammar_day_drills_lead_writing_alt(client, session, monkeypatch):
     _add_weak_topic(session)
-    monkeypatch.setattr(today, "_now", lambda now: _drill_day(0).astimezone(timezone.utc))
-    page = client.get("/").text
-    assert "Writing or drills" in page and "Start drills" in page and "write a new story" in page
+    page = _page_on(client, session, monkeypatch, "grammar")
+    assert "Start drills" in page and "write a new story" in page and "Mixed drills" not in page
     assert page.index("Start drills") < page.index("write a new story")
-    monkeypatch.setattr(today, "_now", lambda now: _drill_day(1).astimezone(timezone.utc))
-    page = client.get("/").text
-    assert "New story" in page and "do grammar drills" in page
+    assert "Tuesday: Grammar drills" in page
+
+
+def test_page_interleaved_day_says_mixed(client, session, monkeypatch):
+    _add_weak_topic(session)
+    page = _page_on(client, session, monkeypatch, "interleaved")
+    assert "Mixed drills" in page and "A mixed set is best today" in page and "Start drills" in page
+
+
+def test_page_writing_and_translation_days_lead_with_writing(client, session, monkeypatch):
+    _add_weak_topic(session)
+    page = _page_on(client, session, monkeypatch, "writing")
     assert page.index("New story") < page.index("do grammar drills")
+    assert "check the stress" not in page
+    page = _page_on(client, session, monkeypatch, "translation")
+    assert "Translate a short story and check the stress" in page
+    assert page.index("New story") < page.index("do grammar drills")
+
+
+def test_page_input_day(client, session, monkeypatch):
+    from app.services import shelf
+
+    shelf.log_minutes(session, 25, "reading", now=_drill_day(1))
+    page = _page_on(client, session, monkeypatch, "input")
+    assert "Reading and listening" in page and 'href="/shelf"' in page and "25" in page
+    assert "write a new story" in page
+
+
+def test_page_light_day(client, session, monkeypatch):
+    page = _page_on(client, session, monkeypatch, "light")
+    assert "Light day: just reviews and something easy to watch" in page and 'href="/shelf"' in page
+    assert "write a new story" in page
+
+
+def test_page_roleplay_day_makes_block_three_the_lead(client, session, monkeypatch):
+    from app.services import scenarios
+
+    scenarios.seed(session)
+    page = _page_on(client, session, monkeypatch, "roleplay")
+    assert page.count(LEAD) == 1
+    assert "Role-play is today" in page and 'href="/scenarios/' in page and "all scenarios" in page
+    assert page.index("New story") < page.index(LEAD) < page.index("Role-play is today")
+
+
+def test_page_non_roleplay_day_leads_in_block_two_only(client, session, monkeypatch):
+    page = _page_on(client, session, monkeypatch, "writing")
+    assert page.count(LEAD) == 1 and page.index(LEAD) < page.index("New story")
+    assert "Role-play is today" not in page
+
+
+# --- block III: scenario suggestion ----------------------------------------------------
+
+
+def test_suggest_scenario_none_when_unseeded(session):
+    assert today.suggest_scenario(session) is None
+    assert today.plan_speaking(session).href == "/scenarios"
+
+
+def test_suggest_scenario_never_practised_first_then_oldest(session):
+    from app.models import Conversation, Scenario
+    from app.services import scenarios
+
+    scenarios.seed(session)
+    ordered = session.exec(select(Scenario).order_by(Scenario.sort)).all()
+    assert today.suggest_scenario(session).slug == ordered[0].slug
+    # first two practised: the third, never practised, wins
+    session.add(Conversation(scenario_id=ordered[0].id, started_at=NOW - timedelta(days=1)))
+    session.add(Conversation(scenario_id=ordered[1].id, started_at=NOW - timedelta(days=5)))
+    session.commit()
+    assert today.suggest_scenario(session).slug == ordered[2].slug
+    # everything practised: the one practised longest ago wins (ordered[1], 5 days)
+    for sc in ordered[2:]:
+        session.add(Conversation(scenario_id=sc.id, started_at=NOW - timedelta(days=2)))
+    session.commit()
+    assert today.suggest_scenario(session).slug == ordered[1].slug
+    assert today.plan_speaking(session).href == f"/scenarios/{ordered[1].slug}"
+
+
+# --- header: day focus, month, check-in -------------------------------------------------
+
+
+def _seed_plan(session, trip):
+    from app.services import plan as plan_svc
+
+    session.merge(Setting(key="trip_date", value=trip.isoformat()))
+    session.commit()
+    plan_svc.seed(session, NOW)
+    return plan_svc.current_month(session, NOW)
+
+
+def test_header_shows_focus_and_month_link(client, session, monkeypatch):
+    from app.services import plan as plan_svc
+
+    month = _seed_plan(session, local_date(NOW) + timedelta(days=200))
+    for m in plan_svc.months(session):  # earlier months already checked in
+        if m.month_idx < month.month_idx:
+            plan_svc.save_review(session, m, 3, "", NOW)
+    page = _page_on(client, session, monkeypatch, "light", weekday=4)
+    assert "Friday: Light review" in page
+    assert "This month:" in page and month.title in page and 'href="/plan"' in page
+    assert "Time to check in" not in page
+
+
+def test_header_without_plan_has_no_month_line(client, session, monkeypatch):
+    page = _page_on(client, session, monkeypatch, "light", weekday=4)
+    assert "Friday: Light review" in page and "This month:" not in page
+
+
+def test_check_in_notice_when_review_due(client, session, monkeypatch):
+    from app.services import plan as plan_svc
+
+    month = _seed_plan(session, local_date(NOW) + timedelta(days=200))
+    start, end = plan_svc.month_range(month)
+    day = datetime.combine(end - timedelta(days=1), datetime.min.time()).replace(hour=12).astimezone()
+    monkeypatch.setattr(today, "_now", lambda now: day.astimezone(timezone.utc))
+    page = client.get("/").text
+    assert "Time to check in on" in page and month.title in page
+    assert today.build_plan(session, day).review_title == month.title

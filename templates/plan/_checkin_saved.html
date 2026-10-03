@@ -1,0 +1,11 @@
+<div id="checkin">
+  <section class="card pl-panel pl-checkin saved" role="status">
+    <h2>Check-in saved</h2>
+    <p class="muted">{{ checkin_saved.title }}: {{ checkin_saved.review_json.rating }}/5, {{ rating_labels[checkin_saved.review_json.rating] }}.</p>
+  </section>
+</div>
+{% for v in months if v.m.month_idx == checkin_saved.month_idx %}
+  {% set oob = true %}
+  {% include "plan/_review.html" %}
+  <span id="station-rating-{{ v.m.month_idx }}" hx-swap-oob="true">Check-in {{ v.review.rating }}/5</span>
+{% endfor %}

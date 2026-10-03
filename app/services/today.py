@@ -11,8 +11,8 @@ from datetime import date, datetime, timedelta, timezone, tzinfo
 from sqlalchemy import func
 from sqlmodel import Session as DbSession, col, select
 
-from app.models import Card, CardState, DrillSet, ReviewLog, Session, Setting, Story, TranslationAttempt
-from app.services import drills, srs, stats
+from app.models import Card, CardState, Conversation, DrillSet, ReviewLog, Scenario, Session, Setting, Story, TranslationAttempt
+from app.services import drills, plan, shelf, srs, stats
 
 HISTORY_DAYS = 14
 OUTLIER_SECONDS = 120.0
@@ -128,9 +128,6 @@ class DrillBlock:
     href: str
 
 
-DRILL_DAYS = (0, 2, 4)  # Monday, Wednesday, Friday: drills lead, writing is the alternative
-
-
 def plan_drills(db: DbSession, now: datetime | None = None) -> DrillBlock | None:
     """The drill option for block II, or None when there is nothing to drill and no set is open."""
     current = drills.open_set(db)
@@ -146,18 +143,74 @@ def plan_drills(db: DbSession, now: datetime | None = None) -> DrillBlock | None
 
 
 @dataclass(frozen=True)
+class SpeakingBlock:
+    minutes: int
+    scenario: Scenario | None  # the scenario least recently practised, None when none are seeded
+    href: str  # the suggested scenario, else the scenario list
+
+
+def suggest_scenario(db: DbSession) -> Scenario | None:
+    """Never-practised scenarios first, then the one practised longest ago; ties go by `Scenario.sort`."""
+    scenarios = db.exec(select(Scenario).order_by(col(Scenario.sort), col(Scenario.id))).all()
+    if not scenarios:
+        return None
+    last = dict(db.exec(select(Conversation.scenario_id, func.max(Conversation.started_at)).group_by(Conversation.scenario_id)).all())
+    never = datetime.min.replace(tzinfo=timezone.utc)
+
+    def key(sc: Scenario):
+        when = last.get(sc.id)
+        return (srs._utc(when) if when is not None else never, sc.sort, sc.id or 0)
+
+    return min(scenarios, key=key)
+
+
+def plan_speaking(db: DbSession) -> SpeakingBlock:
+    scenario = suggest_scenario(db)
+    return SpeakingBlock(session_split(db)["scenario"], scenario, f"/scenarios/{scenario.slug}" if scenario else "/scenarios")
+
+
+@dataclass(frozen=True)
 class Plan:
     reviews: ReviewBlock
     writing: WritingBlock
     speaking_minutes: int
     drills: DrillBlock | None = None
-    drills_first: bool = False  # Mon/Wed/Fri with something to drill
+    drills_first: bool = False  # block II shows drills as its lead
+    mode: str = "writing"  # what block II shows: drills | writing | input | light
+    lead: bool = True  # block II is the day's lead (False on role-play days)
+    speaking: SpeakingBlock | None = None
+    speaking_lead: bool = False  # role-play day: block III leads
+    day_kind: str = ""  # the weekly rhythm's kind for today
+    day_weekday: str = ""
+    day_title: str = ""
+    month_title: str = ""
+    review_title: str = ""  # a month waiting for its check-in
+    input_minutes: int = 0  # reading and listening logged this week
 
 
 def build_plan(db: DbSession, now: datetime | None = None) -> Plan:
+    now = _now(now)
+    focus = plan.day_focus(db, now)
     block = plan_drills(db, now)
-    first = block is not None and stats.local_date(_now(now)).weekday() in DRILL_DAYS
-    return Plan(plan_reviews(db, now), plan_writing(db), session_split(db)["scenario"], block, first)
+    kind = focus.kind
+    if kind in ("grammar", "interleaved") and block is not None:
+        mode = "drills"
+    elif kind == "input":
+        mode = "input"
+    elif kind == "light":
+        mode = "light"
+    else:
+        mode = "writing"  # writing, translation, role-play days (and drill days with nothing to drill)
+    due = plan.review_due(db, now)
+    split = session_split(db)
+    return Plan(
+        plan_reviews(db, now), plan_writing(db), split["scenario"], block,
+        drills_first=mode == "drills", mode=mode, lead=kind != "roleplay",
+        speaking=plan_speaking(db), speaking_lead=kind == "roleplay",
+        day_kind=kind, day_weekday=focus.weekday, day_title=focus.title,
+        month_title=focus.month_title, review_title=due.title if due else "",
+        input_minutes=shelf.this_week(db, now),
+    )
 
 
 # --- Session tracking ----------------------------------------------------------

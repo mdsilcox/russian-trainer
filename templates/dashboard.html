@@ -4,6 +4,7 @@
 {% block content %}
 {% import "_ornaments.html" as orn %}
 {% import "_medals.html" as mdl %}
+{% import "_charts.html" as charts %}
 <header class="page-head">
   <h1>Dashboard</h1>
   <p class="subtitle" lang="ru">Обзор</p>
@@ -68,6 +69,28 @@
     {% endfor %}
   </ol>
 </section>
+
+<section class="card chart-card" aria-labelledby="fc30-h">
+  <h2 id="fc30-h">Reviews due <small>next 30 days</small></h2>
+  {{ charts.review_forecast(forecast_30) }}
+</section>
+
+<section class="card chart-card" aria-labelledby="trend-h">
+  <h2 id="trend-h">Mistakes per week <small>last 12 weeks, by category</small></h2>
+  {{ charts.mistakes_weekly(mistake_trend) }}
+</section>
+
+<div class="dash-grid two chart-pair">
+  <section class="card" aria-labelledby="ret-h">
+    <h2 id="ret-h">Retention by source <small>30 days</small></h2>
+    {{ charts.retention_sources(source_retention) }}
+  </section>
+
+  <section class="card" aria-labelledby="heat-h">
+    <h2 id="heat-h">Minutes practised <small>last 26 weeks</small></h2>
+    {{ charts.practice_heatmap(heatmap) }}
+  </section>
+</div>
 
 <div class="dash-grid two">
   <section class="card">

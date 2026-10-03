@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% import "_ornaments.html" as orn %}
+{% block title %}Plan · Russian Trainer{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', path='plan.css') }}">
+<script src="{{ url_for('static', path='plan.js') }}" defer></script>{% endblock %}
+{% block content %}
+<div class="pl">
+<header class="pl-head">
+  <p class="pl-eyebrow">Twelve months to Moscow</p>
+  <h1>Plan <span class="pl-ru" lang="ru">План</span></h1>
+</header>
+
+{% if empty %}
+<section class="card pl-panel pl-empty">
+  <h2>No plan yet</h2>
+  <p class="muted">The plan counts back from your trip date. Set the date in Settings and the twelve months appear here.</p>
+  <p><a href="/settings">Go to Settings</a></p>
+</section>
+{% else %}
+  <p class="pl-countdown">
+    {% if days_left is not none and days_left >= 0 %}<b>{{ days_left }}</b> days to go. Trip on {{ trip.strftime("%d %b %Y") }}.
+    {% else %}The trip date, {{ trip.strftime("%d %b %Y") }}, has passed.{% endif %}
+  </p>
+
+  <ol class="pl-track" aria-label="The twelve months">
+    {% for v in months %}
+    <li class="pl-station {{ v.state }}"{% if v.state == "current" %} aria-current="step"{% endif %}>
+      <a href="#month-{{ v.m.month_idx }}">
+        <span class="pl-dot" aria-hidden="true"></span>
+        <span class="pl-when">{{ v.start.strftime("%b %Y") }}</span>
+        <span class="pl-name" lang="en">{{ v.m.title }}</span>
+        <span class="pl-rating" id="station-rating-{{ v.m.month_idx }}">{% if v.review %}Check-in {{ v.review.rating }}/5{% endif %}</span>
+      </a>
+    </li>
+    {% endfor %}
+  </ol>
+
+  {% include "plan/_checkin.html" %}
+
+  <section class="pl-months" aria-label="Months">
+  {% for v in months %}
+    {% set m = v.m %}
+    <details class="card pl-month {{ v.state }}" id="month-{{ m.month_idx }}"{% if v.state == "current" %} open{% endif %}>
+      <summary>
+        <span class="pl-sum-when">{{ v.start.strftime("%B %Y") }}{% if v.state == "current" %} · this month{% endif %}</span>
+        <span class="pl-sum-title">{{ m.title }}</span>
+        {% if v.review %}<span class="pl-sum-rating">Check-in {{ v.review.rating }}/5</span>{% endif %}
+      </summary>
+      <div class="pl-body">
+        <p class="pl-focus">{{ m.focus }}</p>
+
+        <h3>Goals</h3>
+        {% if v.goals %}
+        <ul class="pl-goals">
+          {% for g in v.goals %}
+          <li class="{{ 'done' if g.done }}">
+            <div class="pl-goal-row"><span>{{ g.text }}</span><span class="pl-goal-val">{{ g.value }} / {{ g.target }}{% if g.status %} · {{ g.status }}{% endif %}</span></div>
+            <div class="pl-bar" role="progressbar" aria-valuemin="0" aria-valuemax="{{ g.target }}" aria-valuenow="{{ [g.value, g.target] | min }}" aria-label="{{ g.text }}"><i style="width: {{ (g.ratio * 100) | round | int }}%"></i></div>
+          </li>
+          {% endfor %}
+        </ul>
+        {% if v.state == "current" %}
+        <p class="pl-hint {{ 'behind' if v.lagging else 'ok' }}">
+          {{ v.on_pace }} of {{ v.goals | length }} goals on pace, {{ v.expected_pct }}% through the month.
+          {% if v.lagging %}Behind on: {{ v.lagging | join(", ") }}.{% endif %}
+        </p>
+        {% endif %}
+        {% else %}
+        <ul class="pl-goals plain">{% for t in v.plain_goals %}<li>{{ t }}</li>{% endfor %}</ul>
+        {% endif %}
+
+        {% if v.topics %}
+        <h3>Grammar topics</h3>
+        <ul class="pl-chips">{% for t in v.topics %}<li><a href="{{ t.url }}">{{ t.label }}</a></li>{% endfor %}</ul>
+        {% if v.state == "current" %}<p class="muted pl-boost">Drills favour these topics this month.</p>{% endif %}
+        {% endif %}
+
+        {% include "plan/_review.html" %}
+      </div>
+    </details>
+  {% endfor %}
+  </section>
+
+  {% include "plan/_rhythm.html" %}
+{% endif %}
+</div>
+{% endblock %}
