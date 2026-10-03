@@ -4,14 +4,14 @@ Personal, single-user, local web app taking an English-speaking B1 learner to co
 
 ## Stack and commands
 - Python 3.11, FastAPI, SQLModel/SQLite (WAL), Jinja2 + HTMX, small vanilla JS. No frontend build.
-- Run: `.venv/Scripts/app` (port 8000). Tests: `.venv/Scripts/python -m pytest -q` (Git Bash; about 370 tests, 15 s). All must pass.
+- Run: `.venv/Scripts/app` (port 8000). Tests: `.venv/Scripts/python -m pytest -q` (Git Bash; about 525 tests, 25 s). All must pass.
 - Throwaway copy for browser checks: set `RT_DATA_DIR` to a scratch folder holding a copy of `data/` and run `.venv/Scripts/python -m uvicorn app.main:app --port 8011`. Restart it after Python changes (no reload).
 - Data: `data/russian.db` (gitignored), daily backups in `backups/`. Never touch the real database in tests or experiments.
 
 ## Layout
 - `app/main.py`: app, lifespan (backup, migrate, load AI backend, seed scenarios), router registration.
 - `app/models.py`: all tables. `app/db.py`: hand-rolled migrations, a `MIGRATIONS` list applied in order and recorded in `schema_version`. Add a migration only by appending an idempotent function guarded by `PRAGMA table_info`. In orchestrated phases, schema changes are made up front by the orchestrator, never by lanes.
-- `app/web.py`: shared `templates` plus filters `ru` (lang span), `ink_stress`; globals `grammar_link(category, subcategory)`, `ai_enabled()`, `ai_off_reason()`.
+- `app/web.py`: shared `templates` plus filters `ru` (lang span), `ink_stress`; globals `grammar_link(category, subcategory)`, `ai_enabled()`, `ai_off_reason()`, and the main menu: `NAV_GROUPS` (Learn, Practice, Progress, Library: `key, label, ru, blurb, items [(href, label, description)]`) and `nav_active(path)`. A new page gets an entry there, which puts it in the menu and on `/contents` (`app/routes/contents.py` adds one live hint per page).
 - `app/routes/<area>.py` (thin) over `app/services/<area>.py` (logic, tested directly). Templates in `templates/<area>/`, CSS/JS in `static/<area>.css|js`.
 
 ## Services (what to call, not what to reread)
@@ -45,5 +45,5 @@ Personal, single-user, local web app taking an English-speaking B1 learner to co
 - Inject `now` into services; use `stats.local_date(now)` for days.
 
 ## Process
-- Orchestrated phases are tracked on the Orchestra board (https://claude.ai/artifact/Eqis6DgyZMefwhzFM1KNta; project id `russian-trainer`, doc prefix `rt~`). The full plan: `.overture/plan.xml` (kept in sync with Overture; see the global instructions). Decisions: `docs/decisions.md`. Research: `docs/research.md`. Orchestration numbers: `docs/orchestration-metrics.md`.
+- Orchestrated phases are tracked on the Orchestra board (https://claude.ai/artifact/Eqis6DgyZMefwhzFM1KNta; project id `russian-trainer`, doc prefix `rt~`). `.overture/plan.xml` is the original Overture plan (Phases 1-2), kept for history; later phases live on the board only. Decisions: `docs/decisions.md`. Research: `docs/research.md`. Orchestration numbers: `docs/orchestration-metrics.md`.
 - Commit messages end with `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`. Update this file at each phase gate when architecture or conventions change.
