@@ -1,0 +1,326 @@
+<!-- Overture plan for this project, saved because Overture keeps plans in memory only.
+     Restore after a restart: submit_plan with this file, then update_node_status(completed)
+     for every node marked status="completed" (submit ignores the status attribute).
+     Project id: f62e2df898e5. Selected branch: stack_py. -->
+<plan id="plan_russian_app" title="Russian Trainer: Intermediate to Conversational in 12 Months" agent="claude-code">
+  <nodes>
+    <node id="q0" type="task" status="completed">
+      <title>Phase 0: Answer setup questions</title>
+      <description>Before any code: lock in the facts that shape the data model and the monthly plan. These answers set the trip countdown, which grammar categories get tracked first, how much daily time goes to each module, and how the Claude API is used.
+
+Proposed architecture (one process, one file):
+Browser (server-rendered pages + small JS) → local web server (routes) → services layer [SRS scheduler, Claude client, Mistake router, Drill generator, Scenario engine, Stats] → SQLite file (data/russian.db). The Anthropic key is read from the ANTHROPIC_API_KEY env var at startup; the app refuses to start the AI modules without it and never writes it to disk or logs.
+
+Key loop: every module (stories, drills, scenarios) emits Mistake rows → the Mistake router (a) turns vocab/phrase misses into SRS cards automatically, and (b) feeds grammar categories into the drill generator. The dashboard reads from review_log, mistakes and sessions.</description>
+      <complexity>low</complexity>
+      <expected_output>- Confirmed trip date, weak areas, daily time split, model choices
+- Answers recorded into a settings seed used by later nodes</expected_output>
+      <risks>- Risk: vague trip date makes the monthly plan meaningless. Mitigation: an approximate month is fine; it can be edited later in Settings.</risks>
+      <dynamic_field id="q_trip" name="trip_date" type="string" required="true" title="Trip date (or approximate month)" description="Used for the countdown and to back-plan the 12 monthly focus blocks. e.g. 2027-09-15" value="2027-09-30" />
+      <dynamic_field id="q_weak" name="weak_areas" type="question" required="true" title="Which weak spots are real for you?" description="Pick all that apply, comma-separated, or edit freely: verb aspect, case endings in speech, verbs of motion, participles/gerunds, listening speed, real-world phrases, stress placement, numerals with nouns" value="case endings, verbs of motion, real-world phrases, stress placement" />
+      <dynamic_field id="q_cities" name="trip_context" type="question" required="false" title="Trip context" description="Which cities, solo or with others, any special situations (staying with family, business, train travel)? Scenarios will be tailored to this." value="Moscow, with family" />
+      <dynamic_field id="q_split" name="session_split" type="select" required="true" title="Default 25-min daily session split" options="Balanced (10 SRS / 8 drills or story / 7 scenario),SRS-heavy (15 / 5 / 5),Speaking-heavy (8 / 5 / 12),Let the app adapt to weak areas" value="Balanced (10 SRS / 8 drills or story / 7 scenario)" />
+      <dynamic_field id="q_deck" name="existing_deck" type="question" required="false" title="Do you have existing vocab to import?" description="Anki deck (.apkg / CSV), a spreadsheet, a word list in a text file, or nothing (start empty + Claude-generated starter deck)?" options="Anki export,CSV/spreadsheet,Plain word list,None - start fresh" value="None - start fresh" />
+      <dynamic_field id="q_stories" name="existing_stories" type="boolean" required="false" title="Import your existing stories and translations?" description="If yes, the workshop gets a bulk-import step so past mistakes seed the deck and drills from day one." value="true" />
+      <dynamic_field id="q_typing" name="cyrillic_input" type="select" required="true" title="How do you type Cyrillic?" options="Russian OS keyboard layout,Phonetic layout (YaWERTY),Need an on-screen / transliteration helper" value="Phonetic layout (YaWERTY)" />
+      <dynamic_field id="q_feedback_lang" name="feedback_language" type="select" required="true" title="Language for Claude's explanations" options="English,Russian with English for grammar terms,Russian only (later months)" value="English" />
+      <dynamic_field id="q_budget" name="api_budget" type="number" required="false" title="Rough monthly API budget (USD)" description="Drives model choice: higher-quality model for story feedback and role-play, cheaper/faster model for drill generation and card enrichment." value="10" />
+      <dynamic_field id="q_audio" name="audio" type="select" required="true" title="Listening practice audio source" options="Browser text-to-speech (free; quality varies by OS voice),Cloud TTS service later (better voices; extra key),Skip audio for now" value="Cloud TTS service later (better voices; extra key)" />
+    </node>
+    <node id="stack_py" type="task" status="completed">
+      <title>Stack A (recommended): Python FastAPI + SQLite + Jinja/HTMX</title>
+      <description>FastAPI web server, SQLModel/SQLAlchemy over a single SQLite file, server-rendered Jinja templates with HTMX for interactivity (flip card, submit rating, stream chat) and a tiny bit of vanilla JS. SRS via the maintained `fsrs` Python package (FSRS-5/6). Official `anthropic` Python SDK. Run with one command (`uv run app`).
+Why: least moving parts for a single-user local app: no frontend build step, one language, the DB is one file you copy to back up, and Python has first-class Anthropic and FSRS libraries.</description>
+      <pros>No build tooling; one language; trivial backup (copy one .db file); official FSRS + Anthropic SDKs; easy to read and modify yourself</pros>
+      <cons>Less slick client-side interactivity than a SPA; HTMX is a new idiom if you have not used it</cons>
+      <complexity>low</complexity>
+      <expected_output>- pyproject.toml (uv), app/ package, templates/, static/, data/ (gitignored)</expected_output>
+    </node>
+    <node id="stack_ts" type="task" status="pending">
+      <title>Stack B: Next.js (TypeScript) + SQLite (Drizzle) + ts-fsrs</title>
+      <description>Next.js App Router with React UI, Drizzle ORM on better-sqlite3, `ts-fsrs` for scheduling, `@anthropic-ai/sdk` for Claude. Single `npm run dev` locally.</description>
+      <pros>Richer interactive UI (keyboard shortcuts, animations, chat streaming feel native); one language front and back; strong typing</pros>
+      <cons>Heavier toolchain (node_modules, build step, React concepts); more code for the same features; native sqlite module builds can be fiddly on Windows</cons>
+      <complexity>medium</complexity>
+      <expected_output>- package.json, app/, db/schema.ts, drizzle migrations, data/ (gitignored)</expected_output>
+    </node>
+    <node id="p1_scaffold" type="task" status="completed">
+      <title>P1.1: Scaffold project, git, config loader</title>
+      <description>Initialize repo, folder layout, .gitignore (data/, .env), config module that reads ANTHROPIC_API_KEY and optional settings from environment only. Health page at / showing whether the key is present (never the value). README with run + backup instructions.</description>
+      <complexity>low</complexity>
+      <expected_output>- Project skeleton, config module, README, runnable hello page on localhost</expected_output>
+      <risks>- Key leaking via logs or error pages. Mitigation: config object masks the key in repr/logging; debug tracebacks disabled for AI errors.</risks>
+    </node>
+    <node id="p1_schema" type="task" status="completed">
+      <title>P1.2: Database schema and migrations</title>
+      <description>Create all core tables now (cheap to add early, avoids painful migrations later):
+- settings(key, value): trip_date, session_split, daily_new_limit, feedback_language
+- cards(id, ru, ru_stressed, en, example_ru, example_en, pos, gender, aspect, aspect_partner, notes, tags, source_module, source_ref_id, created_at, suspended)
+- card_state(card_id, due, stability, difficulty, state, reps, lapses, last_review): FSRS memory state
+- review_log(id, card_id, rating, reviewed_at, duration_ms, state_before, due_before)
+- stories(id, title, source_lang, source_text, created_at)
+- translation_attempts(id, story_id, text, feedback_json, corrected_text, created_at)
+- mistakes(id, module, ref_id, category, subcategory, wrong, right, explanation, card_id, drilled_count, mastered, created_at)
+- drill_sets(id, category, subcategory, items_json, from_mistake_ids, created_at)
+- drill_answers(id, drill_set_id, item_idx, answer, correct, created_at)
+- scenarios(id, slug, title, setting, partner_role, goals_json, level)
+- conversations(id, scenario_id, started_at, ended_at, debrief_json)
+- messages(id, conversation_id, role, content, corrections_json, created_at)
+- sessions(id, date, started_at, minutes, reviews, new_cards, drills, scenario_turns)
+- plan_months(month_idx, start_date, focus, goals_json, status)
+Category enum: case, aspect, motion_verb, participle, agreement, word_choice, word_order, preposition, stress, spelling, idiom.</description>
+      <complexity>medium</complexity>
+      <expected_output>- Models + initial migration; data/russian.db created on first run; WAL mode on</expected_output>
+      <risks>- Category list too rigid. Mitigation: category is a constrained enum but subcategory is free text (e.g. "genitive plural after numerals").</risks>
+    </node>
+    <node id="p1_layout" type="task" status="completed">
+      <title>P1.3: Base layout, nav, Cyrillic typography</title>
+      <description>Base template with nav (Today, Review, Workshop, Drills, Scenarios, Dashboard, Settings). Font stack with good Cyrillic + combining acute (U+0301) rendering for stress marks; lang="ru" on Russian spans. Keyboard-first design: hotkeys for card flip/rating. Optional transliteration input helper if chosen in Phase 0.</description>
+      <complexity>low</complexity>
+      <expected_output>- Base template, CSS, stress-mark rendering verified on Windows fonts</expected_output>
+      <risks>- Combining acute renders offset in some fonts. Mitigation: pick fonts tested with U+0301 (e.g. Noto Sans/Serif, PT Sans).</risks>
+    </node>
+    <node id="p1_claude" type="task" status="completed">
+      <title>P1.4: Claude client wrapper</title>
+      <description>One module for all API calls: reads key from env, model per task (higher-quality model for feedback/role-play, fast model for enrichment/drill generation), structured JSON output via tool-use schemas, prompt caching on long system prompts, retries with backoff, per-call token + cost logging to a small api_usage table so you can watch spend against budget.</description>
+      <complexity>medium</complexity>
+      <expected_output>- claude_client module with typed helpers: feedback(), enrich_card(), generate_drill(), roleplay_turn()
+- api_usage table and a monthly spend readout</expected_output>
+      <risks>- Malformed JSON from model. Mitigation: tool-use schemas + validation + one repair retry.
+- Cost creep. Mitigation: usage log + soft budget warning in UI.</risks>
+    </node>
+    <node id="p1_srs_core" type="task" status="completed">
+      <title>P1.5: FSRS scheduler service</title>
+      <description>Wrap the FSRS library: schedule(card_state, rating, now) → new state + log row. Desired retention setting (default 0.9). Queue builder: due reviews first, then up to N new cards/day, interleaving so new cards are not all at the end. Unit tests for rating transitions and queue ordering.</description>
+      <complexity>medium</complexity>
+      <expected_output>- srs service + tests; daily new-card limit from settings</expected_output>
+      <risks>- Review pile-up after missed days. Mitigation: cap reviews per session to the time budget; overflow rolls forward rather than shaming you.</risks>
+    </node>
+    <node id="p1_cards_crud" type="task" status="completed">
+      <title>P1.6: Card add/edit/browse</title>
+      <description>Add card form (ru, en, example, tags) with optional "Enrich with Claude" button that fills stress marks, gender, aspect partner, and a natural example sentence + translation for you to accept/edit. Browse/search page with filters by tag, source module, and leech status.</description>
+      <complexity>medium</complexity>
+      <expected_output>- Card create/edit/search pages; enrich_card() integration</expected_output>
+      <risks>- Claude stress marks occasionally wrong. Mitigation: always shown as editable suggestion; flag field "stress verified".</risks>
+    </node>
+    <node id="p1_review_ui" type="task" status="completed">
+      <title>P1.7: Review screen</title>
+      <description>Card front → reveal → Again/Hard/Good/Easy (keys 1–4). Both directions supported (RU→EN recognition, EN→RU production; production cards unlocked after the recognition card is stable). Shows stress-marked form, example sentence, and source ("from your story 'Поезд'"). Optional TTS play button.</description>
+      <complexity>medium</complexity>
+      <expected_output>- Review page with hotkeys, timing captured into review_log</expected_output>
+    </node>
+    <node id="p1_import" type="task" status="completed">
+      <title>P1.8: Vocabulary import</title>
+      <description>Importer matching your Phase 0 answer (CSV / Anki export / word list). Dedupe on normalized Russian (stress marks stripped, ё/е folded). Optional batch enrichment through Claude, rate-limited. If "start fresh": generate a ~150-card travel starter deck (greetings, transport, food, numbers, directions) for review before adding.</description>
+      <complexity>medium</complexity>
+      <expected_output>- Import page + CLI command; dedupe report</expected_output>
+    </node>
+    <node id="p1_story_ui" type="task" status="completed">
+      <title>P1.9: Story workshop: write and submit</title>
+      <description>Editor page: title, source language (EN or RU), source text, your translation. Saves story + attempt. History of attempts per story so you can revise and resubmit and see improvement.</description>
+      <complexity>low</complexity>
+      <expected_output>- Workshop list + editor pages; stories and translation_attempts populated</expected_output>
+    </node>
+    <node id="p1_story_feedback" type="task" status="completed">
+      <title>P1.10: Claude feedback on translations</title>
+      <description>Send source + translation with a tutor system prompt. Structured result: corrected full text; list of issues each with {span, wrong, right, category, subcategory, explanation, severity}; "more natural" rephrasings; 2–3 vocab items worth learning. Render as an inline diff with hover explanations, grouped by category.</description>
+      <complexity>high</complexity>
+      <expected_output>- feedback() schema + prompt; diff view; feedback_json stored</expected_output>
+      <risks>- Over-correction of stylistic choices. Mitigation: severity levels (error / unnatural / stylistic), only errors and unnatural become mistakes.
+- Explanations in the wrong language. Mitigation: feedback_language setting injected into prompt.</risks>
+    </node>
+    <node id="p1_mistake_router" type="task" status="completed">
+      <title>P1.11: Mistake logging and auto-card flow</title>
+      <description>Mistake router service used by every module: writes mistake rows; for word_choice / idiom / stress / vocab-gap mistakes, creates (or reuses) an SRS card with the correct form and the sentence from your own text as the example, tagged with its source. Grammar categories (case, aspect, motion, participle) are queued for drills instead. One-click "don't make a card" override in the feedback view.</description>
+      <complexity>medium</complexity>
+      <expected_output>- mistake_router service + tests; cards appear in the deck tagged source_module=story</expected_output>
+      <risks>- Deck flooded with near-duplicates. Mitigation: dedupe on normalized lemma + max N auto-cards per submission.</risks>
+    </node>
+    <node id="p1_today" type="task" status="completed">
+      <title>P1.12: "Today" session page</title>
+      <description>Landing page that builds today's 20–30 min plan: due reviews (estimated minutes from your average seconds per card), then one writing or drill block. Session timer, records a sessions row, ends with a short summary. This is the daily habit entry point.</description>
+      <complexity>medium</complexity>
+      <expected_output>- Today page with ordered blocks and timer; sessions table populated</expected_output>
+    </node>
+    <node id="p1_mini_dash" type="task" status="completed">
+      <title>P1.13: Minimal dashboard: streak, due load, countdown</title>
+      <description>Streak (counting a day if you finish a session), cards due today/next 7 days, retention last 30 days, days until trip, top 5 mistake categories. Full trends come in Phase 4.</description>
+      <complexity>low</complexity>
+      <expected_output>- Dashboard page v1</expected_output>
+    </node>
+    <node id="p1_backup" type="task" status="completed">
+      <title>P1.14: Backup and export</title>
+      <description>"Backup now" button + automatic daily backup on startup using SQLite's online backup API into backups/russian-YYYY-MM-DD.db (keep last 14). Export cards to CSV/Anki-compatible format so your data is never locked in.</description>
+      <complexity>low</complexity>
+      <expected_output>- Backup service, retention policy, export endpoint</expected_output>
+      <risks>- Copying the db file while writing corrupts it. Mitigation: use the backup API, not file copy.</risks>
+    </node>
+    <node id="p1_grammar" type="task" status="completed">
+      <title>P1.16: Grammar reference «Грамматика»</title>
+      <description>Research-backed reference (docs/research.md): cases taught by FUNCTION (what each case does, preposition→case pairs, location vs direction), compact ending tables for nouns/adjectives/pronouns with stress marks, numerals with cases (1 / 2–4 / 5–20), verbs-of-motion chart (uni/multi pairs + prefixes по-, при-/у-, в-/вы-, пере-, за-, до-, про-, под-/от-), aspect guide (pairs, choosing), mobile-stress patterns, common English-speaker pitfalls. High-yield travel targets flagged. Each section/row has a stable anchor so mistakes and drills can link to it ('why this ending?').</description>
+      <complexity>high</complexity>
+      <expected_output>/grammar pages in the Khokhloma theme; grammar data module; links from feedback categories/subcategories to the matching reference section; tests</expected_output>
+      <risks>Grammar errors in a reference are costly: every table reviewed against standard references (Wade, Wiktionary paradigms) before shipping.</risks>
+    </node>
+    <node id="p1_selfcorrect" type="task" status="completed">
+      <title>P1.17: Self-correct-first feedback</title>
+      <description>Evidence (Lyster &amp; Saito 2010): prompts that make the learner self-correct beat recasts. Workshop feedback first shows only WHERE each error is and its category (+ a link to the grammar reference), lets you type a fix per issue and checks it, then reveals Claude's correction and explanation. Option to reveal all at once. Mistakes still logged/routed as today.</description>
+      <complexity>medium</complexity>
+      <expected_output>Two-step feedback panel (try → reveal) with per-issue fix inputs and checking; self-correction success recorded on the mistake; tests</expected_output>
+      <risks>Must not add friction for long texts: allow 'reveal all'.</risks>
+    </node>
+    <node id="p1_done" type="task" status="pending">
+      <title>P1.15: MVP checkpoint: one week of real use</title>
+      <description>Use the MVP daily for ~1 week. Collect friction notes (slow pages, annoying feedback, bad card quality) and tune prompts, new-card limit and session length before building Phase 2.</description>
+      <complexity>low</complexity>
+      <expected_output>- Tuning pass + short changelog</expected_output>
+    </node>
+    <node id="t0_connect" type="task" status="completed">
+      <title>T.0: Tutor channel: Telegram (decided)</title>
+      <description>Decided 2026-10-02 (docs/decisions.md): Telegram bot: she already uses Telegram and is fluent in Russian + English; the bot speaks Russian. She may see everything (stories with feedback, mistakes, stats). The app will run 24/7 on a dedicated always-on machine, so the bot is always reachable. A hosted web portal remains a later option if chat editing of long lists gets clunky.</description>
+      <complexity>low</complexity>
+      <expected_output>Chosen channel, sharing rules and UI language recorded in docs/decisions.md</expected_output>
+      <risks>Russian access to some Western services is restricted or throttled: test the chosen channel from her side first.</risks>
+    </node>
+    <node id="t0_server" type="task" status="pending">
+      <title>T.0b: Move to the always-on machine</title>
+      <description>When the new hardware arrives: install (git clone + venv), restore data/russian.db from a backup, set env vars (claude login for the subscription backend, TELEGRAM_BOT_TOKEN), run the app as a service that starts on boot (Windows service via NSSM / Task Scheduler, or systemd on Linux), listen on the home network so you can study from your laptop/phone (with a simple password, since it's no longer only localhost), and copy daily backups off the machine.</description>
+      <complexity>medium</complexity>
+      <expected_output>Service config + a short docs/deploy.md runbook; backups mirrored to a second location</expected_output>
+      <risks>Once it listens beyond localhost it needs a login; keep it off the public internet (the Telegram bot works by outbound polling, no open ports).</risks>
+    </node>
+    <node id="t1_lessons" type="task" status="pending">
+      <title>T.1: Lessons in the app: weekly topic, words, tasks</title>
+      <description>Local-first lesson model usable even before she's connected: lessons (date, topic, goals, materials/links, notes), tutor word lists (reviewed before adding; enrichment adds stress + examples; cards tagged source=tutor), tasks with due dates (write about the topic, watch X, use these 10 words) that join the Today plan, and a 'This week' panel on Today with the topic and next lesson date.</description>
+      <complexity>medium</complexity>
+      <expected_output>Lesson/word-list/task tables + migration, Today 'This week' panel, lesson page</expected_output>
+    </node>
+    <node id="t2_channel" type="task" status="pending">
+      <title>T.2: Telegram bot + sync</title>
+      <description>Private bot (created via @BotFather by you; token in TELEGRAM_BOT_TOKEN; only her chat id allow-listed). The app long-polls (outbound only, no open ports). In Russian, with inline buttons: /tema to set the week's topic + goals + links; send words or a list ('слово: перевод' lines) → enriched with stress + examples → lands in your review inbox; /zadanie to assign tasks with due dates; /zametki for lesson notes; /progress for a live summary. You get her items in an app inbox to accept/edit; accepted words become cards tagged source=tutor, tasks join Today.</description>
+      <complexity>high</complexity>
+      <expected_output>Bot module with a fake Telegram client for tests, inbox screen, settings page section</expected_output>
+      <risks>Never log the token; rate limits; idempotent handling of updates; offline queueing.</risks>
+    </node>
+    <node id="t3_prep" type="task" status="pending">
+      <title>T.3: Lesson prep &amp; follow-up</title>
+      <description>Before each lesson an automatic summary for her (sent via the channel): minutes practised, words learned, top mistake categories, tasks done, stories you chose to share, and your 'questions for my tutor' (a capture button available anywhere in the app). After the lesson: quick entry (or her message) of new words and corrections that flow into cards and logged mistakes like AI feedback does.</description>
+      <complexity>medium</complexity>
+      <expected_output>Summary generator + send, questions inbox, post-lesson capture routed through the mistake router</expected_output>
+    </node>
+    <node id="p2_weakness" type="task" status="pending">
+      <title>P2.1: Weakness scoring + high-yield priorities</title>
+      <description>Score each category/subcategory by recency-weighted mistakes minus spaced drill successes, boosted by the research's high-yield travel list (prepositional after в/на, accusative of direction + animate accusative, genitive after нет/много/из/до/у/без and genitive plural, numerals with cases, dative мне нужно/нравится, core verbs of motion). Mistakes become mastered after N correct answers spaced over days.</description>
+      <complexity>medium</complexity>
+      <expected_output>- weakness service + tests</expected_output>
+    </node>
+    <node id="p2_generator" type="task" status="pending">
+      <title>P2.2: Drill generator: explicit rule → drills, then interleaved</title>
+      <description>Evidence: explicit instruction + practice (Norris &amp; Ortega; Spada &amp; Tomita) and interleaving (Nakata &amp; Suzuki). A new pattern starts with a short rule card (linked to the grammar reference) + a focused block of drills; once introduced it joins MIXED sessions (cases + motion + aspect). Formats: case-ending fill-ins in travel sentences, preposition+case choice, numeral agreement with prices/times, aspect choice in context, verb-of-motion choice (incl. prefixes). Uses the learner's own mistakes as seeds. Answer keys double-checked.</description>
+      <complexity>high</complexity>
+      <expected_output>- generate_drill() schema; drill_sets populated</expected_output>
+      <risks>- Wrong answer keys. Mitigation: second validation pass by the model + "report bad item" button that removes it.</risks>
+    </node>
+    <node id="p2_drill_ui" type="task" status="pending">
+      <title>P2.3: Drill player: self-correct, then reveal</title>
+      <description>One item at a time; on a wrong answer, first a hint (category + reference link) and a second try (self-correction), then the answer and rule. Normalises ё/е and stress marks. Wrong answers log mistakes through the router. Drills slot into the Today plan (Mon grammar, Wed interleaved).</description>
+      <complexity>medium</complexity>
+      <expected_output>- Drill page; drill_answers populated; drills slot into the Today page</expected_output>
+    </node>
+    <node id="p2_cards" type="task" status="pending">
+      <title>P2.4: Card upgrades: forms in context, stress pairs, frequency deck</title>
+      <description>Research: 1–3 forms cover most uses of a word (SMARTool), chunks aid fluency, stress is mobile. Add card types: (a) high-frequency forms in context (в Москве́ / из Москвы́) instead of bare headwords; (b) stress-shift pairs for mobile-stress nouns/verbs (рука́ → ру́ку); (c) chunk cards for travel phrases. Plus a frequency deck builder (top ~3–5k lemmas, introduced gradually) generated with stress marks and reviewed before adding.</description>
+      <complexity>medium</complexity>
+      <expected_output>New card templates in review, enrichment that proposes forms-in-context and stress pairs, frequency deck import flow</expected_output>
+    </node>
+    <node id="p3_scenarios_seed" type="task" status="pending">
+      <title>P3.1: Scenario library</title>
+      <description>Seed scenarios tailored to your trip context: taxi/Yandex Go, restaurant, hotel check-in, asking directions, metro/train tickets, pharmacy, market, small talk with a stranger, a problem (lost item, wrong order). Each has partner persona, your goals checklist, target vocab, and a level (slow/clear → natural speed with slang).</description>
+      <complexity>low</complexity>
+      <expected_output>- scenarios seed data + list page</expected_output>
+    </node>
+    <node id="p3_chat" type="task" status="pending">
+      <title>P3.2: Role-play chat with streaming</title>
+      <description>Claude plays the partner in Russian only, stays in character, keeps replies short and realistic. Streams responses. Each of your turns is silently analysed for errors (separate structured call or tool): shown as a subtle underline you can expand, not interrupting the conversation. Hint button gives a suggested phrase.</description>
+      <complexity>high</complexity>
+      <expected_output>- Conversation page; conversations + messages populated</expected_output>
+      <risks>- Model breaks character to correct you. Mitigation: separate the partner call from the correction call.</risks>
+    </node>
+    <node id="p3_debrief" type="task" status="pending">
+      <title>P3.3: Scenario debrief and mistake routing</title>
+      <description>End of conversation: goals achieved, top corrections, 3–5 useful phrases you lacked → routed to cards; grammar errors → drill queue. Replay option at a harder level.</description>
+      <complexity>medium</complexity>
+      <expected_output>- Debrief view; debrief_json stored; router integration</expected_output>
+    </node>
+    <node id="p3_audio" type="task" status="pending">
+      <title>P3.4: Listening mode for scenarios</title>
+      <description>Partner lines spoken via chosen TTS with adjustable speed; "listen first, then reveal text" toggle to train listening speed. Optional browser speech recognition for speaking your replies (Chrome/Edge).</description>
+      <complexity>medium</complexity>
+      <expected_output>- Audio controls in chat; speed setting</expected_output>
+      <risks>- Windows Russian voice not installed. Mitigation: detect and show how to add the Russian speech pack.</risks>
+    </node>
+    <node id="p3_media" type="task" status="pending">
+      <title>P3.5: Media shelf «Полка» + input log + sentence mining</title>
+      <description>Curated, level-ordered ladder from docs/research.md (graded readers, Mosfilm classics, Кухня, Easy Russian, Russian with Max, Slow Russian, Ракета …; 18+ items flagged) with links and why-it-helps. Log minutes of reading/listening (input hours shown on the dashboard alongside study hours). 'Mine a sentence' quick-add: paste a line you heard/read → Claude enriches it → card with source = the show/book. Optional shadowing clips with stress-marked transcripts.</description>
+      <complexity>medium</complexity>
+      <expected_output>/shelf page, input log table + dashboard tile, sentence-mining flow</expected_output>
+    </node>
+    <node id="p4_trends" type="task" status="pending">
+      <title>P4.1: Weak-area trends and review forecast</title>
+      <description>Charts: mistakes per category per week (are aspect errors trending down?), retention by card source, 30-day review load forecast from FSRS due dates, minutes practised per day heatmap.</description>
+      <complexity>medium</complexity>
+      <expected_output>- Dashboard v2 with charts</expected_output>
+    </node>
+    <node id="p4_plan" type="task" status="pending">
+      <title>P4.2: 12-month plan + weekly rhythm</title>
+      <description>Back-plan from the trip using the research arc: Oct–Dec cases foundations → Jan–Mar motion + aspect → Apr–Jun fluency + stress → Jul–Sep trip rehearsal (maintenance SRS in the last 2 weeks). The Today page follows a weekly rhythm (Mon grammar, Tue writing, Wed interleaved drills + shadowing, Thu role-play, Fri translation + stress, Sat extensive input, Sun light review) weighted by this month's focus and weakness scores.</description>
+      <complexity>medium</complexity>
+      <expected_output>- plan_months populated; plan page; monthly review prompt</expected_output>
+    </node>
+    <node id="p5_polish" type="task" status="pending">
+      <title>P5.1: Iterate: leeches and cloze cards</title>
+      <description>Leech detection (cards failed 6+ times get rewritten by Claude with a mnemonic/cloze version), cloze cards from your own sentences, weekly summary on the dashboard. (Sentence mining moved to P3.5.)</description>
+      <complexity>medium</complexity>
+      <expected_output>- Leech handling, cloze card type</expected_output>
+    </node>
+  </nodes>
+  <edges>
+    <edge id="e1" from="q0" to="stack_py" />
+    <edge id="e2" from="q0" to="stack_ts" />
+    <edge id="e3" from="stack_py" to="p1_scaffold" />
+    <edge id="e4" from="stack_ts" to="p1_scaffold" />
+    <edge id="e5" from="p1_scaffold" to="p1_schema" />
+    <edge id="e6" from="p1_schema" to="p1_layout" />
+    <edge id="e7" from="p1_layout" to="p1_claude" />
+    <edge id="e8" from="p1_claude" to="p1_srs_core" />
+    <edge id="e9" from="p1_srs_core" to="p1_cards_crud" />
+    <edge id="e10" from="p1_cards_crud" to="p1_review_ui" />
+    <edge id="e11" from="p1_review_ui" to="p1_import" />
+    <edge id="e12" from="p1_import" to="p1_story_ui" />
+    <edge id="e13" from="p1_story_ui" to="p1_story_feedback" />
+    <edge id="e14" from="p1_story_feedback" to="p1_mistake_router" />
+    <edge id="e15" from="p1_mistake_router" to="p1_today" />
+    <edge id="e16" from="p1_today" to="p1_mini_dash" />
+    <edge id="e17" from="p1_mini_dash" to="p1_backup" />
+    <edge id="e18" from="p1_selfcorrect" to="p1_done" />
+    <edge id="e19" from="t3_prep" to="p2_weakness" />
+    <edge id="e20" from="p2_weakness" to="p2_generator" />
+    <edge id="e21" from="p2_generator" to="p2_drill_ui" />
+    <edge id="e22" from="p3_scenarios_seed" to="p3_chat" />
+    <edge id="e23" from="p3_chat" to="p3_debrief" />
+    <edge id="e24" from="p3_debrief" to="p3_audio" />
+    <edge id="e25" from="p3_media" to="p4_trends" />
+    <edge id="e26" from="p4_trends" to="p4_plan" />
+    <edge id="e27" from="p4_plan" to="p5_polish" />
+    <edge id="e28" from="p1_backup" to="p1_grammar" />
+    <edge id="e29" from="p1_grammar" to="p1_selfcorrect" />
+    <edge id="e30" from="p2_cards" to="p3_scenarios_seed" />
+    <edge id="e31" from="p2_drill_ui" to="p2_cards" />
+    <edge id="e32" from="p3_audio" to="p3_media" />
+    <edge id="e33" from="p1_done" to="t0_connect" />
+    <edge id="e34" from="t0_server" to="t1_lessons" />
+    <edge id="e35" from="t1_lessons" to="t2_channel" />
+    <edge id="e36" from="t2_channel" to="t3_prep" />
+    <edge id="e37" from="t0_connect" to="t0_server" />
+  </edges>
+</plan>
