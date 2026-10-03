@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Contents · Russian Trainer{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', path='contents.css') }}">{% endblock %}
+{% block content %}
+<header class="ct-head">
+  <p class="ct-eyebrow">Everything in one place</p>
+  <h1>Contents <span class="ct-ru" lang="ru">Содержа́ние</span></h1>
+  <p class="ct-lead">Start with <a href="/">Today</a>: it picks the session for you. Everything else lives in four groups.</p>
+</header>
+
+{% for g in groups %}
+<section class="ct-group" id="{{ g.key }}" aria-labelledby="ct-{{ g.key }}">
+  <div class="ct-group-head">
+    <h2 id="ct-{{ g.key }}">{{ g.label }} <span class="ct-ru" lang="ru">{{ g.ru }}</span></h2>
+    <p>{{ g.blurb }}</p>
+  </div>
+  <div class="ct-grid">
+    {% for href, label, desc in g["items"] %}
+    <a class="ct-card" href="{{ href }}">
+      <span class="ct-title">{{ label }}</span>
+      <span class="ct-desc">{{ desc }}</span>
+      {% if hints.get(href) %}<span class="ct-hint">{{ hints[href] }}</span>{% endif %}
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endfor %}
+{% endblock %}

@@ -106,6 +106,41 @@ h3 { font-size: 13px; letter-spacing: 0.18em; text-transform: uppercase; color: 
   box-shadow: 0 3px 0 -2px var(--lacquer), 0 4px 0 -2px rgba(201, 162, 39, 0.5);
 }
 
+/* Grouped main menu: Today, four groups that open a small menu, and Contents. */
+.mainnav { align-items: center; }
+/* The header sits above main, so an open menu stays on top while main's arrival animation runs. */
+.topbar { position: relative; z-index: 20; }
+.nav-group { position: relative; }
+.topbar nav .nav-top, .nav-group > button.nav-top {
+  font: 500 13px/1 var(--sans); letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--cream-muted); background: none; border: 0; border-bottom: 1px solid transparent;
+  padding: 6px 0; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+}
+.nav-group > button.nav-top:hover, .nav-group > button.nav-top[aria-expanded="true"] { color: var(--cream); }
+.nav-group > button.nav-top.is-active { color: var(--gold-light); border-bottom-color: var(--gold); box-shadow: 0 3px 0 -2px var(--lacquer), 0 4px 0 -2px rgba(201, 162, 39, 0.5); }
+.caret { width: 6px; height: 6px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: translateY(-2px) rotate(45deg); }
+.nav-group > button[aria-expanded="true"] .caret { transform: translateY(1px) rotate(225deg); }
+.nav-group > button:focus-visible, .nav-menu a:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+.nav-menu {
+  position: absolute; top: calc(100% + 10px); left: -14px; z-index: 30; width: 300px;
+  background: var(--raised); border: 1px solid var(--gold-line); box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+  padding: 8px; display: grid; gap: 2px;
+}
+.nav-menu[hidden] { display: none; }
+.topbar nav .nav-menu a {
+  display: grid; gap: 2px; padding: 9px 10px; border: 0; box-shadow: none;
+  text-transform: none; letter-spacing: 0; font-size: 14px; color: var(--cream);
+}
+.topbar nav .nav-menu a b { font-weight: 600; }
+.topbar nav .nav-menu a span { font-size: 12.5px; color: var(--cream-muted); line-height: 1.35; }
+.topbar nav .nav-menu a:hover { background: rgba(201, 162, 39, 0.08); }
+.topbar nav .nav-menu a[aria-current="page"] { box-shadow: inset 2px 0 0 var(--gold); color: var(--gold-light); }
+@media (max-width: 640px) {
+  .mainnav { width: 100%; gap: 6px 18px; }
+  .nav-group { position: static; }
+  .nav-menu { left: 16px; right: 16px; width: auto; top: auto; margin-top: 10px; }
+}
+
 main { max-width: 960px; margin: 0 auto; padding: 36px 0 0; }
 
 /* ---- Surfaces ---- */

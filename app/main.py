@@ -6,7 +6,7 @@ from sqlmodel import Session
 
 from app.config import ROOT, get_config
 from app.db import get_engine, migrate
-from app.routes import backup, cards, dashboard, drills, grammar, learn, medals, plan, review, scenarios, shelf, starter, today, tts, workshop
+from app.routes import backup, contents, cards, dashboard, drills, grammar, learn, medals, plan, review, scenarios, shelf, starter, today, tts, workshop
 from app.routes.learn_play import router as learn_play_router
 from app.services.backup import run_startup_backup
 from app.services.claude import load_backend
@@ -47,6 +47,7 @@ app.include_router(dashboard.router)
 app.include_router(backup.router)
 app.include_router(workshop.router)
 app.include_router(today.router)
+app.include_router(contents.router)
 app.include_router(grammar.router)
 app.include_router(medals.router)
 app.include_router(drills.router)

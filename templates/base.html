@@ -30,16 +30,20 @@
   <div class="frame">
     <header class="topbar">
       <a class="brand" href="/">{{ orn.brand_mark() }}<span class="brand-name" lang="ru">Русский</span></a>
-      <nav aria-label="Main">
-        {% set nav = [
-          ("/", "Today"), ("/learn", "Learn"), ("/plan", "Plan"), ("/review", "Review"), ("/cards", "Cards"), ("/workshop", "Workshop"), ("/grammar", "Grammar"), ("/shelf", "Shelf"),
-          ("/drills", "Drills"), ("/scenarios", "Scenarios"),
-          ("/dashboard", "Dashboard"), ("/settings", "Settings"),
-        ] %}
-        {% for href, label in nav %}
-          <a href="{{ href }}"
-             {% if request.url.path == href or (href != "/" and request.url.path.startswith(href)) %}aria-current="page"{% endif %}>{{ label }}</a>
+      {% set nav_key = nav_active(request.url.path) %}
+      <nav aria-label="Main" class="mainnav">
+        <a href="/" class="nav-top" {% if nav_key == "today" %}aria-current="page"{% endif %}>Today</a>
+        {% for g in NAV_GROUPS %}
+        <div class="nav-group" data-nav-group>
+          <button type="button" class="nav-top{% if nav_key == g.key %} is-active{% endif %}" aria-expanded="false" aria-controls="menu-{{ g.key }}">{{ g.label }}<span class="caret" aria-hidden="true"></span></button>
+          <div class="nav-menu" id="menu-{{ g.key }}" hidden>
+            {% for href, label, desc in g["items"] %}
+            <a href="{{ href }}" {% if request.url.path == href or request.url.path.startswith(href ~ "/") %}aria-current="page"{% endif %}><b>{{ label }}</b><span>{{ desc }}</span></a>
+            {% endfor %}
+          </div>
+        </div>
         {% endfor %}
+        <a href="/contents" class="nav-top" {% if nav_key == "contents" %}aria-current="page"{% endif %}>Contents</a>
       </nav>
     </header>
     <main>
