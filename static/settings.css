@@ -59,3 +59,8 @@
 .exports { list-style: none; padding: 0; margin: 4px 0 0; display: grid; gap: 14px; }
 .exports li { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
 .exports .button { text-decoration: none; }
+
+/* Voice */
+.voice-form { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; margin: 10px 0; }
+.voice-form select { max-width: 100%; min-width: 0; }
+#voice .button { max-width: 100%; }

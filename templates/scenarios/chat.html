@@ -5,7 +5,7 @@
 <script src="{{ url_for('static', path='speak.js') }}" defer></script>
 <script src="{{ url_for('static', path='scenarios.js') }}" defer></script>{% endblock %}
 {% block content %}
-<div class="ch" id="chat" data-base="/scenarios/c/{{ conv.id }}" data-ended="{{ 'true' if ended else 'false' }}" data-awaiting="{{ 'true' if awaiting_reply else 'false' }}">
+<div class="ch" id="chat" data-voice="{{ s.voice }}" data-base="/scenarios/c/{{ conv.id }}" data-ended="{{ 'true' if ended else 'false' }}" data-awaiting="{{ 'true' if awaiting_reply else 'false' }}">
   <p class="sc-back"><a href="/scenarios/{{ s.slug }}">&larr; {{ s.title }}</a></p>
   <header class="ch-head">
     <p class="sc-eyebrow">{{ s.partner_role }} · level {{ conv.level }}, {{ levels[conv.level] }}</p>
@@ -34,7 +34,7 @@
   <div id="log" class="ch-log" role="log" aria-live="polite" aria-label="Conversation">
     {% for m, view in rows %}
       {% if m.role == 'partner' %}
-        <div class="ch-msg partner"><p class="ch-who">{{ s.partner_role }}</p><p class="ch-text" lang="ru" data-speak data-listen-first>{{ m.content }}</p></div>
+        <div class="ch-msg partner"><p class="ch-who">{{ s.partner_role }}</p><p class="ch-text" lang="ru" data-speak data-speak-voice="{{ s.voice }}" data-listen-first>{{ m.content }}</p></div>
       {% else %}
         <div class="ch-msg you" data-mid="{{ m.id }}"><p class="ch-who">You</p>{% with m=view.m, issues=view.issues, segments=view.segments, unplaced=view.unplaced, better=view.better, reviewed=view.reviewed %}{% include "scenarios/_learner_text.html" %}{% endwith %}</div>
       {% endif %}

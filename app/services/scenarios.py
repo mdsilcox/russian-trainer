@@ -19,6 +19,26 @@ def _st(text: str) -> str:
     return _MARK.sub("\\1\u0301", text)
 
 
+# Cloud voice per scenario, matching the persona (Dmitry is male; Svetlana and Dariya are female).
+VOICES = {
+    "taxi": "Dmitry",
+    "directions": "Svetlana",
+    "metro": "Dariya",
+    "train": "Dmitry",
+    "restaurant": "Dmitry",
+    "cafe": "Dariya",
+    "hotel-checkin": "Svetlana",
+    "hotel-problem": "Dmitry",
+    "pharmacy": "Dariya",
+    "market": "Dmitry",
+    "souvenirs": "Svetlana",
+    "small-talk": "Dariya",
+    "relatives": "Svetlana",
+    "lost-bag": "Dariya",
+    "wrong-order": "Dmitry",
+}
+
+
 def _vocab(pairs: list[tuple[str, str]]) -> list[dict]:
     return [{"ru": _st(ru), "en": en} for ru, en in pairs]
 
@@ -27,6 +47,7 @@ def _s(slug, group, title, partner_role, setting, persona, opening, goals, vocab
     return {
         "slug": slug, "group": group, "title": title, "partner_role": partner_role, "setting": setting,
         "persona": persona, "opening_ru": _st(opening), "goals_json": goals, "vocab_json": _vocab(vocab), "level": level,
+        "voice": f"ru-RU-{VOICES[slug]}Neural",
     }
 
 
@@ -242,7 +263,7 @@ SCENARIOS: list[dict] = [
     ),
 ]
 
-_FIELDS = ("title", "setting", "partner_role", "persona", "opening_ru", "goals_json", "vocab_json", "level", "group", "sort")
+_FIELDS = ("title", "setting", "partner_role", "persona", "opening_ru", "goals_json", "vocab_json", "level", "group", "sort", "voice")
 
 
 def seed(session: Session) -> None:

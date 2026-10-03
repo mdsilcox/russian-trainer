@@ -214,5 +214,5 @@ def test_phrases_become_cards_and_duplicates_are_skipped(client, session, conv, 
 def test_listen_first_markup_in_chat(client, conv):
     page = client.get(f"/scenarios/c/{conv}").text
     assert "data-listen-first-toggle" in page and "data-speak-speed" in page
-    assert '<p class="ch-text" lang="ru" data-speak data-listen-first>' in page
+    assert '<p class="ch-text" lang="ru" data-speak data-speak-voice="' in page and ' data-listen-first>' in page
     assert page.count("data-listen-first>") == 1  # only the partner bubble's text element, not the learner's or a wrapper

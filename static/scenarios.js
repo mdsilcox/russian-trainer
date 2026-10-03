@@ -94,6 +94,7 @@
             textEl = el("p", "ch-text");
             textEl.lang = "ru";
             textEl.setAttribute("data-speak", "");
+            if (root.dataset.voice) textEl.setAttribute("data-speak-voice", root.dataset.voice);
             textEl.setAttribute("data-listen-first", ""); // blurred while "Listen first" is on
             bubble.append(textEl);
             log.append(bubble);

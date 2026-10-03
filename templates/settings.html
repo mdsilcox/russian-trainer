@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Settings · Russian Trainer{% endblock %}
-{% block head %}<link rel="stylesheet" href="{{ url_for('static', path='settings.css') }}">{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', path='settings.css') }}">
+<script src="{{ url_for('static', path='speak.js') }}" defer></script>{% endblock %}
 {% block content %}
 {% import "_ornaments.html" as orn %}
 <header class="page-head">
@@ -28,6 +29,31 @@
     The API key is read from ANTHROPIC_API_KEY ({{ "found" if has_api_key() else "not set" }}) and billed per use.
   </p>
 </section>
+
+<section class="settings-block card" id="voice">
+  <h2>Voice</h2>
+  {% if tts_on %}
+  <p class="status ready"><strong>Natural voices on</strong></p>
+  <p class="muted small">Spoken lines are made by Azure and saved on this computer, so each one is fetched only once.</p>
+  <form method="post" action="/settings/voice" class="voice-form">
+    <label for="tts-voice">Default voice</label>
+    <select id="tts-voice" name="voice" onchange="this.form.submit()">
+      {% for v in tts_voices %}<option value="{{ v.id }}" {% if v.id == tts_voice %}selected{% endif %}>{{ v.label }}</option>{% endfor %}
+    </select>
+    <noscript><button type="submit" class="button">Save</button></noscript>
+  </form>
+  {% else %}
+  <p><strong>Using your browser's voices.</strong> <span class="muted">Add an Azure key to enable natural voices:
+    <a href="/tts/setup">See the setup steps</a> (<code>docs/voices.md</code>).</span></p>
+  {% endif %}
+  <p><button type="button" class="button" id="voice-sample" data-sample-text="Здравствуйте! Добро пожаловать в Москву. Как у вас дела?">Play a sample</button></p>
+</section>
+<script>
+  document.getElementById("voice-sample").addEventListener("click", function () {
+    var sel = document.getElementById("tts-voice");
+    if (window.Speak) Speak.say(this.dataset.sampleText, { voice: sel ? sel.value : "", el: this });
+  });
+</script>
 
 <section class="settings-block card">
   <h2>Backups</h2>

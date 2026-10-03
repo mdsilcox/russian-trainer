@@ -8,7 +8,7 @@ from app.config import get_config
 from app.db import get_session
 from app.models import Setting
 from app.services import backup as backup_service
-from app.services import claude
+from app.services import claude, tts
 from app.web import templates
 
 router = APIRouter()
@@ -47,6 +47,9 @@ def settings_page(request: Request, backed_up: str = "", error: str = "", sessio
             "backends": [(b, claude.BACKEND_LABELS[b], *claude.ai_status(b)) for b in claude.Backend],
             "current_backend": claude.current_backend(),
             "claude_cli": claude.claude_cli(),
+            "tts_on": tts.available(),
+            "tts_voices": tts.voices(),
+            "tts_voice": tts.default_voice(session),
         },
     )
 
@@ -56,6 +59,13 @@ def choose_ai_backend(backend: str = Form(...), session: Session = Depends(get_s
     if backend in claude.Backend._value2member_map_:
         claude.set_backend(session, claude.Backend(backend))
     return RedirectResponse("/settings#ai", status_code=303)
+
+
+@router.post("/settings/voice")
+def choose_voice(voice: str = Form(...), session: Session = Depends(get_session)):
+    if tts.is_voice(voice):
+        tts.set_default_voice(session, voice)
+    return RedirectResponse("/settings#voice", status_code=303)
 
 
 @router.post("/settings/backup")

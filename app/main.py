@@ -6,7 +6,7 @@ from sqlmodel import Session
 
 from app.config import ROOT, get_config
 from app.db import get_engine, migrate
-from app.routes import backup, cards, dashboard, drills, grammar, medals, plan, review, scenarios, shelf, starter, today, workshop
+from app.routes import backup, cards, dashboard, drills, grammar, medals, plan, review, scenarios, shelf, starter, today, tts, workshop
 from app.services.backup import run_startup_backup
 from app.services.claude import load_backend
 from app.services.plan import seed as seed_plan
@@ -49,6 +49,7 @@ app.include_router(drills.router)
 app.include_router(scenarios.router)
 app.include_router(shelf.router)
 app.include_router(plan.router)
+app.include_router(tts.router)
 
 
 def run() -> None:

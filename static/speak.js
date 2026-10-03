@@ -1,4 +1,5 @@
-/* Speak: a reusable "read this Russian aloud" control on the Web Speech API.
+/* Speak: a reusable "read this Russian aloud" control. It uses natural cloud voices (Azure, through
+ * the app's /tts route) when a key is configured, and the browser's Web Speech API otherwise.
  *
  * Include static/speak.css and this file (with `defer`) on any page.
  *
@@ -22,16 +23,20 @@
  *       Toggling applies at once: on blurs every not-yet-revealed element, off shows them all.
  *       The mode is stored per device and mirrored as class "speak-lf" on <html>, so a
  *       tiny inline script can set it before first paint if you want no flash.
+ *   data-speak-voice="ru-RU-DmitryNeural"
+ *       On a data-speak element (or any ancestor): the cloud voice to use for it. Ignored by
+ *       the browser provider. Without it the voice chosen in Settings is used.
  *   data-speak-note
  *       Optional container for the "no Russian voice" note; default is the top of <main>.
  *
  * JAVASCRIPT
  *   Speak.say(text, opts) -> Promise<boolean>  speak text (stress marks stripped, any current
- *                              speech stopped first). opts: { rate, el }. `el` receives the
+ *                              speech stopped first). opts: { rate, voice, el }. `el` receives the
  *                              speak:start and speak:end events (bubbling CustomEvents with
  *                              detail { text, completed }) and gets the is-playing state.
  *                              Resolves true if it played to the end.
  *   Speak.stop()               stop speaking now
+ *   Speak.provider()           "cloud" or "browser": which provider is active
  *   Speak.available()          false once we know there is no Russian voice (true while loading)
  *   Speak.rate                 current speed (getter); Speak.setRate(r) snaps to the nearest step
  *                              (0.6, 0.75, 0.9, 1, 1.2), saves it, and updates every speed picker
@@ -42,9 +47,12 @@
  *   Speak.RATES                the speed steps
  *
  * PROVIDERS
- *   Speak.say() talks to one provider object: { available(), speak(text, {rate}) -> Promise<bool>,
- *   stop(), onchange(cb) }. Only the browser provider exists; a cloud TTS provider can be
- *   swapped in later with Speak.useProvider(obj) without touching any markup.
+ *   Speak.say() talks to one provider object: { available(), speak(text, {rate, voice}) -> Promise<bool>,
+ *   stop(), onchange(cb) }. Two exist. The browser provider is the default. On load we ask
+ *   GET /tts/status; when it says available, the cloud provider (an Audio element playing
+ *   GET /tts?text=&voice=&rate=) takes over via Speak.useProvider. If a cloud request fails, that one
+ *   utterance is spoken by the browser voice instead (logged once to the console). The "no Russian
+ *   voice" note never shows while the cloud provider is active.
  */
 (function () {
   "use strict";
@@ -123,6 +131,47 @@
     };
   }
 
+  // ---- Cloud provider --------------------------------------------------------------------
+  function cloudProvider(fallback, defaultVoice) {
+    const audio = new Audio();
+    let finish = null; // settles the utterance in progress
+    let warned = false;
+
+    function end(ok) { const f = finish; finish = null; if (f) f(ok); }
+    return {
+      name: "cloud",
+      available: () => true,
+      settled: () => true,
+      onchange: () => () => {},
+      stop() {
+        audio.pause();
+        end(false);
+        fallback.stop();
+      },
+      speak(text, o) {
+        this.stop();
+        return new Promise((resolve) => {
+          let done = false;
+          let cancelled = false;
+          const settle = (ok) => { if (!done) { done = true; resolve(ok); } };
+          finish = (ok) => { cancelled = true; settle(ok); };
+          const failed = () => {
+            if (done || cancelled) return;
+            if (!warned) { warned = true; console.warn("Natural voice unavailable, using the browser voice instead."); }
+            finish = (ok) => { cancelled = true; settle(ok); };
+            if (fallback.available()) fallback.speak(text, o).then(settle); else settle(false);
+          };
+          const q = new URLSearchParams({ text, voice: o.voice || defaultVoice || "", rate: String(o.rate) });
+          audio.onended = () => { finish = null; settle(true); };
+          audio.onerror = failed;
+          audio.src = "/tts?" + q.toString();
+          const p = audio.play();
+          if (p && p.catch) p.catch(() => { if (!cancelled) failed(); });
+        });
+      },
+    };
+  }
+
   let provider = browserProvider();
   let unsubscribe = provider.onchange(onAvailability);
 
@@ -147,6 +196,12 @@
     if (el.matches("button")) el.setAttribute("aria-pressed", on ? "true" : "false");
   }
 
+  function voiceFor(el) {
+    const holder = el && (el._speakSource || el);
+    const v = holder && holder.closest ? holder.closest("[data-speak-voice]") : null;
+    return v ? v.getAttribute("data-speak-voice") : "";
+  }
+
   function say(text, opts) {
     opts = opts || {};
     const t = clean(text);
@@ -156,7 +211,8 @@
     const mine = active = { el };
     setPlaying(el, true);
     fire(el, "speak:start", { text: t });
-    return provider.speak(t, { rate: opts.rate || rate }).then((ok) => {
+    const voice = opts.voice || voiceFor(el);
+    return provider.speak(t, { rate: opts.rate || rate, voice }).then((ok) => {
       if (active === mine) {
         active = null;
         setPlaying(el, false);
@@ -358,7 +414,16 @@
   // ---- Boot ------------------------------------------------------------------------------
   if (store.get(KEY_LF) === "1") document.documentElement.classList.add("speak-lf");
 
+  /* Switch to the cloud voices when the server has an Azure key; otherwise stay on the browser's. */
+  function detectCloud() {
+    if (!window.fetch || !window.Audio) return;
+    fetch("/tts/status").then((r) => (r.ok ? r.json() : null)).then((st) => {
+      if (st && st.available) useProvider(cloudProvider(provider, st.default_voice));
+    }).catch(() => { /* offline or old server: keep the browser voice */ });
+  }
+
   function boot() {
+    detectCloud();
     scan(document);
     new MutationObserver((records) => {
       records.forEach((r) => r.addedNodes.forEach((n) => { if (n.nodeType === 1) scan(n); }));
@@ -370,6 +435,7 @@
 
   window.Speak = {
     RATES, say, stop, onvoices, reveal, scan, useProvider, setRate,
+    provider: () => provider.name,
     available: () => provider.available(),
     get rate() { return rate; },
   };
