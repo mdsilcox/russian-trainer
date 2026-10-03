@@ -4,6 +4,8 @@ import os
 import shutil
 from datetime import timedelta
 
+import pytest
+
 from sqlalchemy import text
 from sqlmodel import Session
 
@@ -33,7 +35,7 @@ def _raw_world(db):
 
 
 def new_card_state_for(db):
-    from helpers import new_card_state
+    from tc_helpers import new_card_state
 
     return new_card_state(db).id
 
@@ -89,11 +91,14 @@ def test_f1_backfill_idempotent(session):
 def test_f1_fixture_upgrade_equivalence(tmp_path):
     """Trap 5: the seed database (it has reviews), plus rows of every practice kind, reports the same numbers
     after migrating as the legacy readers computed before."""
-    import legacy
+    import tc_legacy as legacy
     from app.db import make_engine, migrate
     from app.services import activity
 
-    src = os.environ["LAB_FIXTURE_DB"]
+    # Adapted for main: the Lab's fixture (a snapshot of the real database) stays in the Lab, never in this repo.
+    src = os.environ.get("LAB_FIXTURE_DB") or "E:/Backup Desktop/Claude Code Projects/Orchestration Lab/fixtures/data/russian.db"
+    if not os.path.exists(src):
+        pytest.skip("the Orchestration Lab's fixture database is not on this machine")
     dest = tmp_path / "upgrade.db"
     shutil.copy2(src, dest)
     engine = make_engine(f"sqlite:///{dest}")

@@ -9,7 +9,7 @@ from sqlmodel import Session, select
 
 from app.db import get_session
 from app.models import Card
-from app.services import drills, plan, shelf, stats, today, units
+from app.services import activity, cloze, drills, lessons, plan, shelf, stats, today, units
 from app.web import NAV_GROUPS, templates
 
 router = APIRouter()
@@ -53,6 +53,9 @@ def hints(session: Session, now: datetime) -> dict[str, str]:
     safe("/shelf", lambda: _plural(shelf.this_week(session, now), "minute", "minutes") + " logged this week")
     safe("/plan", lambda: (f"This month: {m.title}" if (m := plan.current_month(session, now)) else ""))
     safe("/dashboard", lambda: _plural(stats.streaks(session, now).current, "day", "days") + " streak")
+    safe("/lessons", lambda: (f"Next: {n.topic}, {lessons.pretty_date(n.date, stats.local_date(now))}" if (n := lessons.next_lesson(session, now)) else "Add your first lesson"))
+    safe("/activity", lambda: _plural(len(activity.timeline(session, now)), "day", "days") + " with practice in the last two weeks")
+    safe("/cloze", lambda: _plural(len(cloze.sentences(session)), "sentence", "sentences") + " of yours to use")
     safe("/cards", lambda: _plural(session.exec(select(func.count()).select_from(Card).where(Card.suspended == False)).one(), "card", "cards") + " in your deck")  # noqa: E712
     return out
 

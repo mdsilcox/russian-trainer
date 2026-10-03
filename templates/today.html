@@ -145,6 +145,42 @@
 </section>
 {% endif %}
 
+<div class="tutor-row">
+  <section class="tutor-block" data-this-week>
+    <h3>Next lesson</h3>
+    {% if week.next_lesson_date %}
+    <p class="tutor-when">{{ next_label | capitalize }} <small class="muted">({{ lesson_date(week.next_lesson_date) }})</small></p>
+    {% if next_lesson %}<p><a href="/lessons/{{ next_lesson.id }}">{{ next_lesson.topic }}</a></p>{% endif %}
+    {% elif week.topic %}
+    <p class="muted">No next lesson is booked yet.</p>
+    {% endif %}
+    {% if week.topic %}
+    <p>Working on: <strong>{{ week.topic }}</strong></p>
+    {% if week.goals %}<ul>{% for g in week.goals %}<li>{{ g }}</li>{% endfor %}</ul>{% endif %}
+    <a class="tutor-link" href="/lessons">All lessons →</a>
+    {% elif week.next_lesson_date %}
+    <a class="tutor-link" href="/lessons">All lessons →</a>
+    {% else %}
+    <p class="muted">Add your first lesson with your tutor to see its topic and goals here.</p>
+    <a class="tutor-link" href="/lessons">Add a lesson →</a>
+    {% endif %}
+  </section>
+  {% if tutor_tasks %}
+  <section class="tutor-block" data-tutor-tasks>
+    <h3>Tasks from your tutor</h3>
+    <ul class="ls-tasks">
+      {% for t, when in tutor_tasks %}
+      <li>
+        <span class="ls-task-title">{{ t.title }}</span>
+        <span class="ls-due{% if when == 'overdue' %} is-overdue{% endif %}">{{ when }}</span>
+        <form method="post" action="/tasks/{{ t.id }}/done"><input type="hidden" name="next" value="/"><button type="submit">Done</button></form>
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+</div>
+
 <ol class="plan">
   <li class="plan-card" data-rise style="--r: 0">
     <div class="plan-top"><span class="numeral">I</span><span class="mins">{% if r.minutes %}~{{ r.minutes | round(0, "ceil") | int }} of {{ r.budget_minutes }} min{% else %}{{ r.budget_minutes }} min{% endif %}</span></div>

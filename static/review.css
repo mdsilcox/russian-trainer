@@ -185,3 +185,6 @@
 @media (max-width: 560px) {
   .rv-audio { width: 100%; justify-content: space-between; }
 }
+
+.rv-leech { margin: 0 0 8px; text-align: center; }
+.rv-leech .badge { text-decoration: none; }

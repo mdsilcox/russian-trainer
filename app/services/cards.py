@@ -279,3 +279,37 @@ def create_suggested_cards(
         base = (stress.get("base") or "").strip() or headword
         add("stress", stress.get("shifted", ""), stress.get("en", ""), stress.get("note", ""), "stress", base)
     return added
+
+
+class LeechRewrite(BaseModel):
+    example_ru: str = Field(description="A new example sentence in Russian, with stress marks")
+    example_en: str = Field(description="English translation of the example")
+    mnemonic: str = Field(description="A memory hook, in English")
+    notes: str = Field(description="What makes the word easy to confuse or forget, in English")
+
+
+LEECH_SYSTEM = (
+    "You help an English-speaking B1 learner of Russian with a card they keep forgetting. "
+    "Give a fresh angle: a clearer, short example sentence using the word (stress mark U+0301 on every word of "
+    "two or more syllables, never on ё), a vivid memory hook, and a short note on what makes the word slippery. "
+    "Write all explanations in English."
+)
+
+
+def suggest_rewrite(client: ClaudeClient, card: Card) -> LeechRewrite:
+    """Ask Claude for a new example, memory hook and note for a card the learner keeps forgetting."""
+    lines = [f"Russian: {card.ru_stressed or card.ru}", f"English: {card.en}"]
+    example = card.example_ru or "(none)"
+    if card.example_ru and card.example_en:
+        example += f" ({card.example_en})"
+    lines.append(f"Current example: {example}")
+    if card.notes:
+        lines.append(f"Current notes: {card.notes}")
+    lines.append(
+        "The learner has failed this card many times. Suggest a different example sentence, "
+        "a memory hook and a note on why it is easy to confuse."
+    )
+    prompt = "\n".join(lines)
+    result = client.ask_structured(Task.leech_rewrite, LEECH_SYSTEM, prompt, LeechRewrite, max_tokens=800)
+    result.example_ru = apply_stress_marks(result.example_ru)
+    return result

@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 from fsrs import State
 from sqlmodel import select
 
-from app.models import CardState, Direction, Module, ReviewLog, Story
+from app.models import CardState, Direction, Module, ReviewLog, Story, TranslationAttempt
 from app.routes.review import source_label
 from app.services import cards as card_service
 from app.services import srs
@@ -61,8 +61,11 @@ def test_source_label(session):
     story = Story(title="Поезд", source_lang="ru", source_text="...")
     session.add(story)
     session.commit()
+    attempt = TranslationAttempt(story_id=story.id, text="...")  # story cards point at the attempt (mistakes.py)
+    session.add(attempt)
+    session.commit()
     card = card_service.create_card(session, ru="купе", en="compartment", source_module=Module.story,
-                                    source_ref_id=story.id)
+                                    source_ref_id=attempt.id)
     assert source_label(session, card) == "from your story ‘Поезд’"
 
 

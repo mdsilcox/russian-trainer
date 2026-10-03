@@ -1,0 +1,13 @@
+/* Activity: the last two weeks of practice, one block per day. */
+.ac-head { display: grid; gap: 8px; margin-bottom: 24px; }
+.ac-eyebrow { margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold-light); }
+.ac-head h1 { margin: 0; }
+.ac-ru { font-family: var(--serif); font-style: italic; font-weight: 500; font-size: 0.62em; color: var(--gold-light); margin-left: 8px; }
+.ac-days { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.ac-day { background: var(--raised); border: 1px solid var(--gold-line); padding: 16px 18px; min-width: 0; }
+.ac-date { margin: 0 0 8px; font-family: var(--serif); font-weight: 600; font-size: 22px; color: var(--gold-light); }
+.ac-lines { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.ac-line { color: var(--cream); font-size: 15px; overflow-wrap: anywhere; padding-left: 14px; position: relative; }
+.ac-line::before { content: ""; position: absolute; left: 0; top: 0.6em; width: 6px; height: 6px; background: var(--gold); }
+.ac-empty { padding: 28px 0; color: var(--cream-muted); max-width: 62ch; }
+.ac-empty a { color: var(--gold-light); }

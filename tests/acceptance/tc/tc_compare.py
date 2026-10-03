@@ -37,7 +37,7 @@ def local_day_of(dt):
 
 def readers(db, now, weeks=(26, 4)):
     """The run's four readers, reduced to comparable plain values."""
-    import legacy
+    import tc_legacy as legacy
     from app.services import medals, stats, today
 
     s = stats.streaks(db, now)
@@ -54,7 +54,7 @@ def readers(db, now, weeks=(26, 4)):
 
 def expected(db, now, weeks=(26, 4)):
     """The same values computed by the legacy oracle from the source tables."""
-    import legacy
+    import tc_legacy as legacy
     from app.services import medals
 
     measures = legacy.medal_measures(db, now)

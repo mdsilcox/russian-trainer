@@ -42,6 +42,19 @@
   </div>
 </form>
 
+{% if card and is_leech and ai_enabled() %}
+  <section class="card stack leech-rewrite">
+    <h2>Keeps slipping away?</h2>
+    <p class="muted">Ask Claude for a fresh example sentence, a memory hook and a note on what makes this word slippery.</p>
+    <div class="actions">
+      <button type="button" hx-post="/cards/{{ card.id }}/rewrite" hx-target="#leech-rewrite" hx-swap="innerHTML" hx-indicator="this">
+        Suggest a rewrite<span class="htmx-indicator"> … about 10 seconds</span>
+      </button>
+    </div>
+    <div id="leech-rewrite" aria-live="polite"></div>
+  </section>
+{% endif %}
+
 {% if card %}
   <div class="actions danger-zone">
     <form method="post" action="/cards/{{ card.id }}/suspend">

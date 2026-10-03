@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 
 from sqlmodel import Session as DbSession, select
 
-from app.models import MedalAward, Mistake, Module, ReviewLog, Session, TranslationAttempt
+from app.models import Activity, MedalAward, Mistake, Module
 from app.services import srs, stats
 
 PERFECT_MIN_REVIEWS = 10
@@ -109,10 +109,10 @@ def _fmt(value: float) -> str:
 def _clean_review_day(session: DbSession) -> int:
     """Most reviews on a calendar day (local) that had no Again rating; 0 if none."""
     per_day: dict = defaultdict(lambda: [0, 0])
-    for rating, at in session.exec(select(ReviewLog.rating, ReviewLog.reviewed_at)).all():
-        row = per_day[srs._utc(at).astimezone().date()]
+    for day, detail in session.exec(select(Activity.day, Activity.detail).where(Activity.kind == "review")).all():
+        row = per_day[day]
         row[0] += 1
-        row[1] += rating <= 1
+        row[1] += (detail or {}).get("rating", 3) <= 1
     return max((n for n, again in per_day.values() if not again), default=0)
 
 
@@ -130,8 +130,8 @@ def _self_corrected_stories(session: DbSession) -> int:
 def _measure(session: DbSession, now: datetime, trip: int | None) -> dict[str, float | None]:
     """Current value toward each computable medal. Not-yet-built features are absent."""
     streak = stats.streaks(session, now)
-    minutes = sum(session.exec(select(Session.minutes)).all())
-    attempts = len(session.exec(select(TranslationAttempt.id)).all())
+    minutes = sum(session.exec(select(Activity.minutes).where(Activity.kind == "session")).all())
+    attempts = len(session.exec(select(Activity.id).where(Activity.kind == "story_attempt")).all())
     cards = stats.deck_counts(session).cards
     return {
         "streak_7": streak.longest,

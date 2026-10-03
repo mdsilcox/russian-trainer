@@ -8,7 +8,7 @@ STRESS = "\u0301"
 
 
 def noon(day: date) -> datetime:
-    from conftest import local_noon
+    from acc_common import local_noon
 
     return local_noon(day)
 

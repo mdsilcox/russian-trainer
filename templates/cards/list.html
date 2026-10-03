@@ -29,11 +29,14 @@
     <option value="">All kinds</option>
     {% for k in kinds %}<option value="{{ k }}" {% if k == kind %}selected{% endif %}>{{ kind_labels.get(k, "Word") }}</option>{% endfor %}
   </select>
-  <label class="checkbox"><input type="checkbox" name="leeches" value="true" {% if leeches %}checked{% endif %}> Leeches only</label>
+  <label class="checkbox"><input type="checkbox" name="leeches" value="true" {% if leeches %}checked{% endif %}> Leeches ({{ leech_count }})</label>
   <button type="submit">Filter</button>
 </form>
 
 <p class="count">{{ rows|length }} card{{ "" if rows|length == 1 else "s" }}</p>
+{% if leeches and leech_count %}
+<p class="leech-actions"><a class="button" href="/cards/leeches/suspend">Suspend all leeches</a></p>
+{% endif %}
 
 {% if rows %}
 <table class="cards-table ledger">

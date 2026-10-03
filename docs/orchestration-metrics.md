@@ -85,3 +85,22 @@ Contracts committed at 17:05Z, gate closed at 17:22:57Z (22.7 min from the phase
 | P5.4 Listening + Today | Sonnet C (reused) | 1 | 21k | none |
 
 **Reusing agents is the biggest lever measured so far.** The three follow-on steps cost 160k agent tokens in total, against about 300k for three fresh agents (Phase 4's first steps averaged 97k). The smallest step (Today and two templates) cost 21k, roughly a fifth of a fresh agent. The context file helped by about 13%; reuse helped by roughly half on bigger steps and up to 80% on small ones.
+
+## Phase 6 (orchestrated, Lab features, the Lab's hidden tests as acceptance tests)
+
+Approved 18:10Z, contracts committed 18:19:43Z, gate closed about 18:40Z (28 min from the start at 18:12Z): 16 features, 2,425 lines of app code plus 5,285 of tests (285 ported acceptance tests), 973 tests passing.
+
+| Step | Owner | Rounds | Agent tokens | Defects caught |
+|---|---|---|---|---|
+| Contracts; merge the Lab pilot's T-M code (cloze, weekly summary, story stats, settings editor) | Orchestrator | n/a | n/a | 8 hunks needed hand-merging (line endings, the new Contents route) |
+| Leeches | Sonnet A | 2 | 108k | Apply silently replaced the card's own notes (must-fix); missing stress mark on the page subtitle |
+| Activity log, readers, timeline | Sonnet B | 1 | 130k | none in the app; acceptance-test harness issues fixed by the orchestrator (module-name clash across folders, fixture path) |
+| Tutor lessons (7 features) | Sonnet C | 2 | 159k | next lesson's topic missing on Today; ISO dates; squeezed task input |
+| Gate | Orchestrator | n/a | n/a | pre-existing: review named the wrong story for mistake cards (fixed with tests) |
+
+**What changed this phase.**
+- **Executable specs made lanes one-shot.** With the Lab's hidden tests ported in before launch, every lane came back green on its acceptance suite in its first run. Review rounds were only about UX and data safety, not about missing requirements.
+- **Reusing existing code beat rebuilding.** The pilot's T-M code took about 10 minutes to merge and review, against roughly two lanes' worth of tokens (about 200k) to rebuild it.
+- **New risks found:**
+  - An agent ran `git stash` on the shared working tree. It was restored, but it could have lost the other lanes' work. Briefs now forbid it.
+  - The board showed the lanes empty because the orchestrator had estimated start times that fell in the future. Board times are now read from the clock.

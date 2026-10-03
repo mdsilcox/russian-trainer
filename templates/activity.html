@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Activity · Russian Trainer{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', path='activity.css') }}">{% endblock %}
+{% block content %}
+<header class="ac-head">
+  <p class="ac-eyebrow">The last two weeks</p>
+  <h1>Activity <span class="ac-ru" lang="ru">Исто́рия</span></h1>
+</header>
+{% if days %}
+<ol class="ac-days">
+  {% for d in days %}
+  <li class="ac-day" data-activity-day="{{ d.day.isoformat() }}">
+    <h2 class="ac-date"><time datetime="{{ d.day.isoformat() }}">{{ d.day.strftime('%A') }}, {{ d.day.day }} {{ d.day.strftime('%B') }}</time></h2>
+    <ul class="ac-lines">
+      {% for line in d.lines %}<li class="ac-line ac-{{ line.kind|replace('_', '-') }}">{{ line.label }}</li>{% endfor %}
+    </ul>
+  </li>
+  {% endfor %}
+</ol>
+{% else %}
+<section class="ac-empty">
+  <p>Nothing here yet. Your sessions, reviews, drills, translations, role-play turns and listening or reading time will appear here, one block per day.</p>
+  <p><a href="/">Start with today's plan</a></p>
+</section>
+{% endif %}
+{% endblock %}

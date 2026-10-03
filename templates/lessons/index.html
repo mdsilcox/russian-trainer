@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Lessons · Russian Trainer{% endblock %}
+{% block content %}
+<header class="ls-head">
+  <p class="ls-eyebrow">With your tutor</p>
+  <h1>Lessons <span class="ls-ru" lang="ru">Уро́ки</span></h1>
+</header>
+
+<section class="card ls-panel">
+  <h2>Add a lesson</h2>
+  {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+  <form method="post" action="/lessons" class="fields">
+    <div class="row">
+      <label class="field"><span>Date</span><input type="date" name="date" value="{{ form.date }}" required></label>
+      <label class="field"><span>Topic</span><input type="text" name="topic" value="{{ form.topic }}" required></label>
+    </div>
+    <label class="field"><span>Goals</span><textarea name="goals" rows="3">{{ form.goals }}</textarea><small class="muted">One per line.</small></label>
+    <label class="field"><span>Materials</span><textarea name="materials" rows="3">{{ form.materials }}</textarea><small class="muted">One per line: <code>title | https://link</code> or just the link.</small></label>
+    <label class="field"><span>Notes</span><textarea name="notes" rows="3">{{ form.notes }}</textarea></label>
+    <div><button class="primary" type="submit">Add lesson</button></div>
+  </form>
+</section>
+
+<section class="ls-list">
+  <h2>All lessons</h2>
+  {% if rows %}
+  <ul class="ls-rows">
+    {% for lesson, words, open_tasks in rows %}
+    <li>
+      <a class="ls-row" href="/lessons/{{ lesson.id }}">
+        <span class="ls-date">{{ lesson_date(lesson.date) }}</span>
+        <span class="ls-topic">{{ lesson.topic }}</span>
+        <span class="ls-meta muted">{{ words }} {{ "word" if words == 1 else "words" }} added · {{ open_tasks }} open {{ "task" if open_tasks == 1 else "tasks" }}</span>
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="muted">No lessons yet. Add the first one above.</p>
+  {% endif %}
+</section>
+{% endblock %}

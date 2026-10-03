@@ -1,0 +1,81 @@
+/* Lessons, tutor tasks and the question box (Phase 6). Shared by the lesson pages and the pages that carry the question control. */
+.ls-head { margin-bottom: 10px; }
+.ls-head h1 { margin-bottom: 8px; overflow-wrap: anywhere; }
+.ls-ru { font-family: var(--serif); font-style: italic; font-weight: 500; font-size: 0.5em; color: var(--gold-light); margin-left: 10px; letter-spacing: 0; }
+.ls-eyebrow { font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold-light); margin: 6px 0 0; }
+.ls-panel { padding: 24px 28px; margin-bottom: 22px; }
+.ls-panel h2 { margin-bottom: 10px; }
+.ls-panel h3 { margin: 16px 0 6px; font-size: 1.1rem; }
+.ls-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 22px; align-items: start; }
+.ls-bullets { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+.ls-bullets a, .ls-notes { overflow-wrap: anywhere; }
+.ls-notes { white-space: pre-wrap; margin: 0; }
+.ls-list h2 { margin: 28px 6px 12px; }
+.ls-rows { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.ls-row { display: grid; grid-template-columns: 110px minmax(0, 1fr) auto; gap: 6px 16px; align-items: baseline; padding: 12px 16px; border: 1px solid var(--gold-line); background: var(--raised); color: var(--cream); text-decoration: none; }
+.ls-row:hover { border-color: var(--gold); }
+.ls-date { color: var(--gold-light); font-variant-numeric: tabular-nums; }
+.ls-topic { font-family: var(--serif); font-size: 1.3rem; overflow-wrap: anywhere; }
+.ls-meta { font-size: 14px; }
+.ls-tasks { list-style: none; margin: 0 0 14px; padding: 0; display: grid; gap: 8px; }
+.ls-tasks li { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; padding: 8px 0; border-bottom: 1px solid var(--gold-faint); }
+.ls-tasks li.is-done .ls-task-title { text-decoration: line-through; color: var(--cream-muted); }
+.ls-task-title { flex: 1 1 160px; min-width: 0; overflow-wrap: anywhere; }
+.ls-tasks form { margin: 0; }
+.ls-tasks button { padding: 8px 14px; font-size: 12px; }
+.ls-due { color: var(--gold-light); font-size: 14px; }
+.ls-due.is-overdue { color: var(--cinnabar-text); font-weight: 600; }
+.ls-inline { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: end; }
+.ls-inline-title { grid-column: 1 / -1; }
+.ls-words { list-style: none; margin: 0 0 16px; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px 18px; }
+.ls-words li { display: flex; flex-direction: column; }
+.ls-word-ru { font-family: var(--serif); font-size: 1.4rem; font-weight: 600; }
+.ls-words-form { margin-top: 12px; }
+.ls-actions, .ls-wait { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.ls-wait { display: inline-flex; gap: 10px; color: var(--gold-light); font-size: 14px; }
+.ls-wait[hidden] { display: none; }
+.ls-spinner { width: 14px; height: 14px; border: 2px solid var(--gold-faint); border-top-color: var(--gold-light); border-radius: 50%; display: inline-block; }
+.ls-errors ul { margin: 6px 0 0; padding-left: 20px; }
+.ls-errors p { margin: 0; }
+.ls-review { display: grid; gap: 4px; }
+.ls-item { border: 1px solid rgba(201, 162, 39, 0.7); min-width: 0; display: grid; gap: 12px; }
+.ls-keep { font-weight: 500; }
+.ls-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 14px 0; }
+.ls-facts div { border-top: 1px solid var(--gold-line); padding-top: 6px; }
+.ls-facts dt { font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-light); }
+.ls-facts dd { margin: 2px 0 0; overflow-wrap: anywhere; }
+.ls-summary-ru { font-size: 1.3rem; line-height: 1.5; margin: 6px 0; }
+
+/* Today: next lesson and tutor tasks */
+.tutor-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; margin: 18px 6px; }
+.tutor-row > section:only-child { grid-column: 1 / -1; }
+.tutor-block { border: 1px solid var(--gold-line); background: var(--raised); padding: 18px 22px; min-width: 0; }
+.tutor-block h3 { margin: 0 0 8px; }
+.tutor-block p { margin: 0 0 6px; }
+.tutor-block ul { margin: 0; padding-left: 20px; display: grid; gap: 2px; }
+.tutor-when { color: var(--gold-light); font-family: var(--serif); font-size: 1.3rem; }
+.tutor-link { display: inline-block; margin-top: 8px; }
+.tutor-block .ls-tasks { margin: 0; }
+
+/* Question for my tutor */
+.tq { margin: 40px 6px 0; border: 1px solid var(--gold-line); background: var(--raised); }
+.tq > summary { cursor: pointer; padding: 12px 18px; color: var(--gold-light); font: 600 13px/1.2 var(--sans); letter-spacing: 0.1em; text-transform: uppercase; }
+.tq > summary:hover { color: var(--cream); }
+.tq form { padding: 0 18px 12px; }
+.tq-actions { margin-top: 10px; }
+.tq-status { padding: 0 18px; }
+.tq-status:not(:empty) { padding-bottom: 12px; }
+.tq-status p { margin: 0; }
+
+@media (max-width: 760px) {
+  .ls-grid, .tutor-row { grid-template-columns: minmax(0, 1fr); }
+  .ls-panel { padding: 20px 18px; }
+  .ls-row { grid-template-columns: minmax(0, 1fr); }
+  .tutor-row { margin: 16px 0; gap: 14px; }
+  .tq { margin: 32px 0 0; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes ls-spin { to { transform: rotate(360deg); } }
+  .ls-spinner { animation: ls-spin 900ms linear infinite; }
+}

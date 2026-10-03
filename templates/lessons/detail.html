@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}{{ lesson.topic }} · Lessons · Russian Trainer{% endblock %}
+{% block content %}
+<header class="ls-head">
+  <p class="ls-eyebrow"><a href="/lessons">Lessons</a> · {{ lesson_date(lesson.date) }}</p>
+  <h1>{{ lesson.topic }}</h1>
+</header>
+
+<div class="ls-grid">
+  <section class="card ls-panel">
+    <h2>Plan</h2>
+    {% if lesson.goals %}
+    <h3>Goals</h3>
+    <ul class="ls-bullets">{% for g in lesson.goals %}<li>{{ g }}</li>{% endfor %}</ul>
+    {% endif %}
+    {% if lesson.materials %}
+    <h3>Materials</h3>
+    <ul class="ls-bullets">{% for m in lesson.materials %}<li><a href="{{ m.url }}" target="_blank" rel="noopener noreferrer">{{ m.title }}</a></li>{% endfor %}</ul>
+    {% endif %}
+    {% if lesson.notes %}
+    <h3>Notes</h3>
+    <p class="ls-notes">{{ lesson.notes }}</p>
+    {% endif %}
+    {% if not (lesson.goals or lesson.materials or lesson.notes) %}<p class="muted">No goals, materials or notes for this lesson.</p>{% endif %}
+  </section>
+
+  <section class="card ls-panel">
+    <h2>Tasks</h2>
+    {% if task_error %}<p class="error" role="alert">{{ task_error }}</p>{% endif %}
+    {% if tasks %}
+    <ul class="ls-tasks">
+      {% for t in tasks %}
+      <li{% if t.done_at %} class="is-done"{% endif %}>
+        <span class="ls-task-title">{{ t.title }}</span>
+        {% if t.done_at %}<span class="muted">done</span>
+        {% else %}
+        {% set lab = due_label(t.due, today) %}
+        <span class="ls-due{% if lab == 'overdue' %} is-overdue{% endif %}">{{ lab }}</span>
+        <form method="post" action="/tasks/{{ t.id }}/done"><input type="hidden" name="next" value="/lessons/{{ lesson.id }}"><button type="submit">Done</button></form>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}<p class="muted">No tasks yet.</p>{% endif %}
+    <form method="post" action="/lessons/{{ lesson.id }}/tasks" class="ls-inline">
+      <label class="field ls-inline-title"><span>New task</span><input type="text" name="title" value="{{ task_form.title }}" required></label>
+      <label class="field"><span>Due</span><input type="date" name="due" value="{{ task_form.due }}" required></label>
+      <button type="submit">Add task</button>
+    </form>
+  </section>
+</div>
+
+<section class="card ls-panel">
+  <h2>Words from this lesson</h2>
+  {% if words %}
+  <ul class="ls-words">
+    {% for c in words %}<li><span class="ls-word-ru" lang="ru">{{ c.ru_stressed or c.ru }}</span><span>{{ c.en }}</span></li>{% endfor %}
+  </ul>
+  {% else %}<p class="muted">No words added yet.</p>{% endif %}
+  <form method="post" action="/lessons/{{ lesson.id }}/words" class="fields ls-words-form" data-wait-form>
+    <label class="field"><span>Paste the tutor's word list</span>
+      <textarea name="text" rows="5" required placeholder="привет — hello&#10;из-за — because of"></textarea>
+      <small class="muted">One word per line: Russian, then a dash, a colon or a tab, then English.</small></label>
+    <div class="ls-actions">
+      <button class="primary" type="submit">Review words</button>
+      <span class="ls-wait" data-wait role="status" hidden><span class="ls-spinner" aria-hidden="true"></span><span data-wait-text>Looking up the words…</span></span>
+    </div>
+  </form>
+</section>
+
+<section class="card ls-panel">
+  <h2>Questions for the tutor</h2>
+  {% if questions %}
+  <ul class="ls-tasks">
+    {% for q in questions %}
+    <li>
+      <span class="ls-task-title">{{ q.text }}{% if q.page %} <small class="muted">from {{ q.page }}</small>{% endif %}</span>
+      <form method="post" action="/questions/{{ q.id }}/asked"><input type="hidden" name="next" value="/lessons/{{ lesson.id }}"><button type="submit">Asked</button></form>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}<p class="muted">No open questions. Use the box at the bottom of this page to save one.</p>{% endif %}
+</section>
+
+<section class="card ls-panel">
+  <h2>Summary for your tutor</h2>
+  <p class="muted">What you did since the last lesson, with your open questions, written in Russian.</p>
+  <div id="ls-summary" aria-live="polite">
+    <form hx-post="/lessons/{{ lesson.id }}/summary" hx-target="#ls-summary" hx-swap="innerHTML" hx-indicator="#ls-sum-wait" hx-disabled-elt="find button">
+      <button class="primary" type="submit">Write my summary</button>
+      <span id="ls-sum-wait" class="htmx-indicator ls-wait" role="status"><span class="ls-spinner" aria-hidden="true"></span>Writing your summary… about 20 seconds</span>
+    </form>
+  </div>
+</section>
+{% endblock %}

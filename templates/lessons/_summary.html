@@ -1,0 +1,34 @@
+{% if error %}
+<p class="error" role="alert">{{ error }}</p>
+<form hx-post="/lessons/{{ lesson_id }}/summary" hx-target="#ls-summary" hx-swap="innerHTML" hx-indicator="#ls-sum-wait" hx-disabled-elt="find button">
+  <button class="primary" type="submit">Retry</button>
+  <span id="ls-sum-wait" class="htmx-indicator ls-wait" role="status"><span class="ls-spinner" aria-hidden="true"></span>Writing your summary… about 20 seconds</span>
+</form>
+{% else %}
+{% set f = result.facts %}
+<dl class="ls-facts">
+  <div><dt>Since</dt><dd>{{ lesson_date(f.since) }}</dd></div>
+  <div><dt>Study time</dt><dd>{{ f.minutes | round(0) | int }} min</dd></div>
+  <div><dt>Reviews</dt><dd>{{ f.reviews }}</dd></div>
+  <div><dt>New cards</dt><dd>{{ f.new_cards }}{% if f.tutor_cards %} ({{ f.tutor_cards }} from the tutor){% endif %}</dd></div>
+  <div><dt>Tasks</dt><dd>{{ f.tasks_done }} done, {{ f.tasks_open }} open</dd></div>
+  <div><dt>Common mistakes</dt><dd>{{ f.top_mistakes | join(", ") or "none logged" }}</dd></div>
+</dl>
+{% if f.questions %}
+<h3>Your questions</h3>
+<ul class="ls-bullets">{% for q in f.questions %}<li>{{ q }}</li>{% endfor %}</ul>
+{% endif %}
+<h3>For your tutor</h3>
+<p class="ls-summary-ru" lang="ru" data-copy-source>{{ result.summary_ru }}</p>
+{% if result.focus_points %}
+<h3>Focus next lesson</h3>
+<ul class="ls-bullets">{% for p in result.focus_points %}<li>{{ p }}</li>{% endfor %}</ul>
+{% endif %}
+<div class="actions">
+  <button type="button" data-copy-summary>Copy Russian text</button>
+  <form hx-post="/lessons/{{ lesson_id }}/summary" hx-target="#ls-summary" hx-swap="innerHTML" hx-indicator="#ls-sum-wait" hx-disabled-elt="find button">
+    <button type="submit">Write it again</button>
+    <span id="ls-sum-wait" class="htmx-indicator ls-wait" role="status"><span class="ls-spinner" aria-hidden="true"></span>Writing your summary… about 20 seconds</span>
+  </form>
+</div>
+{% endif %}

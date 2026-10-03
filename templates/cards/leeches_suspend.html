@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% import "_ornaments.html" as orn %}
+{% block title %}Suspend leeches · Russian Trainer{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', path='cards.css') }}">{% endblock %}
+{% block content %}
+<p class="back"><a href="/cards?leeches=1">← Leeches</a></p>
+<div class="page-head">
+  <h1>Suspend all leeches</h1>
+  <div class="subtitle" lang="ru">Пия́вки</div>
+  {{ orn.divider(150) }}
+</div>
+{% if count %}
+<form method="post" action="/cards/leeches/suspend" class="card stack">
+  <p>{{ count }} card{{ "" if count == 1 else "s" }} will be suspended and leave your review queue. You can unsuspend any of them later from its edit page.</p>
+  <div class="actions">
+    <button type="submit" name="confirm" value="yes" class="primary">Suspend {{ count }} card{{ "" if count == 1 else "s" }}</button>
+    <a class="button" href="/cards?leeches=1">Cancel</a>
+  </div>
+</form>
+{% else %}
+<div class="card stack">
+  <p>0 cards will be suspended: you have no leeches right now.</p>
+  <div class="actions"><a class="button" href="/cards?leeches=1">Back to cards</a></div>
+</div>
+{% endif %}
+{% endblock %}

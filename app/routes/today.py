@@ -5,7 +5,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlmodel import Session
 
 from app.db import get_session
-from app.services import srs, stats, today
+from app.services import lessons, srs, stats, today
 from app.web import templates
 
 router = APIRouter()
@@ -14,6 +14,8 @@ router = APIRouter()
 @router.get("/", response_class=HTMLResponse)
 def today_page(request: Request, msg: str = "", session: Session = Depends(get_session)):
     now = datetime.now(timezone.utc)
+    local_today = stats.local_date(now)
+    week = lessons.this_week(session, now)
     active = today.active_session(session, now)
     context = {
         "plan": today.build_plan(session, now),
@@ -29,6 +31,10 @@ def today_page(request: Request, msg: str = "", session: Session = Depends(get_s
         "clock": today.moscow_clock(now),
         "growth": today.growth_stage(stats.days_until_trip(session, now)),
         "too_short": msg == "too_short",
+        "tutor_tasks": [(t, lessons.due_label(t.due, local_today)) for t in lessons.tasks_for_today(session, now)],
+        "week": week,
+        "next_lesson": lessons.next_lesson(session, now) if week.next_lesson_date else None,
+        "next_label": lessons.next_label(week.days_until_next) if week.days_until_next is not None else "",
     }
     return templates.TemplateResponse(request, "today.html", context)
 

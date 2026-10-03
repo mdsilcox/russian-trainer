@@ -8,6 +8,7 @@ from sqlalchemy import func
 from sqlmodel import Session as DbSession, col, select
 
 from app.models import Card, CardState, Category, InputLog, Mistake, Module, ReviewLog, Session, Setting
+from app.models import Activity
 from app.services import srs
 
 WINDOW_DAYS = 30
@@ -47,10 +48,16 @@ class Streak:
     longest: int
 
 
+def completed_session_days(session: DbSession) -> set[date]:
+    """Local days with a completed study session, from the activity log."""
+    rows = session.exec(select(Activity.day, Activity.detail).where(Activity.kind == "session")).all()
+    return {day for day, detail in rows if (detail or {}).get("completed")}
+
+
 def streaks(session: DbSession, now: datetime | None = None) -> Streak:
     """Consecutive days with a completed session. A day without one yet doesn't break the streak until it ends."""
     today = local_date(now)
-    days = set(session.exec(select(Session.date).where(Session.completed == True)).all())  # noqa: E712
+    days = completed_session_days(session)
     if not days:
         return Streak(0, 0)
 
@@ -366,10 +373,14 @@ def practice_heatmap(session: DbSession, now: datetime | None = None, weeks: int
     today = local_date(now)
     first = _week_start(today) - timedelta(weeks=weeks - 1)
     study: dict[date, float] = {}
-    for day, minutes in session.exec(select(Session.date, Session.minutes).where(Session.date >= first)).all():
+    for day, minutes in session.exec(
+        select(Activity.day, Activity.minutes).where(Activity.kind == "session", Activity.day >= first)
+    ).all():
         study[day] = study.get(day, 0) + (minutes or 0)
     logged: dict[date, float] = {}
-    for day, minutes in session.exec(select(InputLog.date, InputLog.minutes).where(InputLog.date >= first)).all():
+    for day, minutes in session.exec(
+        select(Activity.day, Activity.minutes).where(Activity.kind == "input", Activity.day >= first)
+    ).all():
         logged[day] = logged.get(day, 0) + (minutes or 0)
 
     days = [first + timedelta(days=i) for i in range(weeks * 7)]

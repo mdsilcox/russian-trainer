@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlmodel import Session
 
 from app.db import get_session
 from app.models import Card, Module
 from app.services import cards as card_service
+from app.services import srs
 from app.services.claude import ClaudeClient, ClaudeError
 from app.web import templates
 
@@ -43,13 +44,24 @@ def parse_suggestions(form) -> dict | None:
     return {"forms": forms, "stress": stress} if forms or stress else None
 
 
+def _is_leech(session: Session, card: Card) -> bool:
+    return any(c.id == card.id for c in srs.leeches(session))
+
+
 def render_form(
-    request: Request, card: Card | None, values: dict, error: str = "", duplicate=None, status=200, suggestions=None
+    request: Request,
+    card: Card | None,
+    values: dict,
+    error: str = "",
+    duplicate=None,
+    status=200,
+    suggestions=None,
+    is_leech: bool = False,
 ):
     return templates.TemplateResponse(
         request,
         "cards/form.html",
-        {"card": card, "v": values, "error": error, "duplicate": duplicate, "suggestions": suggestions},
+        {"card": card, "v": values, "error": error, "duplicate": duplicate, "suggestions": suggestions, "is_leech": is_leech},
         status_code=status,
     )
 
@@ -80,6 +92,7 @@ def browse(
             "tags": card_service.all_tags(session),
             "sources": [m.value for m in Module],
             "leech_lapses": card_service.LEECH_LAPSES,
+            "leech_count": len(srs.leeches(session)),
         },
     )
 
@@ -114,10 +127,31 @@ async def create(request: Request, session: Session = Depends(get_session)):
     return RedirectResponse(f"/cards/new?added=1&extras={extras}" if extras else "/cards/new?added=1", status_code=303)
 
 
+def leech_confirm_page(request: Request, session: Session):
+    return templates.TemplateResponse(request, "cards/leeches_suspend.html", {"count": len(srs.leeches(session))})
+
+
+# Registered before the /{card_id}/... routes: card_id has no int convertor, so "leeches" would match it.
+@router.get("/leeches/suspend", response_class=HTMLResponse)
+def leeches_suspend_confirm(request: Request, session: Session = Depends(get_session)):
+    """Confirmation page only; nothing changes until the form is posted with confirm=yes."""
+    return leech_confirm_page(request, session)
+
+
+@router.post("/leeches/suspend", response_class=HTMLResponse)
+def leeches_suspend(request: Request, confirm: str = Form(""), session: Session = Depends(get_session)):
+    if confirm != "yes":
+        return leech_confirm_page(request, session)
+    srs.suspend_leeches(session)
+    return RedirectResponse("/cards?leeches=1", status_code=303)
+
+
 @router.get("/{card_id}", response_class=HTMLResponse)
 def edit_form(request: Request, card_id: int, session: Session = Depends(get_session)):
     card = session.get(Card, card_id) or _not_found()
-    return render_form(request, card, card.model_dump() | {"stress_verified": card.stress_verified})
+    return render_form(
+        request, card, card.model_dump() | {"stress_verified": card.stress_verified}, is_leech=_is_leech(session, card)
+    )
 
 
 @router.post("/{card_id}", response_class=HTMLResponse)
@@ -128,7 +162,7 @@ async def update(request: Request, card_id: int, session: Session = Depends(get_
         card_service.apply_fields(card, values)
     except ValueError as e:
         session.rollback()
-        return render_form(request, card, values, error=str(e), status=422)
+        return render_form(request, card, values, error=str(e), status=422, is_leech=_is_leech(session, card))
     card.stress_verified = values["stress_verified"]
     session.add(card)
     session.commit()
@@ -139,6 +173,34 @@ async def update(request: Request, card_id: int, session: Session = Depends(get_
 def toggle_suspend(card_id: int, session: Session = Depends(get_session)):
     card = session.get(Card, card_id) or _not_found()
     card.suspended = not card.suspended
+    session.add(card)
+    session.commit()
+    return RedirectResponse(f"/cards/{card_id}", status_code=303)
+
+
+@router.post("/{card_id}/rewrite", response_class=HTMLResponse)
+def rewrite(request: Request, card_id: int, session: Session = Depends(get_session)):
+    """HTMX: ask Claude for a fresh example, memory hook and note; shows an Apply form."""
+    card = session.get(Card, card_id) or _not_found()
+    suggestion, error = None, ""
+    try:
+        suggestion = card_service.suggest_rewrite(ClaudeClient(session), card)
+    except ClaudeError as e:
+        error = str(e)
+    return templates.TemplateResponse(request, "cards/_rewrite.html", {"card": card, "s": suggestion, "error": error})
+
+
+@router.post("/{card_id}/rewrite/apply")
+def rewrite_apply(
+    card_id: int,
+    example_ru: str = Form(""),
+    example_en: str = Form(""),
+    notes: str = Form(""),
+    session: Session = Depends(get_session),
+):
+    """Write the suggested example and note to the card; the review schedule is not touched."""
+    card = session.get(Card, card_id) or _not_found()
+    card_service.apply_fields(card, {"example_ru": example_ru, "example_en": example_en, "notes": notes})
     session.add(card)
     session.commit()
     return RedirectResponse(f"/cards/{card_id}", status_code=303)

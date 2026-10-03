@@ -60,6 +60,7 @@ NAV_GROUPS = [
         ("/learn", "Units", "This week's topic: lesson, practice, quiz and revisits."),
         ("/drills", "Drills", "Targeted grammar drills built from your own mistakes."),
         ("/grammar", "Grammar", "The reference: cases, numbers, motion, aspect, stress, pitfalls."),
+        ("/lessons", "Lessons", "Your tutor lessons: word lists, homework, questions and a summary."),
     ]},
     {"key": "practice", "label": "Practice", "ru": "Пра́ктика", "blurb": "Use what you know: remember it, write it, say it, hear it.", "items": [
         ("/review", "Review", "Your flashcards, due today."),
@@ -70,10 +71,12 @@ NAV_GROUPS = [
     {"key": "progress", "label": "Progress", "ru": "Прогре́сс", "blurb": "Where you are and where you're heading.", "items": [
         ("/plan", "Plan", "Twelve months to Moscow, this month's units and your weekly rhythm."),
         ("/dashboard", "Dashboard", "Trends, forecast, practice heatmap and medals."),
+        ("/activity", "Activity", "What you practiced, day by day, over the last two weeks."),
     ]},
     {"key": "library", "label": "Library", "ru": "Библиоте́ка", "blurb": "Your cards, imports and settings.", "items": [
         ("/cards", "Cards", "Browse, add and edit your cards."),
         ("/import", "Import", "Starter deck, frequency deck and pasted word lists."),
+        ("/cloze", "Cloze cards", "Fill-in-the-blank cards from sentences you wrote."),
         ("/settings", "Settings", "Voice, AI, backups and export."),
     ]},
 ]

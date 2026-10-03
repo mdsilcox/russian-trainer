@@ -11,7 +11,7 @@ from datetime import date, datetime, timedelta, timezone, tzinfo
 from sqlalchemy import func
 from sqlmodel import Session as DbSession, col, select
 
-from app.models import (Card, CardState, Conversation, DrillSet, ReviewLog, Scenario, Session, Setting, Story,
+from app.models import (Activity, Card, CardState, Conversation, DrillSet, ReviewLog, Scenario, Session, Setting, Story,
                         TopicReview, TranslationAttempt, Unit)
 from app.services import drills, plan, shelf, srs, stats, units
 
@@ -308,14 +308,17 @@ class DaySummary:
 def day_summary(db: DbSession, now: datetime | None = None) -> DaySummary | None:
     """Totals across today's completed sessions, or None if there are none."""
     now = _now(now)
-    rows = db.exec(select(Session).where(Session.date == stats.local_date(now), Session.completed == True)).all()  # noqa: E712
+    rows = db.exec(
+        select(Activity.minutes, Activity.detail).where(Activity.kind == "session", Activity.day == stats.local_date(now))
+    ).all()
+    rows = [(minutes, detail) for minutes, detail in rows if (detail or {}).get("completed")]
     if not rows:
         return None
     return DaySummary(
         sessions=len(rows),
-        minutes=round(sum(r.minutes for r in rows), 1),
-        reviews=sum(r.reviews for r in rows),
-        new_cards=sum(r.new_cards for r in rows),
+        minutes=round(sum(m for m, _ in rows), 1),
+        reviews=sum(d.get("reviews", 0) for _, d in rows),
+        new_cards=sum(d.get("new_cards", 0) for _, d in rows),
         streak=stats.streaks(db, now).current,
     )
 

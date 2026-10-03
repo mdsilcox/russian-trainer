@@ -95,6 +95,7 @@
         {% if not cloze %}{% set fit_chars = [card.ru.split() | map("length") | max, 7] | max %}{% endif %}
         {% set kind_label = kind_labels.get(card.kind) if card.kind != "word" else none %}
         {% if kind_label %}<p class="rv-kind"><span>{{ kind_label }}</span></p>{% endif %}
+        {% if is_leech %}<p class="rv-leech"><a class="badge warn" href="/cards/{{ card.id }}" data-leech-badge title="You keep forgetting this card. Open it to rewrite or suspend it.">Leech</a></p>{% endif %}
         {% if cs.state == 0 %}<p class="rv-new"><span class="badge">new</span></p>{% endif %}
         {% if cloze %}
           <p class="rv-cloze" lang="ru" data-cloze>{{ cloze.blanked }}</p>

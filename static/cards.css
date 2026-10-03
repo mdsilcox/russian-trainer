@@ -41,3 +41,7 @@
 .sug-body { display: grid; gap: 2px; min-width: 0; overflow-wrap: anywhere; }
 .sug-tag { font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--gold-light); }
 .sug-ru { font-family: var(--serif); font-size: 1.35rem; font-weight: 600; color: var(--cream); }
+
+.leech-actions { margin: 0 0 12px; }
+.leech-rewrite { margin-top: 24px; max-width: 100%; overflow-wrap: anywhere; }
+.leech-rewrite h2 { margin-top: 0; }

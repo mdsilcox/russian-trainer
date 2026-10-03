@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Review words · Russian Trainer{% endblock %}
+{% block content %}
+<header class="ls-head">
+  <p class="ls-eyebrow"><a href="/lessons/{{ lesson.id }}">{{ lesson.topic }}</a></p>
+  <h1>Review words</h1>
+</header>
+{% if note %}<p class="notice" role="status">{{ note }}</p>{% endif %}
+{% if errors %}
+<div class="notice ls-errors" role="alert">
+  <p>These lines were skipped:</p>
+  <ul>{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>
+</div>
+{% endif %}
+{% if rows %}
+<form method="post" action="/lessons/{{ lesson.id }}/words/add" class="ls-review">
+  <p class="muted">Untick any word you don't want. You can edit the fields before adding.</p>
+  {% for r in rows %}
+  {% set i = loop.index0 %}
+  <fieldset class="card ls-item">
+    <label class="checkbox ls-keep"><input type="checkbox" name="items-{{ i }}-keep" checked><span>Add this word{% if r.duplicate %} <em class="muted">(already in your deck, will be skipped)</em>{% endif %}</span></label>
+    <div class="row">
+      <label class="field"><span>Russian</span><input type="text" name="items-{{ i }}-ru" value="{{ r.ru }}" lang="ru"></label>
+      <label class="field"><span>English</span><input type="text" name="items-{{ i }}-en" value="{{ r.en }}"></label>
+    </div>
+    <label class="field"><span>With stress</span><input type="text" name="items-{{ i }}-ru_stressed" value="{{ r.ru_stressed }}" lang="ru"></label>
+    <div class="row">
+      <label class="field"><span>Example</span><input type="text" name="items-{{ i }}-example_ru" value="{{ r.example_ru }}" lang="ru"></label>
+      <label class="field"><span>Translation</span><input type="text" name="items-{{ i }}-example_en" value="{{ r.example_en }}"></label>
+    </div>
+    <label class="field"><span>Notes</span><input type="text" name="items-{{ i }}-notes" value="{{ r.notes }}"></label>
+    <input type="hidden" name="items-{{ i }}-pos" value="{{ r.pos }}">
+    <input type="hidden" name="items-{{ i }}-gender" value="{{ r.gender }}">
+    <input type="hidden" name="items-{{ i }}-aspect" value="{{ r.aspect }}">
+    <input type="hidden" name="items-{{ i }}-aspect_partner" value="{{ r.aspect_partner }}">
+  </fieldset>
+  {% endfor %}
+  <div class="actions">
+    <button class="primary" type="submit">Add ticked words</button>
+    <a href="/lessons/{{ lesson.id }}">Cancel</a>
+  </div>
+</form>
+{% else %}
+<p class="muted">No words to add. <a href="/lessons/{{ lesson.id }}">Back to the lesson</a></p>
+{% endif %}
+{% endblock %}

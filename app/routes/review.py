@@ -6,7 +6,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlmodel import Session
 
 from app.db import get_session
-from app.models import Card, CardState, Conversation, Lesson, Module, Scenario, Story
+from app.models import Card, CardState, Conversation, Lesson, Module, Scenario, Story, TranslationAttempt
 from app.services import cards as cards_service
 from app.services import cloze, srs
 from app.web import templates
@@ -19,7 +19,12 @@ RATINGS = [(fsrs.Rating.Again, "Again"), (fsrs.Rating.Hard, "Hard"), (fsrs.Ratin
 def source_label(session: Session, card: Card) -> str | None:
     """Where a card came from, e.g. "from your story ‘Поезд’"."""
     if card.source_module == Module.story and card.source_ref_id:
-        story = session.get(Story, card.source_ref_id)
+        # Cloze cards point at the story; cards from a story's mistakes point at the translation attempt.
+        if card.kind == "cloze":
+            story = session.get(Story, card.source_ref_id)
+        else:
+            attempt = session.get(TranslationAttempt, card.source_ref_id)
+            story = attempt and session.get(Story, attempt.story_id)
         return f"from your story ‘{story.title}’" if story else "from one of your stories"
     if card.source_module == Module.scenario and card.source_ref_id:
         conversation = session.get(Conversation, card.source_ref_id)
@@ -66,6 +71,7 @@ def review_page(request: Request, session: Session = Depends(get_session)):
             "ratings": [(int(r), label, srs.format_interval(intervals[int(r)])) for r, label in RATINGS],
             "new_left": sum(1 for c in queue if c.state == srs.NEW),
             "kind_labels": cards_service.KIND_LABELS,
+            "is_leech": any(c.id == card.id for c in srs.leeches(session)),
         }
         if card.kind == "cloze":
             context["cloze"] = cloze_context(card)

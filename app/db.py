@@ -13,6 +13,7 @@ from sqlmodel import Session, SQLModel, create_engine
 
 from app import models
 from app.config import ROOT, get_config
+from app.services import activity as _activity  # noqa: F401  (importing it installs the activity sync hook)
 
 SEED_PATH = ROOT / "config" / "settings_seed.json"
 
@@ -189,6 +190,16 @@ def _add_tutor_lessons(engine: Engine) -> None:
         model.__table__.create(engine, checkfirst=True)
 
 
+def _add_activity(engine: Engine) -> None:
+    """Phase 6: the unified activity log, backfilled from the existing practice rows."""
+    from app.services import activity
+
+    models.Activity.__table__.create(engine, checkfirst=True)
+    with Session(engine) as session:
+        activity.backfill(session)
+        session.commit()
+
+
 MIGRATIONS: list[Callable[[Engine], None]] = [
     _initial_schema,
     _seed_settings,
@@ -205,7 +216,7 @@ MIGRATIONS: list[Callable[[Engine], None]] = [
     _add_scenario_voice,
     _add_units,
     _add_tutor_lessons,
-    # Phase 6 lane B appends _add_activity here (creates the table, then activity.backfill).
+    _add_activity,
 ]
 
 

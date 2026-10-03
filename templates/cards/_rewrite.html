@@ -1,0 +1,24 @@
+{% if error %}
+  <p class="error">{{ error }}</p>
+  <button type="button" hx-post="/cards/{{ card.id }}/rewrite" hx-target="#leech-rewrite" hx-swap="innerHTML" hx-indicator="this">
+    Try again<span class="htmx-indicator"> … about 10 seconds</span>
+  </button>
+{% else %}
+  <form method="post" action="/cards/{{ card.id }}/rewrite/apply" class="stack rewrite-suggestion">
+    <p><b>Memory hook:</b> {{ s.mnemonic }}</p>
+    <p><b>Why it is slippery:</b> {{ s.notes }}</p>
+    <label>Example (Russian)<input type="text" name="example_ru" lang="ru" value="{{ s.example_ru }}"></label>
+    <label>Example (English)<input type="text" name="example_en" value="{{ s.example_en }}"></label>
+    <label>Notes<textarea name="notes" rows="5">Memory hook: {{ s.mnemonic }}
+{{ s.notes }}{% if card.notes %}
+
+{{ card.notes }}{% endif %}</textarea></label>
+    <p class="muted">Edit before applying. The review schedule and lapse count stay as they are.</p>
+    <div class="actions">
+      <button type="submit" class="primary">Apply</button>
+      <button type="button" hx-post="/cards/{{ card.id }}/rewrite" hx-target="#leech-rewrite" hx-swap="innerHTML" hx-indicator="this">
+        Another suggestion<span class="htmx-indicator"> … about 10 seconds</span>
+      </button>
+    </div>
+  </form>
+{% endif %}

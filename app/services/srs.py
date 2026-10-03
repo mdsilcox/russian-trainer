@@ -11,6 +11,7 @@ from sqlalchemy import func
 from sqlmodel import Session, col, select
 
 from app.models import Card, CardState, Direction, ReviewLog, Setting
+from app.services.cards import LEECH_LAPSES
 
 NEW = 0
 DEFAULT_RETENTION = 0.9
@@ -139,6 +140,33 @@ def build_queue(session: Session, now: datetime | None = None, max_cards: int | 
         reviews = reviews[:max_cards]
         new = new[: max(0, max_cards - len(reviews))]
     return interleave(reviews, new)
+
+
+def leeches(session: Session) -> list[Card]:
+    """Cards whose worst single direction has at least LEECH_LAPSES lapses, worst first (ties by id).
+
+    Same rule as the /cards leeches filter; suspended cards never count.
+    """
+    worst = func.max(CardState.lapses).label("worst")
+    query = (
+        select(Card, worst)
+        .join(CardState, CardState.card_id == Card.id)
+        .where(Card.suspended == False)  # noqa: E712
+        .group_by(Card.id)
+        .having(worst >= LEECH_LAPSES)
+        .order_by(worst.desc(), col(Card.id))
+    )
+    return [card for card, _ in session.exec(query).all()]
+
+
+def suspend_leeches(session: Session) -> int:
+    """Suspend every current leech; returns how many were suspended."""
+    found = leeches(session)
+    for card in found:
+        card.suspended = True
+        session.add(card)
+    session.commit()
+    return len(found)
 
 
 def forecast(session: Session, days: int, now: datetime | None = None) -> list[int]:

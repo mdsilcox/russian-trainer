@@ -115,7 +115,7 @@ def test_f7_facts_no_previous_lesson(session):
 
 
 def _client_with(*responses):
-    from conftest import FakeClaude
+    from acc_common import FakeClaude
 
     return FakeClaude().push(*responses)
 
