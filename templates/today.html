@@ -189,9 +189,10 @@
   <section class="word" data-rise style="--r: 4">
     {{ orn.sprig(64) }}
     <div>
-      <h3>Word of the day</h3>
+      <h3>{{ "Phrase" if word.ru is phrase else "Word" }} of the day</h3>
       {% set ru_text = word.ru_stressed or word.ru %}
-      <p><span class="word-ink"><span class="word-ru ink-base" lang="ru">{{ ru_text }}</span><span class="word-ru ink-wet" lang="ru" aria-hidden="true">{{ ru_text }}</span></span><span class="word-en">· {{ word.en }}</span></p>
+      <p class="word-line"><span class="word-ink"><span class="word-ru ink-base" lang="ru" aria-label="{{ ru_text }}">{{ ru_text | ink_stress }}</span><span class="word-ru ink-wet" lang="ru" aria-hidden="true">{{ ru_text | ink_stress }}</span></span></p>
+      <p class="word-en">{{ word.en }}</p>
     </div>
   </section>
   {% endif %}

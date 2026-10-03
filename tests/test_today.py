@@ -308,3 +308,14 @@ def test_page_has_clock_vine_and_ink_word(client, session):
     assert "data-moscow-clock" in text and "В Москве́ сейча́с" in text
     assert 'class="gv st3"' in text
     assert "ink-base" in text and "вокза́л" in text
+
+
+def test_ink_stress_keeps_vowels_in_script_and_hyphenated_words_whole():
+    from app.web import ink_stress, is_phrase
+
+    html = str(ink_stress("говорю́ по-ру́сски <b>"))
+    assert "́" not in html
+    assert 'говор<span class="ink-acc">ю</span>' in html
+    assert '<span class="ink-w">по-р<span class="ink-acc">у</span>сски</span>' in html
+    assert "&lt;b&gt;" in html
+    assert is_phrase("Я тут") and not is_phrase("спаси́бо")

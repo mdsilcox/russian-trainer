@@ -183,3 +183,18 @@
 .word-ink { max-width: 100%; }
 .word-ink .word-ru { white-space: normal; font-size: clamp(30px, 4.2vw, 52px); }
 .word-ink .ink-wet { right: 8px; }
+
+/* Script lines need room for Marck Script's tall loops, and the translation sits on its own line. */
+.word > div { gap: 4px; }
+.word p.word-line { display: block; }
+.word-ink .word-ru { line-height: 1.4; padding-top: 0.05em; }
+.word p.word-en { display: block; margin-top: 8px; font-size: 20px; }
+/* Stress tick drawn over the bare script vowel (the font has no combining acute). */
+.word-ink .ink-acc { position: relative; display: inline-block; line-height: 1; }
+.word-ink .ink-acc::after {
+  content: ""; position: absolute; left: 50%; bottom: 0.88em;
+  width: 0.085em; height: 0.22em; border-radius: 0.05em;
+  background: var(--gold-light); transform: rotate(32deg); transform-origin: bottom center;
+}
+.ink-w { white-space: nowrap; }
+.word-ink .word-ru * { font-family: inherit; font-weight: inherit; font-style: inherit; }  /* beat the global :lang(ru) serif on inner spans */
