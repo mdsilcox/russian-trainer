@@ -1,0 +1,4 @@
+<p class="lp-type">Rewrite the sentence</p>
+<p class="lp-prompt" lang="ru">{{ item.source_ru }}</p>
+<p class="lp-task">{{ item.task }}</p>
+<input class="lp-input{% if hint %} wrong{% endif %}" type="text" name="response" value="{{ tried }}" lang="ru" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" autofocus aria-label="Your rewritten sentence" data-select>

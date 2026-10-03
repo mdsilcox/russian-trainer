@@ -1,0 +1,15 @@
+{# listen_choice: hear a sentence, choose what it means. Context: item; optional answered (bool), chosen (index). #}
+{% set answered = answered | default(false) %}
+<div class="listen-item" data-item-type="listen_choice">
+  {% include "learn/items/_listen_audio.html" %}
+  <p class="listen-q">{{ item.question_en }}</p>
+  <div class="listen-options" role="group" aria-label="Answers">
+    {% for opt in item.options %}
+      <button type="submit" name="response" value="{{ loop.index0 }}" class="listen-opt{% if answered and loop.index0 == item.answer_index %} is-right{% endif %}"{% if answered %} disabled{% endif %}>{{ opt }}</button>
+    {% endfor %}
+  </div>
+  <div class="listen-reveal" {% if not answered %}hidden{% endif %}>
+    <p class="listen-ru" lang="ru">{{ item.audio_ru | ink_stress }}</p>
+    {% if item.explanation %}<p class="listen-expl muted">{{ item.explanation }}</p>{% endif %}
+  </div>
+</div>

@@ -106,9 +106,63 @@ ITEM_TYPES = ["choice", "fill", "match", "transform", "build", "translate", "lis
 class ItemSet(BaseModel):
     """What the engine stores and serves for a practice set, pre-test, quiz, listening set, remediation or revisit."""
     title: str
+    intro: str = ""  # optional English lead-in shown before the first item (remediation: the alternative explanation)
     items: list[Item]
 
 
 def parse_items(raw: list[dict]) -> list:
     """Validate stored item dicts back into models."""
     return ItemSet(title="", items=raw).items
+
+
+# --- Answer checking (Lane A) -------------------------------------------------------------------
+
+def _accepts(response, *answers: str) -> bool:
+    from app.services.drill_player import norm
+
+    given = norm(str(response or ""))
+    return bool(given) and given in {norm(a) for a in answers if norm(a)}
+
+
+def _index(response) -> int | None:
+    try:
+        return int(str(response).strip())
+    except (TypeError, ValueError):
+        return None
+
+
+def check(item, response) -> bool:
+    """Is `response` right for `item`?
+
+    The response is a string, as posted by the player: an option index for choice and listen_choice,
+    the typed or assembled text for the rest, and for match a JSON list of [left, right] pairs (a list
+    is accepted too). Text is compared with `drill_player.norm`, so stress marks, ё/е, case, spacing and
+    the final full stop don't matter.
+    """
+    if item.type in ("choice", "listen_choice"):
+        return _index(response) == item.answer_index
+    if item.type == "dictation":
+        return _accepts(response, item.audio_ru, *item.accepted)
+    if item.type in ("fill", "transform", "translate", "build"):
+        return _accepts(response, item.answer, *item.accepted)
+    if item.type == "match":
+        return _check_match(item, response)
+    return False
+
+
+def _check_match(item, response) -> bool:
+    import json
+
+    from app.services.drill_player import norm
+
+    if isinstance(response, str):
+        try:
+            response = json.loads(response)
+        except ValueError:
+            return False
+    try:
+        given = {(norm(left), norm(right)) for left, right in response}
+    except (TypeError, ValueError):
+        return False
+    wanted = {(norm(p["left"]), norm(p["right"])) for p in item.pairs}
+    return len(given) == len(wanted) == len(response) and given == wanted

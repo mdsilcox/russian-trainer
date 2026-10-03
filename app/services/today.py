@@ -11,8 +11,9 @@ from datetime import date, datetime, timedelta, timezone, tzinfo
 from sqlalchemy import func
 from sqlmodel import Session as DbSession, col, select
 
-from app.models import Card, CardState, Conversation, DrillSet, ReviewLog, Scenario, Session, Setting, Story, TranslationAttempt
-from app.services import drills, plan, shelf, srs, stats
+from app.models import (Card, CardState, Conversation, DrillSet, ReviewLog, Scenario, Session, Setting, Story,
+                        TopicReview, TranslationAttempt, Unit)
+from app.services import drills, plan, shelf, srs, stats, units
 
 HISTORY_DAYS = 14
 OUTLIER_SECONDS = 120.0
@@ -170,6 +171,12 @@ def plan_speaking(db: DbSession) -> SpeakingBlock:
 
 
 @dataclass(frozen=True)
+class RevisitLink:
+    title: str
+    href: str
+
+
+@dataclass(frozen=True)
 class Plan:
     reviews: ReviewBlock
     writing: WritingBlock
@@ -186,6 +193,13 @@ class Plan:
     month_title: str = ""
     review_title: str = ""  # a month waiting for its check-in
     input_minutes: int = 0  # reading and listening logged this week
+    unit: Unit | None = None  # the current guided-learning unit, when its step leads block II
+    unit_step: units.StepState | None = None
+    unit_alt: units.StepState | None = None  # another available step of the unit
+    unit_why: str = ""
+    revisits: tuple[RevisitLink, ...] = ()  # topic revisits due, most overdue first
+
+
 
 
 def build_plan(db: DbSession, now: datetime | None = None) -> Plan:
@@ -202,6 +216,16 @@ def build_plan(db: DbSession, now: datetime | None = None) -> Plan:
     else:
         mode = "writing"  # writing, translation, role-play days (and drill days with nothing to drill)
     due = plan.review_due(db, now)
+    ts = units.today_step(db, now)
+    step = ts.step if ts.unit is not None and ts.step is not None and ts.step.key != "roleplay" else None
+    alt = None
+    if step is not None:
+        alt = next((x for x in units.state(db, ts.unit, now).steps
+                    if x.status == "available" and (x.key, x.variant) != (step.key, step.variant) and x.key != "roleplay"), None)
+    links = []
+    for u in ts.revisits:
+        row = db.get(TopicReview, u.id)
+        links.append(RevisitLink(u.title, f"/learn/{u.id}/play/revisit?variant={row.step if row else 0}"))
     split = session_split(db)
     return Plan(
         plan_reviews(db, now), plan_writing(db), split["scenario"], block,
@@ -210,6 +234,8 @@ def build_plan(db: DbSession, now: datetime | None = None) -> Plan:
         day_kind=kind, day_weekday=focus.weekday, day_title=focus.title,
         month_title=focus.month_title, review_title=due.title if due else "",
         input_minutes=shelf.this_week(db, now),
+        unit=ts.unit if step is not None else None, unit_step=step, unit_alt=alt, unit_why=ts.why,
+        revisits=tuple(links),
     )
 
 

@@ -1,0 +1,7 @@
+{% macro pill(status, label) %}<span class="ln-pill {{ status }}">{{ label }}</span>{% endmacro %}
+{% macro unit_line(r) %}
+<a class="ln-unit" href="/learn/{{ r.unit.id }}">
+  <span class="ln-unit-title">{{ r.unit.title }}</span>
+  <span class="ln-unit-meta">{{ pill(r.status, r.label) }}<span class="ln-mastery" title="Mastery">{{ r.mastery }}%</span></span>
+</a>
+{% endmacro %}

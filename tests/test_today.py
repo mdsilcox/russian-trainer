@@ -543,3 +543,71 @@ def test_check_in_notice_when_review_due(client, session, monkeypatch):
     page = client.get("/").text
     assert "Time to check in on" in page and month.title in page
     assert today.build_plan(session, day).review_title == month.title
+
+
+# --- the unit step leads block II ------------------------------------------------------------
+
+
+def _seed_units(session):
+    from app.services import plan as plan_svc, unit_content, units
+
+    session.merge(Setting(key="trip_date", value=(local_date(NOW) + timedelta(days=200)).isoformat()))
+    session.commit()
+    plan_svc.seed(session, NOW)
+    for m in plan_svc.months(session):  # no check-in notice in the way
+        plan_svc.save_review(session, m, 3, "", NOW)
+    units.seed_curriculum(session)
+    unit_content.seed_demo(session)
+    return units.current_unit(session, NOW)
+
+
+def test_unit_step_leads_by_day_kind(session):
+    from app.services import plan as plan_svc, units
+
+    unit = _seed_units(session)
+    assert unit is not None
+    plan_svc.set_rhythm(session, ["grammar"] * 7)
+    plan = today.build_plan(session, _drill_day(1))
+    assert plan.unit.id == unit.id and plan.unit_step.key == "learn" and plan.unit_step.href == f"/learn/{unit.id}/lesson"
+    units.finish_step(session, unit, "learn", 1.0, now=NOW)
+    plan_svc.set_rhythm(session, ["input"] * 7)
+    plan = today.build_plan(session, _drill_day(1))
+    assert plan.unit_step.key == "listening" and plan.unit_step.href.endswith("/play/listening")
+    assert plan.unit_alt is not None and plan.unit_alt.key != "listening"
+    plan_svc.set_rhythm(session, ["light"] * 7)
+    plan = today.build_plan(session, _drill_day(1))
+    assert plan.unit_step is None and plan.mode == "light"
+
+
+def test_page_unit_step_card_and_alternative(client, session, monkeypatch):
+    unit = _seed_units(session)
+    page = _page_on(client, session, monkeypatch, "grammar")
+    assert unit.title in page and f'href="/learn/{unit.id}/lesson"' in page
+    assert "Or " in page and "Grammar drills" not in page.split("numeral\">II")[1].split("numeral\">III")[0].split("plan-body")[0]
+
+
+def test_roleplay_day_keeps_block_three_as_lead_with_unit(client, session, monkeypatch):
+    _seed_units(session)
+    page = _page_on(client, session, monkeypatch, "roleplay")
+    assert page.count(LEAD) == 1 and page.index(LEAD) > page.index("numeral\">III") - 400
+
+
+def test_revisits_line(client, session, monkeypatch):
+    from app.models import TopicReview
+    from app.services import units
+
+    unit = _seed_units(session)
+    page = _page_on(client, session, monkeypatch, "grammar")
+    assert "Revisits due" not in page
+    session.add(TopicReview(unit_id=unit.id, step=2, due=local_date(NOW) - timedelta(days=1)))
+    session.commit()
+    assert [u.id for u in units.revisits_due(session, NOW)] == [unit.id]
+    page = _page_on(client, session, monkeypatch, "grammar")
+    assert "Revisits due" in page and f'href="/learn/{unit.id}/play/revisit?variant=2"' in page
+
+
+def test_no_units_falls_back_to_rhythm_block(client, session, monkeypatch):
+    page = _page_on(client, session, monkeypatch, "writing")
+    plan = today.build_plan(session, _drill_day(1))
+    assert plan.unit is None and plan.unit_step is None and not plan.revisits
+    assert "New story" in page and "Revisits due" not in page

@@ -252,6 +252,7 @@ def finish_step(session: Session, unit: Unit, kind: str, score: float, variant: 
                                   f"{round(score * 100)}%, close. One more practice set, then try the quiz again.")
     elif kind == "remediation":
         p.status = "active"
+        result = FinishResult(kind, score, "done", "Remediation done. The quiz is open again: take it when you're ready.")
     elif kind == "revisit":
         result = _finish_revisit(session, unit, p, score, now)
     p.mastery = mastery(session, unit, p)
@@ -415,7 +416,7 @@ def state(session: Session, unit: Unit, now: datetime | None = None) -> UnitStat
                 out.append(StepState("remediation", "Remediation", "A different explanation and practice on what you missed",
                                      "available", f"{base}/play/remediation?variant={v}", "remediation", v))
             extra_needed = any(s.key == "practice" and s.variant == PRACTICE_SETS and s.status != "done" for s in out)
-            unlocked = fast or (all(practice_done[:PRACTICE_SETS]) and p.status != "remediation" and not extra_needed)
+            unlocked = (fast or all(practice_done[:PRACTICE_SETS])) and p.status != "remediation" and not extra_needed
             d = _done(p, "quiz")
             status = "done" if p.status in ("passed", "secure") else "available" if unlocked else "locked"
             out.append(StepState(key, title, why, status, f"{base}/play/quiz?variant={p.quiz_attempts}", "quiz", p.quiz_attempts, p.quiz_score))
@@ -462,3 +463,59 @@ def today_step(session: Session, now: datetime | None = None) -> TodayStep:
         return TodayStep(unit, None, revisits, "Light day: revisits and reviews only")
     first = next((s for s in available if s.key != "pretest" or not _done(progress(session, unit), "pretest")), None)
     return TodayStep(unit, first, revisits, "Next step in your unit")
+
+
+# --- Preparing content ahead ----------------------------------------------------------------------
+
+PREFETCH_KINDS = [("lesson", 0), ("pretest", 0), ("practice", 0), ("practice", 1), ("listening", 0), ("quiz", 0)]
+
+
+def prefetch(session: Session, unit: Unit, client=None) -> int:
+    """Generate any of the unit's standard content that isn't cached yet. Returns how many sets were made."""
+    made = 0
+    for kind, variant in PREFETCH_KINDS:
+        if cached(session, unit.id, kind, variant) is not None:
+            continue
+        if kind == "lesson":
+            get_lesson(session, unit, client)
+        else:
+            get_items(session, unit, kind, variant, client)
+        made += 1
+    return made
+
+
+def prefetch_upcoming(session: Session, now: datetime | None = None, client=None) -> int:
+    """Prepare the current unit and the one after it, so opening them never waits on Claude."""
+    current = current_unit(session, now)
+    if current is None:
+        return 0
+    ordered = units(session)
+    i = next(k for k, u in enumerate(ordered) if u.id == current.id)
+    made = 0
+    for unit in ordered[i:i + 2]:
+        made += prefetch(session, unit, client)
+    return made
+
+
+def start_prefetch_loop(interval_seconds: int = 600) -> None:
+    """Background thread for the running app (not tests): every few minutes, prepare upcoming units."""
+    import logging
+    import threading
+    import time
+
+    from app.db import get_engine
+
+    log = logging.getLogger("units.prefetch")
+
+    def loop():
+        while True:
+            try:
+                with Session(get_engine()) as session:
+                    made = prefetch_upcoming(session)
+                    if made:
+                        log.info("prepared %d content sets for upcoming units", made)
+            except Exception as e:  # Claude busy or offline: try again next round
+                log.warning("unit prefetch skipped: %s", e)
+            time.sleep(interval_seconds)
+
+    threading.Thread(target=loop, name="unit-prefetch", daemon=True).start()

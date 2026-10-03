@@ -92,3 +92,11 @@ main:has(.pl) { max-width: 1040px; }
   .pl-body { padding: 0 14px 16px; }
   .pl-days li { grid-template-columns: 1fr; gap: 4px; }
 }
+
+/* units inside a month */
+.pl-units { display: grid; gap: 6px; }
+.pl-unit { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 8px 12px; border: 1px solid var(--gold-faint); color: var(--cream); text-decoration: none; }
+.pl-unit:hover, .pl-unit:focus-visible { border-color: var(--gold-light); }
+.pl-unit-title { min-width: 0; overflow-wrap: anywhere; }
+.pl-unit-meta { display: inline-flex; align-items: center; gap: 10px; flex: none; }
+@media (max-width: 480px) { .pl-unit { flex-direction: column; align-items: flex-start; gap: 6px; } }

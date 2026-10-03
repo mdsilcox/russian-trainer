@@ -6,12 +6,13 @@ from sqlmodel import Session
 
 from app.config import ROOT, get_config
 from app.db import get_engine, migrate
-from app.routes import backup, cards, dashboard, drills, grammar, medals, plan, review, scenarios, shelf, starter, today, tts, workshop
+from app.routes import backup, cards, dashboard, drills, grammar, learn, medals, plan, review, scenarios, shelf, starter, today, tts, workshop
+from app.routes.learn_play import router as learn_play_router
 from app.services.backup import run_startup_backup
 from app.services.claude import load_backend
 from app.services.plan import seed as seed_plan
 from app.services.scenarios import seed as seed_scenarios
-from app.services.units import seed_curriculum
+from app.services.units import seed_curriculum, start_prefetch_loop
 
 
 @asynccontextmanager
@@ -23,6 +24,7 @@ async def lifespan(_app: FastAPI):
         seed_plan(session)
         seed_curriculum(session)
         load_backend(session)
+    start_prefetch_loop()  # prepare the current and next unit's content in the background
     yield
 
 
@@ -51,7 +53,9 @@ app.include_router(drills.router)
 app.include_router(scenarios.router)
 app.include_router(shelf.router)
 app.include_router(plan.router)
+app.include_router(learn.router)
 app.include_router(tts.router)
+app.include_router(learn_play_router)
 
 
 def run() -> None:

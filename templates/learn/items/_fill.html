@@ -1,0 +1,5 @@
+{% set parts = item.prompt_ru.split("___", 1) %}
+<p class="lp-type">Fill in the blank</p>
+<p class="lp-prompt" lang="ru">{{ parts[0] }}<input class="lp-blank{% if hint %} wrong{% endif %}" type="text" name="response" value="{{ tried }}" lang="ru" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" autofocus aria-label="Your answer" size="10" data-select>{{ parts[1] if parts|length > 1 }}</p>
+{% if item.cue %}<p class="lp-cue" lang="ru">[{{ item.cue }}]</p>{% endif %}
+<p class="lp-en">{{ item.translation_en }}</p>

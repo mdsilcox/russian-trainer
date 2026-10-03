@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% import "learn/_pills.html" as pl %}
+{% block title %}Learn · Russian Trainer{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', path='learn.css') }}">{% endblock %}
+{% block content %}
+<div class="ln">
+<header class="ln-head">
+  <p class="ln-eyebrow">Guided units</p>
+  <h1>Learn <span class="ln-ru" lang="ru">Учи́ться</span></h1>
+</header>
+
+{% if not has_units %}
+<section class="card ln-panel">
+  <h2>No units yet</h2>
+  <p class="muted">Units appear once the curriculum is loaded. Meanwhile, the <a href="/plan">plan</a> shows what each month is for.</p>
+</section>
+{% endif %}
+
+{% if hero %}
+<section class="card ln-panel ln-hero" aria-labelledby="hero-title">
+  <p class="ln-eyebrow">{{ "Continue" if hero.started else "Start here" }} · level {{ hero.unit.level }}</p>
+  <h2 id="hero-title">{{ hero.unit.title }}</h2>
+  <p class="ln-cando"><b>You will be able to:</b> {{ hero.unit.can_do }}</p>
+  <div class="ln-hero-row">
+    {{ pl.pill(hero.status, hero.label) }}
+    <span class="ln-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ hero.mastery }}" aria-label="Mastery"><i style="width: {{ hero.mastery }}%"></i></span>
+    <span class="ln-mastery">{{ hero.mastery }}% mastery</span>
+  </div>
+  <p class="ln-actions">
+    {% if hero.next %}<a class="button primary" href="{{ hero.next.href }}">Next: {{ hero.next.title }}</a>{% endif %}
+    <a class="button" href="/learn/{{ hero.unit.id }}">Open the unit</a>
+  </p>
+</section>
+{% endif %}
+
+{% if revisits %}
+<section class="card ln-panel" aria-labelledby="rev-title">
+  <h2 id="rev-title">Revisits due</h2>
+  <ul class="ln-revisits">
+    {% for r in revisits %}<li><a href="/learn/{{ r.unit.id }}/play/revisit?variant={{ r.step }}">{{ r.unit.title }}</a></li>{% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+<h2 class="ln-map-title">The unit map</h2>
+<div class="ln-map">
+  {% for mo in months %}
+  <section class="card ln-month{{ ' current' if mo.m.month_idx == current_idx }}" aria-labelledby="mo-{{ mo.m.month_idx }}">
+    <p class="ln-eyebrow">{{ mo.m.start_date.strftime("%B %Y") }}{% if mo.m.month_idx == current_idx %} · this month{% endif %}</p>
+    <h3 id="mo-{{ mo.m.month_idx }}">{{ mo.m.title }}</h3>
+    {% if mo.units %}
+    <div class="ln-units">{% for r in mo.units %}{{ pl.unit_line(r) }}{% endfor %}</div>
+    {% else %}
+    <p class="muted">{{ mo.m.focus }}</p>
+    <p class="ln-soon">Units coming</p>
+    {% endif %}
+  </section>
+  {% endfor %}
+  {% if not months %}<p class="muted">Set your trip date in <a href="/settings">Settings</a> to see the months.</p>{% endif %}
+</div>
+</div>
+{% endblock %}

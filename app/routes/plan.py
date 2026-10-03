@@ -6,6 +6,7 @@ from sqlmodel import Session
 
 from app.db import get_session
 from app.models import PlanMonth, Setting
+from app.routes.learn import month_units
 from app.services import plan, stats, weakness
 from app.web import templates
 
@@ -26,34 +27,15 @@ def _trip(session: Session) -> date | None:
         return None
 
 
-PACE_SLACK = 0.05
-
-
-def _rows(goals: list[plan.GoalProgress], expected: float | None) -> list[dict]:
-    """Goal rows with a per-goal status: done, on pace or behind (pace only for the current month)."""
-    rows = []
-    for g in goals:
-        status = "done" if g.done else ""
-        if expected is not None and not g.done:
-            status = "on pace" if g.ratio >= expected - PACE_SLACK else "behind"
-        rows.append({"text": g.text, "metric": g.metric, "value": g.value, "target": g.target,
-                     "ratio": g.ratio, "done": g.done, "status": status})
-    return rows
-
-
 def _month_view(session: Session, m: PlanMonth, today: date, now: datetime) -> dict:
     start, end = plan.month_range(m)
     state = "past" if end <= today else "current" if start <= today else "future"
-    goals = plan.progress(session, m) if state != "future" else []
-    expected = plan.expected_ratio(m, now) if state == "current" else None
-    goals = _rows(goals, expected)
     topics = [{"url": t, "label": weakness.topic_label(t)} for t in m.topics_json or []]
-    view = {"m": m, "state": state, "start": start, "goals": goals, "topics": topics,
-            "plain_goals": [g["text"] for g in m.goals_json or []], "review": m.review_json or None}
+    rows = month_units(session, m.month_idx)
+    view = {"m": m, "state": state, "start": start, "units": rows, "topics": topics, "review": m.review_json or None}
+    view["passed"] = sum(1 for r in rows if r["status"] in ("passed", "secure"))
     if state == "current":
-        view["expected_pct"] = round(expected * 100)
-        view["on_pace"] = sum(1 for g in goals if g["status"] in ("done", "on pace"))
-        view["lagging"] = [plan.METRICS[g["metric"]] for g in goals if g["status"] == "behind"]
+        view["expected_pct"] = round(plan.expected_ratio(m, now) * 100)
     return view
 
 

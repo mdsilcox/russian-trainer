@@ -174,7 +174,14 @@
   {% macro drills_alt() %}<a href="{{ d.href }}">{{ "continue your drills" if d.open else "do grammar drills" }}</a>: {{ d.labels | join(", ") }}{% endmacro %}
   <li class="plan-card{% if plan.lead %} lead{% endif %}" data-rise style="--r: 1">
     <div class="plan-top"><span class="numeral">II</span>{% if plan.lead %}{{ lead_tag() }}{% endif %}<span class="mins">{{ w.minutes }} min</span></div>
-    {% if plan.mode == "drills" %}
+    {% if plan.unit_step %}
+      {% set us = plan.unit_step %}
+      <h2 class="unit-h">{{ plan.unit.title }}</h2>
+      <div class="hairline"></div>
+      <p class="plan-body"><strong class="unit-step">{{ us.title }}</strong>. {{ us.why }}{% if plan.unit_why %} <span class="muted">{{ plan.unit_why }}.</span>{% endif %}</p>
+      <div><a class="block-link" href="{{ us.href }}">{{ us.title }} →</a></div>
+      <p class="plan-alt muted">Or {% if plan.unit_alt %}<a href="{{ plan.unit_alt.href }}">{{ plan.unit_alt.title | lower }}</a>{% elif d and plan.mode == "drills" %}{{ drills_alt() }}{% else %}{{ writing_alt() }}{% endif %}.</p>
+    {% elif plan.mode == "drills" %}
       <h2>{{ "Mixed drills" if plan.day_kind == "interleaved" else "Drills" }}</h2>
       <div class="hairline"></div>
       <p class="plan-body">{% if plan.day_kind == "interleaved" %}A mixed set is best today. {% endif %}{% if d.open %}Finish your drill set{% else %}Grammar drills{% endif %}, {{ "focused on" if d.kind == "focused" else "mixing" }} {{ d.labels | join(", ") }}.</p>
@@ -213,6 +220,9 @@
     {% endif %}
   </li>
 </ol>
+{% if plan.revisits %}
+<p class="revisit-line">Revisits due: <a href="{{ plan.revisits[0].href }}">{{ plan.revisits[0].title }}</a>{% if plan.revisits | length > 1 %} and {{ plan.revisits | length - 1 }} more{% endif %}</p>
+{% endif %}
 
 {% if weak_spots or word %}
 <div class="lower">

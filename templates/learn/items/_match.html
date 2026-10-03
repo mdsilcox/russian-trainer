@@ -1,0 +1,12 @@
+<p class="lp-type">Match the pairs</p>
+<div class="lp-match" data-lp-match data-total="{{ lefts|length }}">
+  <div class="lp-col" role="group" aria-label="Left items">
+    {% for i, text in lefts %}<button type="button" class="lp-m" data-side="left" data-k="{{ i }}" aria-pressed="false" lang="ru">{{ text }}</button>{% endfor %}
+  </div>
+  <div class="lp-col" role="group" aria-label="Right items">
+    {% for i, text in rights %}<button type="button" class="lp-m" data-side="right" data-k="{{ i }}" lang="ru">{{ text }}</button>{% endfor %}
+  </div>
+  <input type="hidden" name="response" value="" data-response>
+  <input type="hidden" name="misses" value="0" data-misses>
+  <p class="lp-match-status" role="status" data-status>Tap one on the left, then its partner on the right.</p>
+</div>

@@ -1,0 +1,43 @@
+{% if error %}
+<section class="card ln-panel"><h1>Lesson</h1><p class="error" role="alert">{{ error }}</p><p class="ln-actions"><a class="button" href="/learn/{{ u.id }}/lesson">Try again</a><a href="/learn/{{ u.id }}">Back to the unit</a></p></section>
+{% else %}
+<header class="ln-head">
+  <p class="ln-eyebrow">Lesson · level {{ u.level }}</p>
+  <h1 class="ln-unit-h1">{{ lesson.title }}</h1>
+  <p class="ln-intro">{{ lesson.intro }}</p>
+</header>
+
+<section class="card ln-panel">
+  <h2>The rule</h2>
+  <ul class="ln-points">{% for pt in lesson.rule_points %}<li>{{ pt | guillemets }}</li>{% endfor %}</ul>
+</section>
+
+<section class="card ln-panel">
+  <h2>Examples</h2>
+  <ul class="ln-examples">
+    {% for ex in lesson.examples %}
+    <li><span class="ln-ex-ru" lang="ru">{{ ex.ru }}</span><button class="speak" type="button" data-speak="{{ ex.ru }}"></button><span class="ln-ex-en">{{ ex.en }}</span></li>
+    {% endfor %}
+  </ul>
+</section>
+
+<section class="card ln-panel">
+  <h2>Notice it</h2>
+  <p class="ln-notice" lang="ru">{{ lesson.notice_ru }}</p>
+  <button class="speak" type="button" data-speak="{{ lesson.notice_ru }}"></button>
+  <p class="muted">{{ lesson.notice_task }}</p>
+</section>
+
+<section class="card ln-panel">
+  <h2>Words for this unit</h2>
+  <ul class="ln-words">
+    {% for w in lesson.words %}<li><span lang="ru">{{ w.ru }}</span><button class="speak" type="button" data-speak="{{ w.ru }}"></button><span class="muted">{{ w.en }}</span></li>{% endfor %}
+  </ul>
+  <div class="ln-actions">
+    <button type="button" hx-post="/learn/{{ u.id }}/lesson/words" hx-target="#words-msg" hx-swap="innerHTML" hx-disabled-elt="this">Add these words to my cards</button>
+    <span id="words-msg" role="status" aria-live="polite"></span>
+  </div>
+</section>
+
+<form method="post" action="/learn/{{ u.id }}/done/learn" class="ln-actions"><button class="primary" type="submit">I've got it</button></form>
+{% endif %}

@@ -1,7 +1,8 @@
 {% extends "base.html" %}
 {% import "_ornaments.html" as orn %}
 {% block title %}Plan · Russian Trainer{% endblock %}
-{% block head %}<link rel="stylesheet" href="{{ url_for('static', path='plan.css') }}">
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', path='learn.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', path='plan.css') }}">
 <script src="{{ url_for('static', path='plan.js') }}" defer></script>{% endblock %}
 {% block content %}
 <div class="pl">
@@ -49,24 +50,20 @@
       <div class="pl-body">
         <p class="pl-focus">{{ m.focus }}</p>
 
-        <h3>Goals</h3>
-        {% if v.goals %}
-        <ul class="pl-goals">
-          {% for g in v.goals %}
-          <li class="{{ 'done' if g.done }}">
-            <div class="pl-goal-row"><span>{{ g.text }}</span><span class="pl-goal-val">{{ g.value }} / {{ g.target }}{% if g.status %} · {{ g.status }}{% endif %}</span></div>
-            <div class="pl-bar" role="progressbar" aria-valuemin="0" aria-valuemax="{{ g.target }}" aria-valuenow="{{ [g.value, g.target] | min }}" aria-label="{{ g.text }}"><i style="width: {{ (g.ratio * 100) | round | int }}%"></i></div>
-          </li>
+        <h3>Units</h3>
+        {% if v.units %}
+        <div class="pl-units">
+          {% for r in v.units %}
+          <a class="pl-unit" href="/learn/{{ r.unit.id }}"><span class="pl-unit-title">{{ r.unit.title }}</span><span class="pl-unit-meta"><span class="ln-pill {{ r.status }}">{{ r.label }}</span><span class="pl-goal-val">{{ r.mastery }}%</span></span></a>
           {% endfor %}
-        </ul>
+        </div>
         {% if v.state == "current" %}
-        <p class="pl-hint {{ 'behind' if v.lagging else 'ok' }}">
-          {{ v.on_pace }} of {{ v.goals | length }} goals on pace, {{ v.expected_pct }}% through the month.
-          {% if v.lagging %}Behind on: {{ v.lagging | join(", ") }}.{% endif %}
+        <p class="pl-hint {{ 'ok' if v.passed * 100 >= v.expected_pct * v.units | length else 'behind' }}">
+          {{ v.passed }} of {{ v.units | length }} units passed, {{ v.expected_pct }}% through the month.
         </p>
         {% endif %}
         {% else %}
-        <ul class="pl-goals plain">{% for t in v.plain_goals %}<li>{{ t }}</li>{% endfor %}</ul>
+        <p class="muted">Units coming for this month.</p>
         {% endif %}
 
         {% if v.topics %}

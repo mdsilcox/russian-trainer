@@ -1,0 +1,89 @@
+{% import "_ornaments.html" as orn %}
+{% set base_url = "/learn/" ~ unit.id ~ "/play/" ~ kind %}
+
+{% macro meta(idx, total, answered) %}
+  <div class="lp-meta"><span>Question {{ idx + 1 }} of {{ total }}</span>
+    <span class="lp-dots" aria-hidden="true">{% for i in range(total) %}<i class="{{ 'on' if i < answered else ('cur' if i == idx else '') }}"></i>{% endfor %}</span></div>
+{% endmacro %}
+
+{% if view == "loading" %}
+  <section class="card lp-panel" hx-get="{{ base_url }}/item?variant={{ variant }}&idx=0&score=0" hx-trigger="load" hx-target="#lp" hx-swap="innerHTML">
+    <p class="lp-wait" role="status"><span class="lp-spinner" aria-hidden="true"></span>Preparing your exercises… about 30 seconds the first time</p>
+  </section>
+
+{% elif view == "error" %}
+  <section class="card lp-panel">
+    <p class="error lp-error" role="alert">{{ message }}</p>
+    <div class="actions">
+      {% if retryable %}<button class="primary" type="button" hx-get="{{ base_url }}/item?variant={{ variant }}&idx=0&score=0" hx-target="#lp" hx-swap="innerHTML">Try again</button>{% endif %}
+      <a class="button" href="/learn/{{ unit.id }}">Back to the unit</a>
+    </div>
+  </section>
+
+{% elif view == "item" %}
+  <section class="card lp-panel">
+    {{ meta(idx, total, idx) }}
+    {% if intro and idx == 0 and attempt == 1 and not empty %}<p class="lp-intro">{{ intro }}</p>{% endif %}
+    <form hx-post="{{ base_url }}/answer" hx-target="#lp" hx-swap="innerHTML" autocomplete="off" data-lp-form>
+      <input type="hidden" name="variant" value="{{ variant }}">
+      <input type="hidden" name="idx" value="{{ idx }}">
+      <input type="hidden" name="score" value="{{ score }}">
+      <input type="hidden" name="attempt" value="{{ attempt }}">
+      {% if item.type == "match" and item.instruction %}<p class="lp-instruction">{{ item.instruction }}</p>{% endif %}
+      {% include item_template %}
+      {% if empty %}<p class="lp-hint" role="alert">{{ "Place at least one tile first." if item.type == "build" else "Give an answer first." }}</p>{% endif %}
+      {% if hint and not empty %}
+        <div class="lp-hint" role="alert"><b>Not quite.</b> {{ item.instruction or "Look at the pattern again." }} Have one more go.</div>
+      {% endif %}
+      <div class="actions">
+        {% if item.type != "listen_choice" %}<button class="primary" type="submit" data-lp-submit>{{ "Try again" if attempt == 2 else "Check" }}</button>{% endif %}
+        {% if item.type not in ("match", "listen_choice") %}<span class="muted lp-key">Enter</span>{% endif %}
+        {% if item.type == "listen_choice" %}<span class="muted lp-note">Tap an answer</span>{% endif %}
+        {% if one_try %}<span class="muted lp-note">One try, no hints</span>{% endif %}
+      </div>
+    </form>
+  </section>
+
+{% elif view == "result" %}
+  <section class="card lp-panel lp-result {{ 'right' if correct else 'miss' }}">
+    {{ meta(idx, total, idx + 1) }}
+    <p class="lp-verdict">{{ verdict }}</p>
+    {% if item.type in ("listen_choice", "dictation") %}
+      <p class="lp-heard">You heard</p>
+      <p class="lp-answer-line lp-heard-ru"><span lang="ru">{{ item.audio_ru | ink_stress }}</span>
+        <button type="button" class="lp-speak" data-speak="{{ item.audio_ru }}" aria-label="Play the audio again">&#9654; Replay</button></p>
+      {% if item.type == "dictation" %}<p class="lp-en">{{ item.translation_en }}</p>
+      {% else %}<p class="lp-en">{{ item.question_en }}</p><p class="lp-given-answer">Answer: {{ revealed }}</p>{% endif %}
+    {% else %}
+      <p class="lp-answer-line" lang="ru">{{ revealed }}</p>
+    {% endif %}
+    {% if not correct and given %}<p class="lp-yours">You answered: <span{% if item.type != "listen_choice" %} lang="ru"{% endif %}>{{ given }}</span></p>{% endif %}
+    {% if item.explanation %}<p class="lp-explain">{{ item.explanation }}</p>{% endif %}
+    {% if item.topic %}<p class="lp-ref"><a href="{{ item.topic }}" target="_blank" rel="noopener">Reference</a></p>{% endif %}
+    <form hx-post="{{ base_url }}/next" hx-target="#lp" hx-swap="innerHTML" hx-disabled-elt="find button">
+      <input type="hidden" name="variant" value="{{ variant }}">
+      <input type="hidden" name="idx" value="{{ idx + 1 }}">
+      <input type="hidden" name="score" value="{{ score }}">
+      <div class="actions">
+        <button class="primary" type="submit" autofocus>{{ "Finish" if last else "Next" }}</button>
+        <span class="muted lp-key">Enter</span>
+      </div>
+    </form>
+  </section>
+
+{% elif view == "done" %}
+  <section class="card lp-panel lp-done">
+    {{ orn.sprig(56) }}
+    <h2>{{ title or "Set finished" }}</h2>
+    <p class="lp-score"><b>{{ correct }}</b> of {{ total }} right first time <span class="lp-percent">({{ percent }}%)</span></p>
+    <p class="lp-message">{{ result.message }}</p>
+    <div class="actions lp-center">
+      {% if result.outcome == "fast_track_offered" %}
+        <form method="post" action="/learn/{{ unit.id }}/fast-track"><button class="primary" type="submit">Skip to the quiz</button></form>
+        <a class="button" href="/learn/{{ unit.id }}">Work through the unit</a>
+      {% else %}
+        <a class="button primary" href="/learn/{{ unit.id }}">Back to the unit</a>
+      {% endif %}
+    </div>
+  </section>
+{% endif %}

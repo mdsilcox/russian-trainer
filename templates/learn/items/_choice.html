@@ -1,0 +1,13 @@
+<p class="lp-type">Choose the right option</p>
+<p class="lp-prompt" lang="ru">{{ item.question_ru }}</p>
+{% if item.question_en %}<p class="lp-en">{{ item.question_en }}</p>{% endif %}
+<fieldset class="lp-options">
+  <legend class="sr-only">Options</legend>
+  {% for opt in item.options %}
+    {% set was_wrong = tried != "" and tried == loop.index0|string %}
+    <label class="lp-option{% if was_wrong %} wrong{% endif %}">
+      <input type="radio" name="response" value="{{ loop.index0 }}"{% if was_wrong %} disabled{% endif %}>
+      <span lang="ru">{{ opt }}</span>
+    </label>
+  {% endfor %}
+</fieldset>

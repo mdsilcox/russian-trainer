@@ -1,0 +1,13 @@
+{# dictation: hear a sentence and type it. Context: item; optional answered (bool). #}
+{% set answered = answered | default(false) %}
+<div class="listen-item" data-item-type="dictation">
+  {% include "learn/items/_listen_audio.html" %}
+  <label class="listen-q" for="dictation-response">Type what you hear</label>
+  <input id="dictation-response" class="listen-input" type="text" name="response" lang="ru" autofocus
+         autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" required{% if answered %} readonly{% endif %}>
+  <div class="listen-reveal" {% if not answered %}hidden{% endif %}>
+    <p class="listen-ru" lang="ru">{{ item.audio_ru | ink_stress }}</p>
+    <p class="listen-tr">{{ item.translation_en }}</p>
+    {% if item.explanation %}<p class="listen-expl muted">{{ item.explanation }}</p>{% endif %}
+  </div>
+</div>

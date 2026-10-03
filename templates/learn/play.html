@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}{{ unit.title }} · Russian Trainer{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', path='learn_play.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', path='speak.css') }}">
+<script src="{{ url_for('static', path='speak.js') }}" defer></script>
+<script src="{{ url_for('static', path='learn_play.js') }}" defer></script>{% endblock %}
+{% block content %}
+<header class="lp-head">
+  <p class="lp-eyebrow"><a href="/learn/{{ unit.id }}">{{ unit.title }}</a></p>
+  <h1>{{ title or {'pretest': 'Pre-test', 'practice': 'Practice', 'listening': 'Listening', 'quiz': 'Quiz', 'remediation': 'Remediation', 'revisit': 'Revisit'}.get(kind, 'Exercises') }}</h1>
+</header>
+<div id="lp" class="lp" aria-live="polite">
+  {% include "learn/_stage.html" %}
+</div>
+{% endblock %}

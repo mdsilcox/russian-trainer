@@ -1,0 +1,18 @@
+/* Listening items: audio first, text hidden until answered. */
+.listen-item { display: flex; flex-direction: column; gap: 18px; }
+.listen-audio { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; }
+.listen-play { display: inline-flex; align-items: center; gap: 12px; min-height: 64px; padding: 0 32px; font-size: 20px;
+  background: var(--cinnabar); color: var(--cream); border: 1px solid var(--gold); cursor: pointer; }
+.listen-slow { min-height: 48px; padding: 0 20px; background: transparent; color: var(--gold-light); border: 1px solid var(--gold-line); cursor: pointer; }
+.listen-play:focus-visible, .listen-slow:focus-visible, .listen-opt:focus-visible, .listen-input:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 3px; }
+.listen-q { margin: 0; font-size: 18px; }
+.listen-options { display: flex; flex-direction: column; gap: 10px; }
+.listen-opt { text-align: left; min-height: 48px; padding: 10px 16px; background: var(--raised); color: var(--cream); border: 1px solid var(--gold-line); cursor: pointer; font-size: 16px; }
+.listen-opt.is-right { border-color: var(--gold-light); }
+.listen-input { width: 100%; max-width: 100%; box-sizing: border-box; min-height: 52px; padding: 8px 14px; font-size: 20px; background: var(--raised); color: var(--cream); border: 1px solid var(--gold-line); }
+.listen-reveal { border-top: 1px solid var(--gold-line); padding-top: 14px; }
+.listen-reveal[hidden] { display: none; }
+.listen-ru { margin: 0 0 6px; font-family: var(--serif); font-size: 28px; overflow-wrap: anywhere; }
+.listen-tr { margin: 0 0 6px; font-style: italic; color: var(--gold-light); }
+.listen-expl { margin: 0; font-size: 14px; }
+@media (max-width: 640px) { .listen-play { width: 100%; justify-content: center; } }

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Lesson · {{ u.title }} · Russian Trainer{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', path='speak.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', path='learn.css') }}">
+<script src="{{ url_for('static', path='speak.js') }}" defer></script>{% endblock %}
+{% block content %}
+<div class="ln">
+<p class="ln-back"><a href="/learn/{{ u.id }}">&larr; {{ u.title }}</a></p>
+<div id="lesson-body" aria-live="polite">
+{% if loading %}
+  <section class="card ln-panel ln-loading" hx-get="/learn/{{ u.id }}/lesson/body" hx-trigger="load" hx-target="#lesson-body" hx-swap="innerHTML" hx-indicator="#lesson-wait">
+    <h1 class="ln-unit-h1">Preparing your lesson</h1>
+    <p id="lesson-wait" class="htmx-indicator ln-wait" role="status"><span class="ln-spinner" aria-hidden="true"></span>Writing the lesson for you, about 25 seconds. It is saved afterwards, so next time it opens at once.</p>
+  </section>
+{% else %}
+  {% include "learn/_lesson_body.html" %}
+{% endif %}
+</div>
+</div>
+{% endblock %}

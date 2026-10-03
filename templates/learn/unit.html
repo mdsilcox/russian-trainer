@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% import "learn/_pills.html" as pl %}
+{% block title %}{{ u.title }} · Russian Trainer{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', path='learn.css') }}">{% endblock %}
+{% block content %}
+<div class="ln">
+<p class="ln-back"><a href="/learn">&larr; All units</a></p>
+<header class="ln-head">
+  <p class="ln-eyebrow">Level {{ u.level }} · {{ u.vocab_theme }}</p>
+  <h1 class="ln-unit-h1">{{ u.title }}</h1>
+  <p class="ln-cando"><b>You will be able to:</b> {{ u.can_do }}</p>
+  <div class="ln-hero-row">
+    {{ pl.pill(row.status, row.label) }}
+    <span class="ln-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ row.mastery }}" aria-label="Mastery"><i style="width: {{ row.mastery }}%"></i></span>
+    <span class="ln-mastery">{{ row.mastery }}% mastery</span>
+  </div>
+</header>
+
+{% if st.fast_track_offer %}
+<section class="card ln-panel ln-offer" role="status">
+  <h2>You already know this</h2>
+  <p class="muted">Your pre-test was strong. You can skip ahead to the quiz, or work through the unit anyway.</p>
+  <form method="post" action="/learn/{{ u.id }}/fast-track"><button class="primary" type="submit">Skip to the quiz</button></form>
+</section>
+{% endif %}
+
+<ol class="ln-steps">
+  {% for s in st.steps %}
+  <li class="ln-step {{ s.status }}">
+    <div class="ln-step-row">
+      <span class="ln-step-title">{% if s.status == "available" or s.status == "done" %}<a href="{{ s.href }}">{{ s.title }}</a>{% else %}{{ s.title }}{% endif %}</span>
+      <span class="ln-step-meta">
+        {% if s.status == "done" and s.kind and s.score is not none %}<span class="ln-mastery">{{ (s.score * 100) | round | int }}%</span>{% endif %}
+        {{ pl.pill(s.status, step_labels[s.status]) }}
+      </span>
+    </div>
+    <p class="muted ln-why">{{ s.why }}</p>
+
+    {% if s.key == "story" and s.status != "locked" %}
+    <div class="ln-extra">
+      <p class="ln-prompt">{{ prompt }}</p>
+      <div class="ln-actions">
+        <a class="button" href="/workshop/new">Open the Workshop</a>
+        {% if s.status not in ("done", "skipped") %}<form method="post" action="/learn/{{ u.id }}/done/story"><button type="submit">Mark as done</button></form>{% endif %}
+      </div>
+    </div>
+    {% elif s.key == "roleplay" and s.status != "locked" %}
+    <div class="ln-extra">
+      {% if u.roleplay_goal %}<p class="ln-prompt">Goal: {{ u.roleplay_goal }}</p>{% endif %}
+      <div class="ln-actions">
+        <a class="button" href="{{ s.href }}">{{ "Open the scenario" if u.scenario_slug else "Pick a scenario" }}</a>
+        {% if s.status not in ("done", "skipped") %}<form method="post" action="/learn/{{ u.id }}/done/roleplay"><button type="submit">Mark as done</button></form>{% endif %}
+      </div>
+    </div>
+    {% endif %}
+  </li>
+  {% endfor %}
+</ol>
+</div>
+{% endblock %}

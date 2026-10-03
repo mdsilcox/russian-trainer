@@ -1,0 +1,12 @@
+{# Shared audio controls for listening items. Expects `item`. #}
+<link rel="stylesheet" href="{{ url_for('static', path='speak.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', path='learn_listen.css') }}">
+<script src="{{ url_for('static', path='speak.js') }}" defer></script>
+<div class="listen-audio">
+  <button type="button" class="listen-play" data-speak="{{ item.audio_ru }}" aria-label="Play the audio">
+    <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l12-7.5z" fill="currentColor"/></svg>
+    <span>Play</span>
+  </button>
+  <button type="button" class="listen-slow" data-listen-slow="{{ item.audio_ru }}"
+          onclick="window.Speak && Speak.say(this.dataset.listenSlow, {rate: 0.75, el: this})">Slower</button>
+</div>

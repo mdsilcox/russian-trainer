@@ -31,24 +31,24 @@ def test_page_renders_timeline_current_month_goals_and_topics(planned):
     html = planned.get("/plan").text
     assert html.count('class="pl-station') == 12
     assert "Cases in everyday speech" in html and "this month" in html
-    assert "0 / 20" in html and "role=\"progressbar\"" in html
+    assert "pl-bar" not in html  # activity-goal bars are gone; units replace them
     assert 'href="/grammar/cases#prepositional"' in html
     assert "Drills favour these topics this month" in html
     assert "days to go" in html and "\u2014" not in html
     assert '<a href="/plan"' in planned.get("/").text
 
 
-def test_pace_is_judged_per_goal_not_averaged(planned, session):
-    for i in range(130):  # cards added target 120: over-achieved
-        session.add(Card(ru=f"word{i}", en="w", created_at=MID))
-    session.add(StudySession(date=MID.date(), completed=True))  # 1 of 20 study days
-    session.commit()
+def test_months_list_their_units_and_pace(planned, session):
+    from app.services import units
+
+    units.seed_curriculum(session)
     html = planned.get("/plan").text
-    assert "1 of 4 goals on pace" in html
-    summary = html.split("Behind on:")[1].split("</p>")[0]
-    assert "drill sets finished" in summary and "story drafts with feedback" in summary
-    assert "cards added" not in summary
-    assert "done</span>" in html and "behind</span>" in html
+    assert 'href="/learn/u01-where-you-are"' in html and "Not started" in html
+    assert "0 of 4 units passed" in html and "Units coming for this month" in html
+    u = session.get(units.Unit, "u01-where-you-are")
+    units.finish_step(session, u, "quiz", 0.9, now=MID)
+    html = planned.get("/plan").text
+    assert "1 of 4 units passed" in html and "Passed" in html
 
 
 def test_empty_state_without_trip_date(client):

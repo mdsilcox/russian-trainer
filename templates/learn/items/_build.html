@@ -1,0 +1,10 @@
+<p class="lp-type">Build the sentence</p>
+<p class="lp-prompt lp-meaning">{{ item.meaning_en }}</p>
+<div class="lp-build" data-lp-build>
+  <div class="lp-slot" data-slot aria-label="Your sentence" aria-live="polite"><span class="lp-slot-empty">Tap the words in order</span></div>
+  <div class="lp-bank" data-bank role="group" aria-label="Word tiles">
+    {% for i, tile in tiles %}<button type="button" class="lp-tile" data-i="{{ i }}" lang="ru">{{ tile }}</button>{% endfor %}
+  </div>
+  <input type="hidden" name="response" value="" data-response>
+</div>
+<noscript><p class="lp-hint">Sentence building needs JavaScript.</p></noscript>
