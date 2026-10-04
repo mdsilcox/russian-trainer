@@ -90,6 +90,8 @@ Contracts committed at 17:05Z, gate closed at 17:22:57Z (22.7 min from the phase
 
 Approved 18:10Z, contracts committed 18:19:43Z, gate closed about 18:40Z (28 min from the start at 18:12Z): 16 features, 2,425 lines of app code plus 5,285 of tests (285 ported acceptance tests), 973 tests passing.
 
+Tokens, measured afterwards from the session transcripts with `~/.claude/tools/phase_tokens.py` (fresh input plus output, 18:12 to 18:41Z): orchestrator (Opus) 240k, agents (Sonnet) 538k. This is the first phase with a measured orchestrator figure; the agent figure counts cache writes, so it is higher than the task notifications' 397k.
+
 | Step | Owner | Rounds | Agent tokens | Defects caught |
 |---|---|---|---|---|
 | Contracts; merge the Lab pilot's T-M code (cloze, weekly summary, story stats, settings editor) | Orchestrator | n/a | n/a | 8 hunks needed hand-merging (line endings, the new Contents route) |
